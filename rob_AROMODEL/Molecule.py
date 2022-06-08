@@ -1,6 +1,3 @@
-#! usr/bin/python
-
-
 # Import relevant modules
 import numpy as np
 import os
@@ -9,14 +6,15 @@ import shutil
 import time
 import random
 import glob
-# import Class structure
+
+# import aromodel classes
 import Atom
 import Bond
 import Angle
 import Dihedral
 import Improper
-import Configure
-import matplotlib.pyplot as plt
+import Configure # contains user's cluster, login, path data etc
+#from matplotlib import pyplot as plt
 import copy
 
 Element_Dict = { 12.011:"C", 1.008:"H", 18.998:"F", 15.999:"O", 32.06:"S", 14.007:"N", 28.086:"Si", 35.453:"Cl"}
@@ -45,7 +43,7 @@ class Molecule(object):
         # Define Instance Variables
         self.Name = File_Name.split('/')[-1].split('.')[0]
         self.Bond_List = []
-        self.Angle_List = []
+        self.Angle_List = [] # This needs to work
         self.Dihedral_List = []
         self.Improper_List = []
         self.Ring_List = []
@@ -54,7 +52,8 @@ class Molecule(object):
         self.Mol_ID = 0
         self.Missing_Dihedrals = 0
         self.UnConverged = True # Unconverged Orca Optimization
-        
+
+        # All this shit needs to work        
         if File_Name.split('/')[-1].split('.')[-1] != 'data' and File_Name.split('/')[-1].split('.')[0] != 'data':
             self.N = int(File_Lines[0].strip('\n')) # Integer
             self.Atom_List = np.empty(self.N, dtype=object) # Numpy object array
@@ -223,12 +222,12 @@ class Molecule(object):
                         #print "Extracting Bonds"
                         for i in range(int(Num_Bonds)):
                             Bond_Info = File_Lines[i+j+2].strip('\n').split(' ')
-                            Master = self.Atom_List[int(Bond_Info[2])-1]
-                            Slave = self.Atom_List[int(Bond_Info[3])-1]
+                            Main = self.Atom_List[int(Bond_Info[2])-1]
+                            Node = self.Atom_List[int(Bond_Info[3])-1]
                             Kb = Bond_Coeffs[int(Bond_Info[1])-1, 0]
                             Req = Bond_Coeffs[int(Bond_Info[1])-1,1]
                             Bond_ID = int(Bond_Info[0])
-                            self.Bond_List.append(Bond.Bond(Master, Slave,Req))
+                            self.Bond_List.append(Bond.Bond(Main, Node,Req))
                             self.Bond_List[i].kb = Kb
                             self.Bond_List[i].Bond_ID = Bond_ID
                             self.Bond_List[i].LAMMPS_Type = Bond_ID = int(Bond_Info[1])
@@ -236,13 +235,13 @@ class Molecule(object):
                         #print "Extracting Angles"
                         for i in range(int(Num_Angles)):
                             Angle_Info = File_Lines[i+j+2].strip('\n').split(' ')
-                            Slave1 = self.Atom_List[int(Angle_Info[2])-1]
-                            Master = self.Atom_List[int(Angle_Info[3])-1]
-                            Slave2 = self.Atom_List[int(Angle_Info[4])-1]
+                            Node1 = self.Atom_List[int(Angle_Info[2])-1]
+                            Main = self.Atom_List[int(Angle_Info[3])-1]
+                            Node2 = self.Atom_List[int(Angle_Info[4])-1]
                             Ka = Angle_Coeffs[int(Angle_Info[1])-1,0]
                             Th0 = Angle_Coeffs[int(Angle_Info[1])-1,1]
                             Angle_ID = int(Angle_Info[0])
-                            self.Angle_List.append(Angle.Angle(Master, Slave1, Slave2, Th0))
+                            self.Angle_List.append(Angle.Angle(Main, Node1, Node2, Th0))
                             self.Angle_List[i].ka = Ka
                             self.Angle_List[i].Angle_ID = Angle_ID
                             self.Angle_List[i].LAMMPS_Type = int(Angle_Info[1])
@@ -251,16 +250,16 @@ class Molecule(object):
                         #print "Extracting Dihedrals"
                         for i in range(int(Num_Dihedrals)):
                             Dihedral_Info = File_Lines[i+j+2].strip('\n').split(' ')
-                            Slave1 = self.Atom_List[int(Dihedral_Info[2])-1]
-                            Master1 = self.Atom_List[int(Dihedral_Info[3])-1]
-                            Master2 = self.Atom_List[int(Dihedral_Info[4])-1]
-                            Slave2 = self.Atom_List[int(Dihedral_Info[5])-1]
+                            Node1 = self.Atom_List[int(Dihedral_Info[2])-1]
+                            Main1 = self.Atom_List[int(Dihedral_Info[3])-1]
+                            Main2 = self.Atom_List[int(Dihedral_Info[4])-1]
+                            Node2 = self.Atom_List[int(Dihedral_Info[5])-1]
                             Coeffs = Dihedral_Coeffs[int(Dihedral_Info[1])-1]
                             #Coeffs = []
                             #Style = Dihedral_Styles[int(Dihedral_Info[1])-1]
                             Style = int(Dihedral_Info[1])
                             Dihedral_ID = int(Dihedral_Info[0])
-                            self.Dihedral_List.append(Dihedral.Dihedral(Master1, Master2, Slave1, Slave2, 0.0))
+                            self.Dihedral_List.append(Dihedral.Dihedral(Main1, Main2, Node1, Node2, 0.0))
                             self.Dihedral_List[i].Coeffs = Coeffs
                             self.Dihedral_List[i].Dihedral_ID = Dihedral_ID
                             self.Dihedral_List[i].Style = Style
@@ -270,13 +269,13 @@ class Molecule(object):
                         #print "Extracting Impropers"
                         for i in range(int(Num_Impropers)):
                             Improper_Info = File_Lines[i+j+2].strip('\n').split(' ')
-                            Master = self.Atom_List[int(Improper_Info[2])-1]
-                            Slave1 = self.Atom_List[int(Improper_Info[3])-1]
-                            Slave2 = self.Atom_List[int(Improper_Info[4])-1]
-                            Slave3 = self.Atom_List[int(Improper_Info[5])-1]
+                            Main = self.Atom_List[int(Improper_Info[2])-1]
+                            Node1 = self.Atom_List[int(Improper_Info[3])-1]
+                            Node2 = self.Atom_List[int(Improper_Info[4])-1]
+                            Node3 = self.Atom_List[int(Improper_Info[5])-1]
                             Coeff = Improper_Coeffs[int(Improper_Info[1])-1,0]
                             Improper_ID = int(Improper_Info[0])
-                            self.Improper_List.append(Improper.Improper(Master, Slave1, Slave2, Slave3, Coeff, 180.0, Improper_ID))
+                            self.Improper_List.append(Improper.Improper(Main, Node1, Node2, Node3, Coeff, 180.0, Improper_ID))
                             self.Improper_List[i].LAMMPS_Type = int(Improper_Info[1])
                             
                                 
@@ -372,7 +371,7 @@ class Molecule(object):
         if Exclude_All_Interring or Exclude_Interring_Bonds:
             Changed_Bonds = []
             for bond in self.Bond_List:
-                if bond.Bond_Master in Bond_Atoms or bond.Bond_Slave in Bond_Atoms:
+                if bond.Bond_Main in Bond_Atoms or bond.Bond_Node in Bond_Atoms:
                     Changed_Bonds.append(bond.kb)
                     bond.kb = 0.0
 
@@ -385,14 +384,14 @@ class Molecule(object):
         if Exclude_All_Interring or Exclude_Interring_Angles:
             Changed_Angles = []
             for ang in self.Angle_List:
-                if (ang.Angle_Master in Bond_Atoms and ang.Angle_Slave1 in Bond_Atoms) or (ang.Angle_Master in Bond_Atoms and ang.Angle_Slave2 in Bond_Atoms):
+                if (ang.Angle_Main in Bond_Atoms and ang.Angle_Node1 in Bond_Atoms) or (ang.Angle_Main in Bond_Atoms and ang.Angle_Node2 in Bond_Atoms):
                     Changed_Angles.append(ang.ka)
                     ang.ka = 0.0
 
         if Interring_Angles_Only:
             Changed_Angles = []
             for ang in self.Angle_List:
-                if not ((ang.Angle_Master in Bond_Atoms and ang.Angle_Slave1 in Bond_Atoms) or (ang.Angle_Master in Bond_Atoms and ang.Angle_Slave2 in Bond_Atoms)):
+                if not ((ang.Angle_Main in Bond_Atoms and ang.Angle_Node1 in Bond_Atoms) or (ang.Angle_Main in Bond_Atoms and ang.Angle_Node2 in Bond_Atoms)):
                     Changed_Angles.append(ang.ka)
                     ang.ka = 0.0
 
@@ -407,13 +406,13 @@ class Molecule(object):
                     Zero_Dih = dih.LAMMPS_Type
             for dih in self.Dihedral_List:
                 match_count = 0
-                if dih.Dihedral_Master1 in Bond_Atoms:
+                if dih.Dihedral_Main1 in Bond_Atoms:
                     match_count += 1
-                if dih.Dihedral_Master2 in Bond_Atoms:
+                if dih.Dihedral_Main2 in Bond_Atoms:
                     match_count += 1
-                if dih.Dihedral_Slave1 in Bond_Atoms:
+                if dih.Dihedral_Node1 in Bond_Atoms:
                     match_count += 1
-                if dih.Dihedral_Slave2 in Bond_Atoms:
+                if dih.Dihedral_Node2 in Bond_Atoms:
                     match_count += 1
                 if match_count >= 2:
                     Changed_Dihs.append(copy.deepcopy(dih.Coeffs))
@@ -423,7 +422,7 @@ class Molecule(object):
         if Exclude_All_Interring or Exclude_Interring_Torsions:
             Changed_Imps = []
             for imp in self.Improper_List:
-                if (imp.Improper_Master in Bond_Atoms and imp.Improper_Slave3 in Bond_Atoms):
+                if (imp.Improper_Main in Bond_Atoms and imp.Improper_Node3 in Bond_Atoms):
                     Changed_Imps.append(imp.Ki)
                     imp.Ki = 0.0
 
@@ -539,16 +538,16 @@ class Molecule(object):
             f.write("%d 1 %d %.16f %.16f %.16f %.16f %d %d %d\n" % (atom.Atom_ID,atom.LAMMPS_Type,atom.Charge,atom.Position[0],atom.Position[1],atom.Position[2],atom.Image_Flags[0],atom.Image_Flags[1],atom.Image_Flags[2]))
         f.write("\nBonds\n\n")
         for bond in self.Bond_List:
-                f.write("%d %d %d %d\n" % (bond.Bond_ID,bond.LAMMPS_Type,bond.Bond_Master.Atom_ID,bond.Bond_Slave.Atom_ID))
+                f.write("%d %d %d %d\n" % (bond.Bond_ID,bond.LAMMPS_Type,bond.Bond_Main.Atom_ID,bond.Bond_Node.Atom_ID))
         f.write("\nAngles\n\n")
         for ang in self.Angle_List:
-                f.write("%d %d %d %d %d\n" % (ang.Angle_ID,ang.LAMMPS_Type,ang.Angle_Slave1.Atom_ID,ang.Angle_Master.Atom_ID,ang.Angle_Slave2.Atom_ID))
+                f.write("%d %d %d %d %d\n" % (ang.Angle_ID,ang.LAMMPS_Type,ang.Angle_Node1.Atom_ID,ang.Angle_Main.Atom_ID,ang.Angle_Node2.Atom_ID))
         f.write("\nDihedrals\n\n")
         for dih in self.Dihedral_List:
-                f.write("%d %d %d %d %d %d\n" % (dih.Dihedral_ID,int(dih.LAMMPS_Type),dih.Dihedral_Slave1.Atom_ID,dih.Dihedral_Master1.Atom_ID,dih.Dihedral_Master2.Atom_ID,dih.Dihedral_Slave2.Atom_ID))
+                f.write("%d %d %d %d %d %d\n" % (dih.Dihedral_ID,int(dih.LAMMPS_Type),dih.Dihedral_Node1.Atom_ID,dih.Dihedral_Main1.Atom_ID,dih.Dihedral_Main2.Atom_ID,dih.Dihedral_Node2.Atom_ID))
         f.write("\nImpropers\n\n")
         for imp in self.Improper_List:
-                f.write("%d %d %d %d %d %d\n" % (imp.Improper_ID,int(imp.LAMMPS_Type),imp.Improper_Master.Atom_ID,imp.Improper_Slave1.Atom_ID,imp.Improper_Slave2.Atom_ID,imp.Improper_Slave3.Atom_ID))
+                f.write("%d %d %d %d %d %d\n" % (imp.Improper_ID,int(imp.LAMMPS_Type),imp.Improper_Main.Atom_ID,imp.Improper_Node1.Atom_ID,imp.Improper_Node2.Atom_ID,imp.Improper_Node3.Atom_ID))
         f.close()
 
         if Interring_Angles_Only:
@@ -562,14 +561,14 @@ class Molecule(object):
         if Exclude_All_Interring or Exclude_Interring_Bonds:
             i = 0
             for bond in self.Bond_List:
-                if bond.Bond_Master in Bond_Atoms or bond.Bond_Slave in Bond_Atoms:
+                if bond.Bond_Main in Bond_Atoms or bond.Bond_Node in Bond_Atoms:
                     bond.kb = Changed_Bonds[i]
                     i+=1
 
         if Exclude_All_Interring or Exclude_Interring_Angles:
             i = 0
             for ang in self.Angle_List:
-                if (ang.Angle_Master in Bond_Atoms and ang.Angle_Slave1 in Bond_Atoms) or (ang.Angle_Master in Bond_Atoms and ang.Angle_Slave2 in Bond_Atoms):
+                if (ang.Angle_Main in Bond_Atoms and ang.Angle_Node1 in Bond_Atoms) or (ang.Angle_Main in Bond_Atoms and ang.Angle_Node2 in Bond_Atoms):
                     ang.ka = Changed_Angles[i]
                     i+=1
 
@@ -577,13 +576,13 @@ class Molecule(object):
             i = 0
             for dih in self.Dihedral_List:
                 match_count = 0
-                if dih.Dihedral_Master1 in Bond_Atoms:
+                if dih.Dihedral_Main1 in Bond_Atoms:
                     match_count += 1
-                if dih.Dihedral_Master2 in Bond_Atoms:
+                if dih.Dihedral_Main2 in Bond_Atoms:
                     match_count += 1
-                if dih.Dihedral_Slave1 in Bond_Atoms:
+                if dih.Dihedral_Node1 in Bond_Atoms:
                     match_count += 1
-                if dih.Dihedral_Slave2 in Bond_Atoms:
+                if dih.Dihedral_Node2 in Bond_Atoms:
                     match_count += 1
                 if match_count >= 2:
                     dih.Coeffs = Changed_Dihs[i]
@@ -591,7 +590,7 @@ class Molecule(object):
 
             i = 0
             for imp in self.Improper_List:
-                if (imp.Improper_Master in Bond_Atoms and imp.Improper_Slave3 in Bond_Atoms):
+                if (imp.Improper_Main in Bond_Atoms and imp.Improper_Node3 in Bond_Atoms):
                     imp.Ki = Changed_Imps[i]
                     i += 1
 
@@ -606,7 +605,7 @@ class Molecule(object):
 
     def Set_Up_FF(self, run_orca=True, local= True):
         if run_orca:
-            print "Setting up Orca input script"
+            print("Setting up Orca input script")
         
             # Write Orca Input File
             File_Name = self.Name + ".inp"
@@ -636,7 +635,7 @@ class Molecule(object):
             
             
             else:
-                print "Running Orca Geometry Optimization on Comet"
+                print("Running Orca Geometry Optimization on Comet")
                 cmd = "mkdir " + Configure.Comet_Path % self.Name
                 subprocess.call(["ssh", Configure.Comet_Login, cmd])
                 subtemp = Configure.Template_Path + "sub_orca_temp"
@@ -666,17 +665,17 @@ class Molecule(object):
                     try:
                         File = open(File_Out,'r')
                         File_Lines = File.readlines()
-                        print File_Lines[-1]
+                        print(File_Lines[-1])
                         if File_Lines[-1].split(' ')[0] == "TOTAL" or self.UnConverged:
                             Finished = True
                         else:
-                            print "Not Finished"
+                            print("Not Finished")
                             i += 10
-                            print "Sleeping process", i, "Minutes"
+                            print("Sleeping process", i, "Minutes")
                             time.sleep(600)
                             self.Unconverged = True
                     except:
-                        print "Sleeping process", i, "miniutes"
+                        print("Sleeping process", i, "miniutes")
                         time.sleep(600)
                         i += 10
 
@@ -692,7 +691,7 @@ class Molecule(object):
         # Extract info from Orca output file
         Orca_File = open(File_Out, 'r')
         File_Lines = Orca_File.readlines()
-        print "Extracting Redundant Coordinates..."
+        print("Extracting Redundant Coordinates...")
         for i in range(len(File_Lines)):
             Line = File_Lines[i].strip('\n').split()
             #print Line
@@ -705,7 +704,7 @@ class Molecule(object):
                     while Redundant:
                         R_Line = File_Lines[j]
                         R_Line = R_Line.split()
-                        print R_Line
+                        print(R_Line)
                         try:
                             if int(R_Line[0].strip('.')) >= 1:
                                 j = j + 1
@@ -713,36 +712,36 @@ class Molecule(object):
                                 k += 1
                                 # Extract Bonds
                                 if Type == "B":
-                                    Master_ID = int(R_Line[2].split(',')[0])
-                                    Slave_ID = int(R_Line[3].split(')')[0])
+                                    Main_ID = int(R_Line[2].split(',')[0])
+                                    Node_ID = int(R_Line[3].split(')')[0])
                                     req = float(R_Line[-1])
-                                    self.Atom_List[Master_ID].Bond_List.append(Slave_ID + 1)
-                                    self.Atom_List[Slave_ID].Bond_List.append(Master_ID + 1)
-                                    self.Bond_List.append( Bond.Bond(self.Atom_List[Master_ID], self.Atom_List[Slave_ID], req))
+                                    self.Atom_List[Main_ID].Bond_List.append(Node_ID + 1)
+                                    self.Atom_List[Node_ID].Bond_List.append(Main_ID + 1)
+                                    self.Bond_List.append( Bond.Bond(self.Atom_List[Main_ID], self.Atom_List[Node_ID], req))
                                 # Extract Angles
                                 if Type == "A":
-                                    Master_ID = int(R_Line[3].split(',')[0])
-                                    Slave1_ID = int(R_Line[2].split(',')[0])
-                                    Slave2_ID = int(R_Line[4].split(')')[0])
+                                    Main_ID = int(R_Line[3].split(',')[0])
+                                    Node1_ID = int(R_Line[2].split(',')[0])
+                                    Node2_ID = int(R_Line[4].split(')')[0])
                                     Angle_Eq = float(R_Line[-1])
-                                    self.Angle_List.append( Angle.Angle(self.Atom_List[Master_ID], self.Atom_List[Slave1_ID], self.Atom_List[Slave2_ID], Angle_Eq))
+                                    self.Angle_List.append( Angle.Angle(self.Atom_List[Main_ID], self.Atom_List[Node1_ID], self.Atom_List[Node2_ID], Angle_Eq))
                                 if Type == "D":
-                                    Master1_ID = int(R_Line[3].split(',')[0])
-                                    Master2_ID = int(R_Line[4].split(',')[0])
-                                    Slave1_ID = int(R_Line[2].split(',')[0])
-                                    Slave2_ID = int(R_Line[5].split(')')[0])
+                                    Main1_ID = int(R_Line[3].split(',')[0])
+                                    Main2_ID = int(R_Line[4].split(',')[0])
+                                    Node1_ID = int(R_Line[2].split(',')[0])
+                                    Node2_ID = int(R_Line[5].split(')')[0])
                                     Dihedral_Eq = float(R_Line[-1])
-                                    self.Dihedral_List.append(Dihedral.Dihedral(self.Atom_List[Master1_ID],self.Atom_List[Master2_ID], self.Atom_List[Slave1_ID], self.Atom_List[Slave2_ID], Dihedral_Eq))
+                                    self.Dihedral_List.append(Dihedral.Dihedral(self.Atom_List[Main1_ID],self.Atom_List[Main2_ID], self.Atom_List[Node1_ID], self.Atom_List[Node2_ID], Dihedral_Eq))
                         except:
                             Redundant = False
                             Found = True
-                            print k
+                            print(k)
             
                 if Found:
                     break
                 
                 elif Line[0] == "Redundant" and (File_Lines[i+2].strip('\n').split()[1] == "Optimized"):
-                    print "Found redundant internal coordinates"
+                    print("Found redundant internal coordinates")
                     Redundant = True
                     j = i + 7
                     while Redundant:
@@ -754,26 +753,26 @@ class Molecule(object):
                                 Type = R_Line[1].split('(')[0]
                                 # Extract Bonds
                                 if Type == "B":
-                                    Master_ID = int(R_Line[2].split(',')[0])
-                                    Slave_ID = int(R_Line[3].split(')')[0])
+                                    Main_ID = int(R_Line[2].split(',')[0])
+                                    Node_ID = int(R_Line[3].split(')')[0])
                                     req = float(R_Line[-1])
-                                    self.Atom_List[Master_ID].Bond_List.append(Slave_ID + 1)
-                                    self.Atom_List[Slave_ID].Bond_List.append(Master_ID + 1)
-                                    self.Bond_List.append( Bond.Bond(self.Atom_List[Master_ID], self.Atom_List[Slave_ID], req))
+                                    self.Atom_List[Main_ID].Bond_List.append(Node_ID + 1)
+                                    self.Atom_List[Node_ID].Bond_List.append(Main_ID + 1)
+                                    self.Bond_List.append( Bond.Bond(self.Atom_List[Main_ID], self.Atom_List[Node_ID], req))
                                 # Extract Angles
                                 if Type == "A":
-                                    Master_ID = int(R_Line[3].split(',')[0])
-                                    Slave1_ID = int(R_Line[2].split(',')[0])
-                                    Slave2_ID = int(R_Line[4].split(')')[0])
+                                    Main_ID = int(R_Line[3].split(',')[0])
+                                    Node1_ID = int(R_Line[2].split(',')[0])
+                                    Node2_ID = int(R_Line[4].split(')')[0])
                                     Angle_Eq = float(R_Line[-1])
-                                    self.Angle_List.append( Angle.Angle(self.Atom_List[Master_ID], self.Atom_List[Slave1_ID], self.Atom_List[Slave2_ID], Angle_Eq))
+                                    self.Angle_List.append( Angle.Angle(self.Atom_List[Main_ID], self.Atom_List[Node1_ID], self.Atom_List[Node2_ID], Angle_Eq))
                                 if Type == "D":
-                                    Master1_ID = int(R_Line[3].split(',')[0])
-                                    Master2_ID = int(R_Line[4].split(',')[0])
-                                    Slave1_ID = int(R_Line[2].split(',')[0])
-                                    Slave2_ID = int(R_Line[5].split(')')[0])
+                                    Main1_ID = int(R_Line[3].split(',')[0])
+                                    Main2_ID = int(R_Line[4].split(',')[0])
+                                    Node1_ID = int(R_Line[2].split(',')[0])
+                                    Node2_ID = int(R_Line[5].split(')')[0])
                                     Dihedral_Eq = float(R_Line[-1])
-                                    self.Dihedral_List.append(Dihedral.Dihedral(self.Atom_List[Master1_ID],self.Atom_List[Master2_ID], self.Atom_List[Slave1_ID], self.Atom_List[Slave2_ID], Dihedral_Eq))
+                                    self.Dihedral_List.append(Dihedral.Dihedral(self.Atom_List[Main1_ID],self.Atom_List[Main2_ID], self.Atom_List[Node1_ID], self.Atom_List[Node2_ID], Dihedral_Eq))
                         except:
                             Redundant = False
     
@@ -815,6 +814,7 @@ class Molecule(object):
         
         return
 
+# This probably is not used
     def Simplify_Interactions(self):
         #combines same types of atoms, dihedrals, etc. The bond_coeffs list has the form lammps_type,kb,req
         #combine like atoms. Style is Lammps_type,sigma,epsilon,mass
@@ -889,298 +889,307 @@ class Molecule(object):
                 imp.LAMMPS_Type = len(Imp_Coeffs) + 1
                 Imp_Coeffs.append([len(Imp_Coeffs)+1,imp.Ki,imp.d,imp.n])
 
-    def Run_Dihedral_Scan(self, File_List):
-        Energy = []
+    """
+    This function contains broken code -- `System` and `lammps()` are not defined
 
-        for file in File_List:
-            file = open(file, 'r')
-            file = file.readlines()
-            i = 0
-            for line in file:
-                try:
-                    line = line.split()
-                    coords = np.array([float(line[1]), float(line[2]), float(line[3])])
-                    self.Atom_List[i].Position = coords
-                    i += 1
-                except:
-                    continue
-            D_Sys = System.System([self], [1], 100.0, "Dihedral")
-            D_Sys.Gen_Rand()
-            D_Sys.Write_LAMMPS_Data( Dihedral=True)
-            os.system("cp %sin.Dihedral_Energy ./" % Configure.Template_Path)
-            lmp = lammps()
-            lmp.file("in.Dihedral_Energy")
-            Output_File = open("log.lammps", 'r')
-            Output_File = Output_File.readlines()
-            for Line in Output_File:
-                try:
-                    if len(Line.split()) == 2 and float(Line.split()[0]) == float(Line.split()[1]):
-                        Energy.append(float(Line.split()[0]))
-                except:
-                    continue
+    This function seems to only be called by the Scan_Dihedrals function immediately below.
+    Scan_Dihedrals is only referenced in the file "Main.py" which doesn't seem to be used anywhere. 
+    I'm going to remove both of these for now. 
+    """
+    def wrap_placeholder():
+    # def Run_Dihedral_Scan(self, File_List):
+    #     Energy = []
 
-        Energy = np.asarray(Energy)
+    #     for file in File_List:
+    #         file = open(file, 'r')
+    #         file = file.readlines()
+    #         i = 0
+    #         for line in file:
+    #             try:
+    #                 line = line.split()
+    #                 coords = np.array([float(line[1]), float(line[2]), float(line[3])])
+    #                 self.Atom_List[i].Position = coords
+    #                 i += 1
+    #             except:
+    #                 continue
+    #         D_Sys = System.System([self], [1], 100.0, "Dihedral")
+    #         D_Sys.Gen_Rand()
+    #         D_Sys.Write_LAMMPS_Data( Dihedral=True)
+    #         os.system("cp %sin.Dihedral_Energy ./" % Configure.Template_Path)
+    #         lmp = lammps()
+    #         lmp.file("in.Dihedral_Energy")
+    #         Output_File = open("log.lammps", 'r')
+    #         Output_File = Output_File.readlines()
+    #         for Line in Output_File:
+    #             try:
+    #                 if len(Line.split()) == 2 and float(Line.split()[0]) == float(Line.split()[1]):
+    #                     Energy.append(float(Line.split()[0]))
+    #             except:
+    #                 continue
 
-        return Energy- Energy[0]
+    #     Energy = np.asarray(Energy)
+
+    #     return Energy- Energy[0]
 
 
-    def Scan_Dihedrals(self, Dihedral_Scan_List, local = False):
-        i = 0
-        for Dihedral_Angle in Dihedral_Scan_List:
-            i += 1
-            j = 0
-            for Dihedral_Obj in self.Dihedral_List:
-                Compare = [ Dihedral_Obj.Dihedral_Slave1.Atom_ID, Dihedral_Obj.Dihedral_Master1.Atom_ID, Dihedral_Obj.Dihedral_Master2.Atom_ID, Dihedral_Obj.Dihedral_Slave2.Atom_ID]
-                if sorted(Compare) == sorted(Dihedral_Angle):
-                    Dihedral_Eq = Dihedral_Obj.Dihedral_Eq
-                    Dihedral_Index = j
-                j += 1
+    # def Scan_Dihedrals(self, Dihedral_Scan_List, local = False):
+    #     i = 0
+    #     for Dihedral_Angle in Dihedral_Scan_List:
+    #         i += 1
+    #         j = 0
+    #         for Dihedral_Obj in self.Dihedral_List:
+    #             Compare = [ Dihedral_Obj.Dihedral_Node1.Atom_ID, Dihedral_Obj.Dihedral_Main1.Atom_ID, Dihedral_Obj.Dihedral_Main2.Atom_ID, Dihedral_Obj.Dihedral_Node2.Atom_ID]
+    #             if sorted(Compare) == sorted(Dihedral_Angle):
+    #                 Dihedral_Eq = Dihedral_Obj.Dihedral_Eq
+    #                 Dihedral_Index = j
+    #             j += 1
 
-            # Write Orca Input File
-            File_Name = self.Name + "_Dih_%d.inp" % i
-            File = open(File_Name, 'w')
-            #File.write('! RKS B3LYP 6-31+G** NormalSCF Opt NOSOSCF CHELPG PAL8\n\n')
-            File.write('! RKS B3LYP 6-31+G** NormalSCF Opt NOSOSCF CHELPG\n\n')
-            File.write('%scf MaxIter 500 end\n')
-            File.write('%geom Scan\n')
-            if abs(Dihedral_Eq) <= 180.0 and abs(Dihedral_Eq) >=170:
-                File.write('\tD %d %d %d %d = %.1f, %.1f, 37\n' % ( Dihedral_Angle[0]-1, Dihedral_Angle[1]-1, Dihedral_Angle[2]-1, Dihedral_Angle[3]-1, Dihedral_Eq, -Dihedral_Eq))
-                Dihedral_Angles = np.arange(-180,190,10)
-            elif abs(Dihedral_Eq) >= 0.0 and abs(Dihedral_Eq) <= 10.0:
-                File.write('\tD %d %d %d %d = %.1f, %.1f, 37\n' % ( Dihedral_Angle[0]-1, Dihedral_Angle[1]-1, Dihedral_Angle[2]-1, Dihedral_Angle[3]-1, Dihedral_Eq, 360.0))
-                Dihedral_Angles = np.arange(0,370,10)
-            else:
-                print "Error: Edit Molecule.py/Scan_Dihedrals()"
-                time.sleep(600)
-            File.write('end end\n\n')
-            File.write('*xyz 0 1\n')
-            for Atom_Obj in self.Atom_List:
-                File.write('%s %.5f %.5f %.5f\n' % ( Atom_Obj.Element, Atom_Obj.Position[0], Atom_Obj.Position[1],Atom_Obj.Position[2]))
-            File.write('*')
+    #         # Write Orca Input File
+    #         File_Name = self.Name + "_Dih_%d.inp" % i
+    #         File = open(File_Name, 'w')
+    #         #File.write('! RKS B3LYP 6-31+G** NormalSCF Opt NOSOSCF CHELPG PAL8\n\n')
+    #         File.write('! RKS B3LYP 6-31+G** NormalSCF Opt NOSOSCF CHELPG\n\n')
+    #         File.write('%scf MaxIter 500 end\n')
+    #         File.write('%geom Scan\n')
+    #         if abs(Dihedral_Eq) <= 180.0 and abs(Dihedral_Eq) >=170:
+    #             File.write('\tD %d %d %d %d = %.1f, %.1f, 37\n' % ( Dihedral_Angle[0]-1, Dihedral_Angle[1]-1, Dihedral_Angle[2]-1, Dihedral_Angle[3]-1, Dihedral_Eq, -Dihedral_Eq))
+    #             Dihedral_Angles = np.arange(-180,190,10)
+    #         elif abs(Dihedral_Eq) >= 0.0 and abs(Dihedral_Eq) <= 10.0:
+    #             File.write('\tD %d %d %d %d = %.1f, %.1f, 37\n' % ( Dihedral_Angle[0]-1, Dihedral_Angle[1]-1, Dihedral_Angle[2]-1, Dihedral_Angle[3]-1, Dihedral_Eq, 360.0))
+    #             Dihedral_Angles = np.arange(0,370,10)
+    #         else:
+    #             print "Error: Edit Molecule.py/Scan_Dihedrals()"
+    #             time.sleep(600)
+    #         File.write('end end\n\n')
+    #         File.write('*xyz 0 1\n')
+    #         for Atom_Obj in self.Atom_List:
+    #             File.write('%s %.5f %.5f %.5f\n' % ( Atom_Obj.Element, Atom_Obj.Position[0], Atom_Obj.Position[1],Atom_Obj.Position[2]))
+    #         File.write('*')
             
-            File.close()
-            Finished = False
-            File_Out = self.Name + "_Dih_%d.out" % i
-            Dihedral_Name = self.Name + "_Dih_%d" % i
+    #         File.close()
+    #         Finished = False
+    #         File_Out = self.Name + "_Dih_%d.out" % i
+    #         Dihedral_Name = self.Name + "_Dih_%d" % i
 
-            if local:
-                #Run subprocess on local machine
-                print "Running Orca on local machine"
-                os.system('pwd')
-                os.system('cd Orca')
-                os.system('mkdir ./%s' % Dihedral_Name)
-                os.system('mv %s ./%s' % (File_Name, Dihedral_Name))
-                os.system('cp %s ./%s' % (File_Out, Dihedral_Name))
-                os.chdir('./%s' % Dihedral_Name )
-                try:
-                    File = open(File_Out,'r')
-                except:
-                    os.system('/Users/andrewkleinschmidt/Library/Orca/orca %s > %s' %(File_Name, File_Out)) # Run Orca Job
+    #         if local:
+    #             #Run subprocess on local machine
+    #             print "Running Orca on local machine"
+    #             os.system('pwd')
+    #             os.system('cd Orca')
+    #             os.system('mkdir ./%s' % Dihedral_Name)
+    #             os.system('mv %s ./%s' % (File_Name, Dihedral_Name))
+    #             os.system('cp %s ./%s' % (File_Out, Dihedral_Name))
+    #             os.chdir('./%s' % Dihedral_Name )
+    #             try:
+    #                 File = open(File_Out,'r')
+    #             except:
+    #                 os.system('/Users/andrewkleinschmidt/Library/Orca/orca %s > %s' %(File_Name, File_Out)) # Run Orca Job
 
-            else:
-                print "Running Orca Dihedral Scan %d on Comet" % i
-                cmd = "mkdir " + Configure.Comet_Path % self.Name + "/Dihedral_%d" % i
-                subprocess.call(["ssh", Configure.Comet_Login, cmd])
-                subtemp = Configure.Template_Path + "sub_orca_temp"
-                submit = "submit_orca"
-                Path = Configure.Comet_Path % self.Name + "/Dihedral_%d" % i
-                # Write submit script
-                with open(subtemp) as f:
-                    template = f.read()
-                    s = template.format(Comet_Path=Path, Orca_Path = Configure.Orca_Path, name = Dihedral_Name )
-                with open(submit ,"w") as f:
-                    f.write(s)
+    #         else:
+    #             print "Running Orca Dihedral Scan %d on Comet" % i
+    #             cmd = "mkdir " + Configure.Comet_Path % self.Name + "/Dihedral_%d" % i
+    #             subprocess.call(["ssh", Configure.Comet_Login, cmd])
+    #             subtemp = Configure.Template_Path + "sub_orca_temp"
+    #             submit = "submit_orca"
+    #             Path = Configure.Comet_Path % self.Name + "/Dihedral_%d" % i
+    #             # Write submit script
+    #             with open(subtemp) as f:
+    #                 template = f.read()
+    #                 s = template.format(Comet_Path=Path, Orca_Path = Configure.Orca_Path, name = Dihedral_Name )
+    #             with open(submit ,"w") as f:
+    #                 f.write(s)
             
-                # Copy Files over  to Comet
-                Dihedral_Path = self.Name + "/Dihedral_%d" % i
+    #             # Copy Files over  to Comet
+    #             Dihedral_Path = self.Name + "/Dihedral_%d" % i
             
-                os.system( Configure.c2c % (submit, Dihedral_Path))
-                os.system( Configure.c2c % (File_Name, Dihedral_Path))
-                # Run job
-                os.system( Configure.c2l % (Dihedral_Path, File_Out))
-                try:
-                    File = open(File_Out,'r')
-                except:
-                    subprocess.call(["ssh",Configure.Comet_Login, Configure.SBATCH % (Dihedral_Path, submit)])
+    #             os.system( Configure.c2c % (submit, Dihedral_Path))
+    #             os.system( Configure.c2c % (File_Name, Dihedral_Path))
+    #             # Run job
+    #             os.system( Configure.c2l % (Dihedral_Path, File_Out))
+    #             try:
+    #                 File = open(File_Out,'r')
+    #             except:
+    #                 subprocess.call(["ssh",Configure.Comet_Login, Configure.SBATCH % (Dihedral_Path, submit)])
             
             
-                # Continuously check to see if  is finished
-                j = 0
-                while not Finished:
-                    os.system( Configure.c2l % (Dihedral_Path, File_Out))
-                    try:
-                        File = open(File_Out,'r')
-                        File_Lines = File.readlines()
-                        print File_Lines[-1]
-                        if File_Lines[-1].split(' ')[0] == "TOTAL" or self.UnConverged:
-                            Finished = True
-                        else:
-                            print "Not Finished"
-                            j += 10
-                            print "Sleeping process", j, "Minutes"
-                            time.sleep(600)
-                    except:
-                        print "Sleeping process", j, "miniutes"
-                        time.sleep(600)
-                        j  += 10
+    #             # Continuously check to see if  is finished
+    #             j = 0
+    #             while not Finished:
+    #                 os.system( Configure.c2l % (Dihedral_Path, File_Out))
+    #                 try:
+    #                     File = open(File_Out,'r')
+    #                     File_Lines = File.readlines()
+    #                     print File_Lines[-1]
+    #                     if File_Lines[-1].split(' ')[0] == "TOTAL" or self.UnConverged:
+    #                         Finished = True
+    #                     else:
+    #                         print "Not Finished"
+    #                         j += 10
+    #                         print "Sleeping process", j, "Minutes"
+    #                         time.sleep(600)
+    #                 except:
+    #                     print "Sleeping process", j, "miniutes"
+    #                     time.sleep(600)
+    #                     j  += 10
 
-                try:
-                    os.mkdir("Dihedral_%d" % i)
-                    os.chdir("Dihedral_%d" % i)
-                except:
-                    os.chdir("Dihedral_%d" % i)
+    #             try:
+    #                 os.mkdir("Dihedral_%d" % i)
+    #                 os.chdir("Dihedral_%d" % i)
+    #             except:
+    #                 os.chdir("Dihedral_%d" % i)
             
-                # Copy XYZ trajectory to working directory
-                XYZ_File = self.Name +  "_Dih_%d" % i + ".*.xyz"
+    #             # Copy XYZ trajectory to working directory
+    #             XYZ_File = self.Name +  "_Dih_%d" % i + ".*.xyz"
             
 
-                os.system( Configure.c2l % (Dihedral_Path, XYZ_File))
+    #             os.system( Configure.c2l % (Dihedral_Path, XYZ_File))
             
-            XYZ_File = self.Name +  "_Dih_%d" % i + ".*.xyz"
-            File_List = glob.glob(XYZ_File)
-            Traj_File = open('Traj.xyz', 'w')
-            # Concatenate files
-            for File in File_List:
-                File_Obj = open(File, 'r')
-                File_Lines = File_Obj.readlines()
-                for Line in File_Lines:
-                    Traj_File.write(Line)
-                index = int(File.split('.')[1].strip('0'))
-                if index < 37 and File_Lines[-1] != ">\n":
-                    Traj_File.write('>\n')
+    #         XYZ_File = self.Name +  "_Dih_%d" % i + ".*.xyz"
+    #         File_List = glob.glob(XYZ_File)
+    #         Traj_File = open('Traj.xyz', 'w')
+    #         # Concatenate files
+    #         for File in File_List:
+    #             File_Obj = open(File, 'r')
+    #             File_Lines = File_Obj.readlines()
+    #             for Line in File_Lines:
+    #                 Traj_File.write(Line)
+    #             index = int(File.split('.')[1].strip('0'))
+    #             if index < 37 and File_Lines[-1] != ">\n":
+    #                 Traj_File.write('>\n')
                         
-            Traj_File.close()
-            MP2_Name = "MP2"
+    #         Traj_File.close()
+    #         MP2_Name = "MP2"
             
-            if local == True:
-                os.system('pwd')
-                os.system('cp %s ./' % (Configure.Template_Path + "MP2.inp"))
-                File_Name = "MP2.inp"
-                File_Out = "MP2.out"
-                try:
-                    File = open(File_Out,'r')
-                    print "Found File"
-                except:
-                    print "submitted job"
-                    os.system('/Users/andrewkleinschmidt/Library/Orca/orca %s > %s' %(File_Name, File_Out)) # Run Orca Job
+    #         if local == True:
+    #             os.system('pwd')
+    #             os.system('cp %s ./' % (Configure.Template_Path + "MP2.inp"))
+    #             File_Name = "MP2.inp"
+    #             File_Out = "MP2.out"
+    #             try:
+    #                 File = open(File_Out,'r')
+    #                 print "Found File"
+    #             except:
+    #                 print "submitted job"
+    #                 os.system('/Users/andrewkleinschmidt/Library/Orca/orca %s > %s' %(File_Name, File_Out)) # Run Orca Job
                     
-            else:
-                # Prepare new submit script
-                with open(subtemp) as f:
-                    template = f.read()
-                    s = template.format(Comet_Path=Path, Orca_Path = Configure.Orca_Path, name= MP2_Name)
-                with open(submit, "w") as f:
-                    f.write(s)
+    #         else:
+    #             # Prepare new submit script
+    #             with open(subtemp) as f:
+    #                 template = f.read()
+    #                 s = template.format(Comet_Path=Path, Orca_Path = Configure.Orca_Path, name= MP2_Name)
+    #             with open(submit, "w") as f:
+    #                 f.write(s)
 
-                # Copy over to comet
-                os.system( Configure.c2c % (submit, Dihedral_Path))
-                os.system( Configure.c2c % ("Traj.xyz", Dihedral_Path))
-                os.system( Configure.c2c % (Configure.Template_Path + "MP2.inp", Dihedral_Path))
-                File_Out = "MP2.out"
-                os.system( Configure.c2l % (Dihedral_Path, File_Out))
+    #             # Copy over to comet
+    #             os.system( Configure.c2c % (submit, Dihedral_Path))
+    #             os.system( Configure.c2c % ("Traj.xyz", Dihedral_Path))
+    #             os.system( Configure.c2c % (Configure.Template_Path + "MP2.inp", Dihedral_Path))
+    #             File_Out = "MP2.out"
+    #             os.system( Configure.c2l % (Dihedral_Path, File_Out))
 
-                # Run Job
-                try:
-                    File = open(File_Out,'r')
-                except:
-                    subprocess.call(["ssh",Configure.Comet_Login, Configure.SBATCH % (Dihedral_Path, submit)])
+    #             # Run Job
+    #             try:
+    #                 File = open(File_Out,'r')
+    #             except:
+    #                 subprocess.call(["ssh",Configure.Comet_Login, Configure.SBATCH % (Dihedral_Path, submit)])
 
-                # Continuously check to see if job is finished
-                j = 0
-                Finished = False
-                while not Finished:
-                    os.system( Configure.c2l % (Dihedral_Path, File_Out))
-                    try:
-                        File = open(File_Out,'r')
-                        File_Lines = File.readlines()
-                        print File_Lines[-1]
-                        if File_Lines[-1].split(' ')[0] == "TOTAL":
-                            print "Found Last Line"
-                            Finished = True
-                        else:
-                            print "Not Finished"
-                            j += 10
-                            print "Sleeping process", j, "Minutes"
-                            time.sleep(600)
-                    except:
-                        print "Sleeping process", j, "miniutes"
-                        time.sleep(600)
-                        j  += 10
+    #             # Continuously check to see if job is finished
+    #             j = 0
+    #             Finished = False
+    #             while not Finished:
+    #                 os.system( Configure.c2l % (Dihedral_Path, File_Out))
+    #                 try:
+    #                     File = open(File_Out,'r')
+    #                     File_Lines = File.readlines()
+    #                     print File_Lines[-1]
+    #                     if File_Lines[-1].split(' ')[0] == "TOTAL":
+    #                         print "Found Last Line"
+    #                         Finished = True
+    #                     else:
+    #                         print "Not Finished"
+    #                         j += 10
+    #                         print "Sleeping process", j, "Minutes"
+    #                         time.sleep(600)
+    #                 except:
+    #                     print "Sleeping process", j, "miniutes"
+    #                     time.sleep(600)
+    #                     j  += 10
             
-            #Copy back over output and store the results for the MP2 relaxed energy scan
+    #         #Copy back over output and store the results for the MP2 relaxed energy scan
             
-            File = open("MP2.out", 'r')
-            Found = False
-            Dihedral_MP2_Energy = np.zeros(37, dtype=float)
-            i = 0
-            for line in File:
-                if Found and i < 37:
-                    Dihedral_MP2_Energy[i] = float(line.split()[1])
-                    i += 1
+    #         File = open("MP2.out", 'r')
+    #         Found = False
+    #         Dihedral_MP2_Energy = np.zeros(37, dtype=float)
+    #         i = 0
+    #         for line in File:
+    #             if Found and i < 37:
+    #                 Dihedral_MP2_Energy[i] = float(line.split()[1])
+    #                 i += 1
             
                 
-                if line.split() == ['The', 'Calculated', 'Surface', 'using', 'the', 'MP2', 'energy']:
-                    Found = True
+    #             if line.split() == ['The', 'Calculated', 'Surface', 'using', 'the', 'MP2', 'energy']:
+    #                 Found = True
                 
 
-            Dihedral_MP2_Energy = (Dihedral_MP2_Energy - Dihedral_MP2_Energy[0])*630
-            OPLS_Energy = self.Run_Dihedral_Scan(self, File_List)
+    #         Dihedral_MP2_Energy = (Dihedral_MP2_Energy - Dihedral_MP2_Energy[0])*630
+    #         OPLS_Energy = self.Run_Dihedral_Scan(self, File_List)
             
-            """
-            plt.xlim((Dihedral_Angles[0], Dihedral_Angles[-1]))
-            plt.plot(Dihedral_Angles, Dihedral_MP2_Energy, label = "MP2")
+    #         """
+    #         plt.xlim((Dihedral_Angles[0], Dihedral_Angles[-1]))
+    #         plt.plot(Dihedral_Angles, Dihedral_MP2_Energy, label = "MP2")
             
-            plt.ylim((min(Dihedral_MP2_Energy), max(Dihedral_MP2_Energy)))
-            plt.ylabel('Relative Energy (kcal/mol)')
-            plt.xlabel('Dihedral Angle (Degrees)')
-            plt.legend()
-            plt.show()
+    #         plt.ylim((min(Dihedral_MP2_Energy), max(Dihedral_MP2_Energy)))
+    #         plt.ylabel('Relative Energy (kcal/mol)')
+    #         plt.xlabel('Dihedral Angle (Degrees)')
+    #         plt.legend()
+    #         plt.show()
             
-            plt.plot(Dihedral_Angles, OPLS_Energy, label = "OPLS")
-            plt.ylabel('Relative Energy (kcal/mol)')
-            plt.xlabel('Dihedral Angle (Degrees)')
-            plt.xlim((Dihedral_Angles[0], Dihedral_Angles[-1]))
-            plt.legend()
-            plt.show()
-            """
-            Dihedral_Corrected = Dihedral_MP2_Energy - OPLS_Energy
-            Dihedral_Radians = Dihedral_Angles*(3.14/180.0)
-            self.Dihedral_List[Dihedral_Index].Fit_Parameters( Dihedral_Corrected, Dihedral_Radians)
+    #         plt.plot(Dihedral_Angles, OPLS_Energy, label = "OPLS")
+    #         plt.ylabel('Relative Energy (kcal/mol)')
+    #         plt.xlabel('Dihedral Angle (Degrees)')
+    #         plt.xlim((Dihedral_Angles[0], Dihedral_Angles[-1]))
+    #         plt.legend()
+    #         plt.show()
+    #         """
+    #         Dihedral_Corrected = Dihedral_MP2_Energy - OPLS_Energy
+    #         Dihedral_Radians = Dihedral_Angles*(3.14/180.0)
+    #         self.Dihedral_List[Dihedral_Index].Fit_Parameters( Dihedral_Corrected, Dihedral_Radians)
           
-            """
-            plt.plot(Dihedral_Angles, OPLS_Energy, label = "OPLS")
-            plt.ylabel('Relative Energy (kcal/mol)')
-            plt.xlabel('Dihedral Angle (Degrees)')
-            plt.xlim((Dihedral_Angles[0], Dihedral_Angles[-1]))
-            plt.legend()
-            plt.show()
-            """
+    #         """
+    #         plt.plot(Dihedral_Angles, OPLS_Energy, label = "OPLS")
+    #         plt.ylabel('Relative Energy (kcal/mol)')
+    #         plt.xlabel('Dihedral Angle (Degrees)')
+    #         plt.xlim((Dihedral_Angles[0], Dihedral_Angles[-1]))
+    #         plt.legend()
+    #         plt.show()
+    #         """
 
-            os.chdir("..")
+    #         os.chdir("..")
                 
 
+    #     return
         return
 
     def Relink(self):
         for bond in self.Bond_List:
-            bond.Bond_Master = self.Get_Atom(bond.Bond_Master.Atom_ID)
-            bond.Bond_Slave = self.Get_Atom(bond.Bond_Slave.Atom_ID)
+            bond.Bond_Main = self.Get_Atom(bond.Bond_Main.Atom_ID)
+            bond.Bond_Node = self.Get_Atom(bond.Bond_Node.Atom_ID)
         for angle in self.Angle_List:
-            angle.Angle_Master = self.Get_Atom(angle.Angle_Master.Atom_ID)
-            angle.Angle_Slave1 = self.Get_Atom(angle.Angle_Slave1.Atom_ID)
-            angle.Angle_Slave2 = self.Get_Atom(angle.Angle_Slave2.Atom_ID)
+            angle.Angle_Main = self.Get_Atom(angle.Angle_Main.Atom_ID)
+            angle.Angle_Node1 = self.Get_Atom(angle.Angle_Node1.Atom_ID)
+            angle.Angle_Node2 = self.Get_Atom(angle.Angle_Node2.Atom_ID)
         for dih in self.Dihedral_List:
-            dih.Dihedral_Master1 = self.Get_Atom(dih.Dihedral_Master1.Atom_ID)
-            dih.Dihedral_Master2 = self.Get_Atom(dih.Dihedral_Master2.Atom_ID)
-            dih.Dihedral_Slave1 = self.Get_Atom(dih.Dihedral_Slave1.Atom_ID)
-            dih.Dihedral_Slave2 = self.Get_Atom(dih.Dihedral_Slave2.Atom_ID)
+            dih.Dihedral_Main1 = self.Get_Atom(dih.Dihedral_Main1.Atom_ID)
+            dih.Dihedral_Main2 = self.Get_Atom(dih.Dihedral_Main2.Atom_ID)
+            dih.Dihedral_Node1 = self.Get_Atom(dih.Dihedral_Node1.Atom_ID)
+            dih.Dihedral_Node2 = self.Get_Atom(dih.Dihedral_Node2.Atom_ID)
         for imp in self.Improper_List:
-            imp.Improper_Master = self.Get_Atom(imp.Improper_Master.Atom_ID)
-            imp.Improper_Slave1 = self.Get_Atom(imp.Improper_Slave1.Atom_ID)
-            imp.Improper_Slave2 = self.Get_Atom(imp.Improper_Slave2.Atom_ID)
-            imp.Improper_Slave3 = self.Get_Atom(imp.Improper_Slave3.Atom_ID)
+            imp.Improper_Main = self.Get_Atom(imp.Improper_Main.Atom_ID)
+            imp.Improper_Node1 = self.Get_Atom(imp.Improper_Node1.Atom_ID)
+            imp.Improper_Node2 = self.Get_Atom(imp.Improper_Node2.Atom_ID)
+            imp.Improper_Node3 = self.Get_Atom(imp.Improper_Node3.Atom_ID)
 
-
+# This needs to work
     def Get_Atom(self,Atom_ID):
         ID = -1
         for i,atom in enumerate(self.Atom_List):
@@ -1224,102 +1233,102 @@ class Molecule(object):
                             atom2.Position[2] += -1*Box_Size
 # Functions Operating on sets of Molecule objects
 
-def Assign_Lammps(Moltemp_List):
-    """
-        Function that inputs a list of molecule templates. It searches through all the atoms, bonds, angles etc. to find the unique types of interactions
-        present in an arbitrary system object made  of molecule templates.
-        
-        returns a list of unique params for writing to a LAMMPS data file. these are lists defined such that the i-1 element corresponds to the ith LAMMPS_Type
-    """
+    def Assign_Lammps(Moltemp_List):
+        """
+            Function that inputs a list of molecule templates. It searches through all the atoms, bonds, angles etc. to find the unique types of interactions
+            present in an arbitrary system object made  of molecule templates.
+            
+            returns a list of unique params for writing to a LAMMPS data file. these are lists defined such that the i-1 element corresponds to the ith LAMMPS_Type
+        """
 
-    Unique_Atoms = []
-    Atom_Params = []
-    for Moltemp_Obj in Moltemp_List:
-        for Atom_Obj in Moltemp_Obj.Atom_List:
-            i = 1
-            for Type in Unique_Atoms:
-                #if Atom_Obj.OPLS_Type != Type: #replaced 2/7/22
-                if Atom_Obj.Element != Type[0] or Atom_Obj.Sigma != Type[1] or Atom_Obj.Epsilon != Type[2]:
-                    i += 1
-                #if Atom_Obj.OPLS_Type == Type: #replaced 2/7/22
-                else:
-                    Atom_Obj.LAMMPS_Type = i
-            if i > len(Unique_Atoms):
-                #Unique_Atoms.append(Atom_Obj.OPLS_Type) #replaced 2/7/22
-                Unique_Atoms.append([Atom_Obj.Element, Atom_Obj.Sigma, Atom_Obj.Epsilon])
-                Atom_Params.append([Atom_Obj.Mass, Atom_Obj.Sigma, Atom_Obj.Epsilon])
-                Atom_Obj.LAMMPS_Type = i
-
-    Bond_Params = []
-    for Moltemp_Obj in Moltemp_List:
-        for Bond_Obj in Moltemp_Obj.Bond_List:
-            i = 1
-            for Params in Bond_Params:
-                if Params[0] != Bond_Obj.kb or Params[1] != Bond_Obj.req:
-                    i += 1
-                if Params[0] == Bond_Obj.kb and Params[1] == Bond_Obj.req:
-                    Bond_Obj.LAMMPS_Type = i
-            if i > len(Bond_Params):
-                Bond_Params.append([Bond_Obj.kb, Bond_Obj.req])
-                Bond_Obj.LAMMPS_Type = i
-
-    Angle_Params = []
-    for Moltemp_Obj in Moltemp_List:
-        for Angle_Obj in Moltemp_Obj.Angle_List:
-            i = 1
-            for Params in Angle_Params:
-                if Params[0] != Angle_Obj.ka or Params[1] != Angle_Obj.Angle_Eq:
-                    i += 1
-                if Params[0] == Angle_Obj.ka and Params[1] == Angle_Obj.Angle_Eq:
-                    Angle_Obj.LAMMPS_Type = i
-            if i > len(Angle_Params):
-                Angle_Params.append([Angle_Obj.ka, Angle_Obj.Angle_Eq])
-                Angle_Obj.LAMMPS_Type = i
-
-    Dihedral_Params = []
-    for Moltemp_Obj in Moltemp_List:
-        for Dihedral_Obj in Moltemp_Obj.Dihedral_List:
-            i = 1
-            for Params in Dihedral_Params:
-                if len(Dihedral_Obj.Coeffs) != len(Params[0]):
-                    i += 1
-                else:
-                    Match_Check = 0
-                    for j in range(len(Dihedral_Obj.Coeffs)):
-                        if Dihedral_Obj.Coeffs[j] != Params[0][j]:
-                            Match_Check = 1
-                            break
-                    if Match_Check == 1:
-                        i+=1
+        Unique_Atoms = []
+        Atom_Params = []
+        for Moltemp_Obj in Moltemp_List:
+            for Atom_Obj in Moltemp_Obj.Atom_List:
+                i = 1
+                for Type in Unique_Atoms:
+                    #if Atom_Obj.OPLS_Type != Type: #replaced 2/7/22
+                    if Atom_Obj.Element != Type[0] or Atom_Obj.Sigma != Type[1] or Atom_Obj.Epsilon != Type[2]:
+                        i += 1
+                    #if Atom_Obj.OPLS_Type == Type: #replaced 2/7/22
                     else:
-                        Dihedral_Obj.LAMMPS_Type = i
-                """if Dihedral_Obj.Coeffs[0] != Params[0] or Dihedral_Obj.Coeffs[1] != Params[1] or Dihedral_Obj.Coeffs[2] != Params[2] or Dihedral_Obj.Coeffs[3] != Params[3] or Dihedral_Obj.Coeffs[4] != Params[4] or Dihedral_Obj.Coeffs[5] != Params[5] or Dihedral_Obj.Coeffs[6] != Params[6] or Dihedral_Obj.Coeffs[7] != Params[7] or Dihedral_Obj.Coeffs[8] != Params[8]:
-                    i += 1
-                if Dihedral_Obj.Coeffs[0] == Params[0] and Dihedral_Obj.Coeffs[1] == Params[1] and Dihedral_Obj.Coeffs[2] == Params[2] and Dihedral_Obj.Coeffs[3] == Params[3] and Dihedral_Obj.Coeffs[4] == Params[4] and Dihedral_Obj.Coeffs[5] == Params[5] and Dihedral_Obj.Coeffs[6] == Params[6] and Dihedral_Obj.Coeffs[7] == Params[7] and Dihedral_Obj.Coeffs[8] == Params[8]:
-                    Dihedral_Obj.LAMMPS_Type = i"""
-            if i > len(Dihedral_Params):
-                Dihedral_Params.append((Dihedral_Obj.Coeffs,Dihedral_Obj.Style))
-                Dihedral_Obj.LAMMPS_Type = i
+                        Atom_Obj.LAMMPS_Type = i
+                if i > len(Unique_Atoms):
+                    #Unique_Atoms.append(Atom_Obj.OPLS_Type) #replaced 2/7/22
+                    Unique_Atoms.append([Atom_Obj.Element, Atom_Obj.Sigma, Atom_Obj.Epsilon])
+                    Atom_Params.append([Atom_Obj.Mass, Atom_Obj.Sigma, Atom_Obj.Epsilon])
+                    Atom_Obj.LAMMPS_Type = i
 
-    Improper_Params = []
-    for Moltemp_Obj in Moltemp_List:
-        for Improper_Obj in Moltemp_Obj.Improper_List:
-            i = 1
-            for Params in Improper_Params:
-                if Improper_Obj.Ki != Params[0] or Improper_Obj.Improper_Eq != Params[1]:
-                    i += 1
-                else:
-                    Improper_Obj.LAMMPS_Type = i
-            try:
-                if i > len(Improper_Params):
-                    Improper_Params.append([Improper_Obj.Ki, Improper_Obj.Improper_Eq])
-                    Improper_Obj.LAMMPS_Type = i
-            except:
-                continue
-        
+        Bond_Params = []
+        for Moltemp_Obj in Moltemp_List:
+            for Bond_Obj in Moltemp_Obj.Bond_List:
+                i = 1
+                for Params in Bond_Params:
+                    if Params[0] != Bond_Obj.kb or Params[1] != Bond_Obj.req:
+                        i += 1
+                    if Params[0] == Bond_Obj.kb and Params[1] == Bond_Obj.req:
+                        Bond_Obj.LAMMPS_Type = i
+                if i > len(Bond_Params):
+                    Bond_Params.append([Bond_Obj.kb, Bond_Obj.req])
+                    Bond_Obj.LAMMPS_Type = i
+
+        Angle_Params = []
+        for Moltemp_Obj in Moltemp_List:
+            for Angle_Obj in Moltemp_Obj.Angle_List:
+                i = 1
+                for Params in Angle_Params:
+                    if Params[0] != Angle_Obj.ka or Params[1] != Angle_Obj.Angle_Eq:
+                        i += 1
+                    if Params[0] == Angle_Obj.ka and Params[1] == Angle_Obj.Angle_Eq:
+                        Angle_Obj.LAMMPS_Type = i
+                if i > len(Angle_Params):
+                    Angle_Params.append([Angle_Obj.ka, Angle_Obj.Angle_Eq])
+                    Angle_Obj.LAMMPS_Type = i
+
+        Dihedral_Params = []
+        for Moltemp_Obj in Moltemp_List:
+            for Dihedral_Obj in Moltemp_Obj.Dihedral_List:
+                i = 1
+                for Params in Dihedral_Params:
+                    if len(Dihedral_Obj.Coeffs) != len(Params[0]):
+                        i += 1
+                    else:
+                        Match_Check = 0
+                        for j in range(len(Dihedral_Obj.Coeffs)):
+                            if Dihedral_Obj.Coeffs[j] != Params[0][j]:
+                                Match_Check = 1
+                                break
+                        if Match_Check == 1:
+                            i+=1
+                        else:
+                            Dihedral_Obj.LAMMPS_Type = i
+                    """if Dihedral_Obj.Coeffs[0] != Params[0] or Dihedral_Obj.Coeffs[1] != Params[1] or Dihedral_Obj.Coeffs[2] != Params[2] or Dihedral_Obj.Coeffs[3] != Params[3] or Dihedral_Obj.Coeffs[4] != Params[4] or Dihedral_Obj.Coeffs[5] != Params[5] or Dihedral_Obj.Coeffs[6] != Params[6] or Dihedral_Obj.Coeffs[7] != Params[7] or Dihedral_Obj.Coeffs[8] != Params[8]:
+                        i += 1
+                    if Dihedral_Obj.Coeffs[0] == Params[0] and Dihedral_Obj.Coeffs[1] == Params[1] and Dihedral_Obj.Coeffs[2] == Params[2] and Dihedral_Obj.Coeffs[3] == Params[3] and Dihedral_Obj.Coeffs[4] == Params[4] and Dihedral_Obj.Coeffs[5] == Params[5] and Dihedral_Obj.Coeffs[6] == Params[6] and Dihedral_Obj.Coeffs[7] == Params[7] and Dihedral_Obj.Coeffs[8] == Params[8]:
+                        Dihedral_Obj.LAMMPS_Type = i"""
+                if i > len(Dihedral_Params):
+                    Dihedral_Params.append((Dihedral_Obj.Coeffs,Dihedral_Obj.Style))
+                    Dihedral_Obj.LAMMPS_Type = i
+
+        Improper_Params = []
+        for Moltemp_Obj in Moltemp_List:
+            for Improper_Obj in Moltemp_Obj.Improper_List:
+                i = 1
+                for Params in Improper_Params:
+                    if Improper_Obj.Ki != Params[0] or Improper_Obj.Improper_Eq != Params[1]:
+                        i += 1
+                    else:
+                        Improper_Obj.LAMMPS_Type = i
+                try:
+                    if i > len(Improper_Params):
+                        Improper_Params.append([Improper_Obj.Ki, Improper_Obj.Improper_Eq])
+                        Improper_Obj.LAMMPS_Type = i
+                except:
+                    continue
+            
 
 
-    return Atom_Params, Bond_Params, Angle_Params, Dihedral_Params, Improper_Params
+        return Atom_Params, Bond_Params, Angle_Params, Dihedral_Params, Improper_Params
 
-def exponential(L,P):
-    return np.exp(L/P)
+    def exponential(L,P):
+        return np.exp(L/P)

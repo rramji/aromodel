@@ -1,5 +1,3 @@
-#! usr/bin/python
-
 # Open relevant modules
 
 import Bond
@@ -171,16 +169,16 @@ class Ring(Molecule.Molecule):
             if atom.Atom_ID > Atom_List_Length:
                 self.Atom_List.remove(atom)
         for bond in self.Bond_List[::-1]:
-            if bond.Bond_Master.Atom_ID > Atom_List_Length or bond.Bond_Slave.Atom_ID > Atom_List_Length:
+            if bond.Bond_Main.Atom_ID > Atom_List_Length or bond.Bond_Node.Atom_ID > Atom_List_Length:
                 self.Bond_List.remove(bond)
         for angle in self.Angle_List[::-1]:
-            if angle.Angle_Master.Atom_ID > Atom_List_Length or angle.Angle_Slave1.Atom_ID > Atom_List_Length or angle.Angle_Slave2.Atom_ID > Atom_List_Length:
+            if angle.Angle_Main.Atom_ID > Atom_List_Length or angle.Angle_Node1.Atom_ID > Atom_List_Length or angle.Angle_Node2.Atom_ID > Atom_List_Length:
                 self.Angle_List.remove(angle)
         for dih in self.Dihedral_List[::-1]:
-            if dih.Dihedral_Master1.Atom_ID > Atom_List_Length or dih.Dihedral_Master2.Atom_ID > Atom_List_Length or dih.Dihedral_Slave1.Atom_ID > Atom_List_Length or dih.Dihedral_Slave2.Atom_ID > Atom_List_Length:
+            if dih.Dihedral_Main1.Atom_ID > Atom_List_Length or dih.Dihedral_Main2.Atom_ID > Atom_List_Length or dih.Dihedral_Node1.Atom_ID > Atom_List_Length or dih.Dihedral_Node2.Atom_ID > Atom_List_Length:
                 self.Dihedral_List.remove(dih)
         for imp in self.Improper_List[::-1]:
-            if imp.Improper_Master.Atom_ID > Atom_List_Length or imp.Improper_Slave3.Atom_ID > Atom_List_Length or imp.Improper_Slave1.Atom_ID > Atom_List_Length or imp.Improper_Slave2.Atom_ID > Atom_List_Length:
+            if imp.Improper_Main.Atom_ID > Atom_List_Length or imp.Improper_Node3.Atom_ID > Atom_List_Length or imp.Improper_Node1.Atom_ID > Atom_List_Length or imp.Improper_Node2.Atom_ID > Atom_List_Length:
                 self.Improper_List.remove(imp)
 
     def Update_Positions_Orca_Output_Hydrogenated(self,Orca_Output_File):
@@ -207,22 +205,22 @@ class Ring(Molecule.Molecule):
 
     def Relink(self):
         for bond in self.Bond_List:
-            bond.Bond_Master = self.Get_Atom(bond.Bond_Master.Atom_ID)
-            bond.Bond_Slave = self.Get_Atom(bond.Bond_Slave.Atom_ID)
+            bond.Bond_Main = self.Get_Atom(bond.Bond_Main.Atom_ID)
+            bond.Bond_Node = self.Get_Atom(bond.Bond_Node.Atom_ID)
         for angle in self.Angle_List:
-            angle.Angle_Master = self.Get_Atom(angle.Angle_Master.Atom_ID)
-            angle.Angle_Slave1 = self.Get_Atom(angle.Angle_Slave1.Atom_ID)
-            angle.Angle_Slave2 = self.Get_Atom(angle.Angle_Slave2.Atom_ID)
+            angle.Angle_Main = self.Get_Atom(angle.Angle_Main.Atom_ID)
+            angle.Angle_Node1 = self.Get_Atom(angle.Angle_Node1.Atom_ID)
+            angle.Angle_Node2 = self.Get_Atom(angle.Angle_Node2.Atom_ID)
         for dih in self.Dihedral_List:
-            dih.Dihedral_Master1 = self.Get_Atom(dih.Dihedral_Master1.Atom_ID)
-            dih.Dihedral_Master2 = self.Get_Atom(dih.Dihedral_Master2.Atom_ID)
-            dih.Dihedral_Slave1 = self.Get_Atom(dih.Dihedral_Slave1.Atom_ID)
-            dih.Dihedral_Slave2 = self.Get_Atom(dih.Dihedral_Slave2.Atom_ID)
+            dih.Dihedral_Main1 = self.Get_Atom(dih.Dihedral_Main1.Atom_ID)
+            dih.Dihedral_Main2 = self.Get_Atom(dih.Dihedral_Main2.Atom_ID)
+            dih.Dihedral_Node1 = self.Get_Atom(dih.Dihedral_Node1.Atom_ID)
+            dih.Dihedral_Node2 = self.Get_Atom(dih.Dihedral_Node2.Atom_ID)
         for imp in self.Improper_List:
-            imp.Improper_Master = self.Get_Atom(imp.Improper_Master.Atom_ID)
-            imp.Improper_Slave1 = self.Get_Atom(imp.Improper_Slave1.Atom_ID)
-            imp.Improper_Slave2 = self.Get_Atom(imp.Improper_Slave2.Atom_ID)
-            imp.Improper_Slave3 = self.Get_Atom(imp.Improper_Slave3.Atom_ID)
+            imp.Improper_Main = self.Get_Atom(imp.Improper_Main.Atom_ID)
+            imp.Improper_Node1 = self.Get_Atom(imp.Improper_Node1.Atom_ID)
+            imp.Improper_Node2 = self.Get_Atom(imp.Improper_Node2.Atom_ID)
+            imp.Improper_Node3 = self.Get_Atom(imp.Improper_Node3.Atom_ID)
         for b_atom in self.Bonded_Atoms:
             print(len(b_atom.Same_Ring_Bonded_Atom_List))
             b_atom.Central_Atom = self.Get_Atom(b_atom.Central_Atom.Atom_ID)
@@ -255,14 +253,14 @@ class Ring(Molecule.Molecule):
             if read_bonds and len(line.strip().split()) >= 1:
                 for bond in line.strip().split("B("):
                     if len(bond.strip().split()) >= 3 and float(bond.strip().split()[-1]) > 0.5:
-                        Master_ID = int(bond.strip().split()[0].split('-')[0]) + 1
-                        if any(atom.Atom_ID == Master_ID for atom in self.Atom_List):
-                            Master_Atom = self.Get_Atom(Master_ID)
-                            Slave_ID = int(bond.strip().split(',')[1].split()[0].split('-')[0].strip(")")) + 1
-                            if any(atom.Atom_ID == Slave_ID for atom in self.Atom_List):
-                                Slave_Atom = self.Get_Atom(Slave_ID)
-                                req = np.linalg.norm(Master_Atom.Position - Slave_Atom.Position)
-                                self.Bond_List.append(Bond.Bond(Master_Atom,Slave_Atom,req))
+                        Main_ID = int(bond.strip().split()[0].split('-')[0]) + 1
+                        if any(atom.Atom_ID == Main_ID for atom in self.Atom_List):
+                            Main_Atom = self.Get_Atom(Main_ID)
+                            Node_ID = int(bond.strip().split(',')[1].split()[0].split('-')[0].strip(")")) + 1
+                            if any(atom.Atom_ID == Node_ID for atom in self.Atom_List):
+                                Node_Atom = self.Get_Atom(Node_ID)
+                                req = np.linalg.norm(Main_Atom.Position - Node_Atom.Position)
+                                self.Bond_List.append(Bond.Bond(Main_Atom,Node_Atom,req))
             elif read_bonds:
                 read_bonds = False
             if len(line.strip().split()) >= 3 and line.strip().split()[0] == "Mayer" and line.strip().split()[1] == "bond" and line.strip().split()[2] == "orders":
@@ -336,12 +334,12 @@ class Ring(Molecule.Molecule):
         for atom in self.Atom_List:
             f.write("%d %s %.4f %.4f %.4f" % ())"""
         """for bond in self.Bond_List:
-            if bond.Bond_Master.Element == "H" and bond.Bond_Slave in self.Core_Atom_List:
-                Aromatic_H_List.append(bond.Bond_Master)
-                Aromatic_C_List.append(bond.Bond_Slave)
-            elif bond.Bond_Slave.Element == "H" and bond.Bond_Master in self.Core_Atom_List:
-                Aromatic_H_List.append(bond.Bond_Slave)
-                Aromatic_C_List.append(bond.Bond_Master)
+            if bond.Bond_Main.Element == "H" and bond.Bond_Node in self.Core_Atom_List:
+                Aromatic_H_List.append(bond.Bond_Main)
+                Aromatic_C_List.append(bond.Bond_Node)
+            elif bond.Bond_Node.Element == "H" and bond.Bond_Main in self.Core_Atom_List:
+                Aromatic_H_List.append(bond.Bond_Node)
+                Aromatic_C_List.append(bond.Bond_Main)
 
         for i,h_atom,c_atom in zip(range(len(Aromatic_H_List)),Aromatic_H_List,Aromatic_C_List):
             self.Atom_List.remove(h_atom)
@@ -587,10 +585,10 @@ class Ring(Molecule.Molecule):
     def Add_Bond_List(self):
         for atom in self.Atom_List:
             for bond in self.Bond_List:
-                if bond.Bond_Master == atom:
-                    atom.Bond_List.append(bond.Bond_Slave)
-                elif bond.Bond_Slave == atom:
-                    atom.Bond_List.append(bond.Bond_Master)
+                if bond.Bond_Main == atom:
+                    atom.Bond_List.append(bond.Bond_Node)
+                elif bond.Bond_Node == atom:
+                    atom.Bond_List.append(bond.Bond_Main)
                 if len(atom.Bond_List) == 4 or (atom.Element == "H" and len(atom.Bond_List) == 1):
                     break
         for b_atom in self.Bonded_Atoms:
