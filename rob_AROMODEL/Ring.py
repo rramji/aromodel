@@ -17,7 +17,7 @@ import time
 
 class Ring(Molecule.Molecule):
    
-    def __init__(self,Supermolecule,Atom_Numbers,Core_Atom_List,Bond_Atoms,Bond_Atom_Vectors,Name,ID,Polymer_Name,Nickname,Symmetric = True,Scheduler = "Torque",Cluster_Location='/oasis/tscc/scratch/andrewk/Optimized_Monomers',Aux_Ring_List = [],Plumed_Rings = []):
+    def __init__(self,Supermolecule,Atom_Numbers,Core_Atom_List,Bond_Atoms,Bond_Atom_Vectors,Name,ID,Polymer_Name,Nickname,Symmetric = True,Cluster_Location='/oasis/tscc/scratch/andrewk/Optimized_Monomers',Scheduler = "Torque",Aux_Ring_List = [],Plumed_Rings = []):
         self.Atom_List = []
         self.Angle_List = []
         self.Dihedral_List = []
@@ -284,8 +284,42 @@ class Ring(Molecule.Molecule):
         
 
 
+    def Optimize_H_Positions(self,Cluster_Location, config_dict, Shared_File_Location = ""):
+        # config_dict should be a dictionary containing user-specific compute cluster information
 
-    def Optimize_H_Positions(self,Cluster_Location,Shared_File_Location = ""):
+        if not isinstance(config_dict, dict):
+            raise ValueError('config_dict must be a dictionary')
+
+        keys = [
+            'Cluster_Login', 
+            'Base_Cluster_Directory', 
+            'Scheduler_Type', 
+            'End_Condition', 
+            'Executable_Location',
+            'OpenMPI_Location'
+            ]
+
+        for key in keys:
+            dat = config_dict[key]
+            if len(dat) == 0 or not isinstance(dat, str):
+                raise ValueError('config_dict must define a value for ' + key)
+        
+        config_dict['File_Name'] = "sub_%s_%s_%d_Optimize_Monomer" % (self.Polymer_Name,self.Name,self.Ring_ID)
+        config_dict['In_File'] = "%s_%s_%d_Optimize_Monomer.inp" % (self.Polymer_Name,self.Name,self.Ring_ID)
+        config_dict['End_File'] = "%s_%s_%d_Optimize_Monomer.out" % (self.Polymer_Name,self.Name,self.Ring_ID)
+        config_dict['Job_Type'] = "Orca"
+        config_dict['Folder_Name'] = "Optimized_Monomers"
+        config_dict['Job_Name'] = "%s_%s_%d_Optimize_Monomer" % (self.Polymer_Name,self.Name,self.Ring_ID)
+        config_dict['H_Position_File_Name'] = "./Optimized_Monomers/%s_%s_%d_H_Positions.txt" % (self.Polymer_Name,self.Name,self.Ring_ID)
+        config_dict['Cluster_Location'] = config_dict['Base_Cluster_Directory'] + config_dict['Job_Name']
+        # Cluster_Login = "andrewk@tscc-login.sdsc.edu"
+        # Base_Cluster_Location = '/oasis/tscc/scratch/andrewk/'
+        # Scheduler_Type = "TORQUE"
+        # End_Condition = "Opt_Orca"
+        # Executable_Location = "/home/andrewk/orca_4_2_0_linux_x86-64_openmpi314"
+        # OpenMP_Location = "/home/andrewk/openmpi-3.1.4"
+
+
         f = open("%s_%s_%d.xyz" % (self.Polymer_Name,self.Name,self.Ring_ID),'w')
         num_atoms = len(self.Atom_List) + len(self.Bonded_Atoms)
         f.write("%d\n\n" % (num_atoms))
@@ -296,23 +330,12 @@ class Ring(Molecule.Molecule):
         f.close()
         Monomer = Molecule.Molecule("%s_%s_%d.xyz" % (self.Polymer_Name,self.Name,self.Ring_ID))
         os.system("mkdir ./Optimized_Monomers")
-        File_Name = "sub_%s_%s_%d_Optimize_Monomer" % (self.Polymer_Name,self.Name,self.Ring_ID)
-        In_File = "%s_%s_%d_Optimize_Monomer.inp" % (self.Polymer_Name,self.Name,self.Ring_ID)
-        End_File = "%s_%s_%d_Optimize_Monomer.out" % (self.Polymer_Name,self.Name,self.Ring_ID)
-        Job_Type = "Orca"
-        Folder_Name = "Optimized_Monomers"
-        Job_Name = "%s_%s_%d_Optimize_Monomer" % (self.Polymer_Name,self.Name,self.Ring_ID)
-        Cluster_Login = "andrewk@tscc-login.sdsc.edu"
-        Base_Cluster_Location = '/oasis/tscc/scratch/andrewk/'
-        Scheduler_Type = "TORQUE"
-        End_Condition = "Opt_Orca"
-        Executable_Location = "/home/andrewk/orca_4_2_0_linux_x86-64_openmpi314"
-        OpenMP_Location = "/home/andrewk/openmpi-3.1.4"
-        H_Position_File_Name = "./Optimized_Monomers/%s_%s_%d_H_Positions.txt" % (self.Polymer_Name,self.Name,self.Ring_ID)
 
-        Write_Inputs.Write_Orca_Optimize_Geometry(In_File,Monomer,H_Only = True)
+
+        Write_Inputs.Write_Orca_Optimize_Geometry(config_dict['In_File'],Monomer,H_Only = True)
+        # Write_Submit_Script.Write_TORQUE(File_Name,In_File,Job_Name,1,Cluster_Location,Job_Type,Executable_Path = Executable_Location,OMP_Path = OpenMP_Location)
         Write_Submit_Script.Write_TORQUE(File_Name,In_File,Job_Name,1,Cluster_Location,Job_Type,Executable_Path = Executable_Location,OMP_Path = OpenMP_Location)
-        Copy_File_List = [File_Name,In_File]
+        Copy_File_List = [config_dict['File_Name'],config_dict['In_File']]
         if not os.path.exists("./Optimized_Monomers/%s" % End_File):
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,File_Name,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
             Cluster_IO.Return_Info(End_File,End_File,Folder_Name,Job_Type,Cluster_Login,Cluster_Location,End_Condition = End_Condition,Shared_File_Location = Shared_File_Location)

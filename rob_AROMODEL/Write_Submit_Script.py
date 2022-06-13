@@ -1,4 +1,3 @@
-#! usr/bin/python
 import math
 
 def Write_Qchem(f,nproc,In_File,Name):
@@ -26,14 +25,23 @@ def Write_LAMMPS_KNL_Run_Only(f,nproc,In_File,Name):
 def Write_LAMMPS_Run_Only(f,nproc,In_File,Name):
 	f.write('srun --cpu-bind-cores -n %d lmp_cori -in %s -log log.%s' % (nproc,In_File,Name))
 
-def Write_NWChem(f,nproc,In_File,constraint='cori'):
-	if constraint != 'knl':
-		f.write('module load nwchem\nsrun --cpu-bind=cores -np %d nwchem %s > %s' % (nproc,In_File,Out_File))
-	else:
-		f.write('module load nwchem\nsrun --cpu-bind=cores -S 4 -n %d nwchem %s > %s' % (nproc,In_File,Out_File))
-	return
+# def Write_NWChem(f,nproc,In_File,constraint='cori'):
+# 	if constraint != 'knl':
+# 		f.write('module load nwchem\nsrun --cpu-bind=cores -np %d nwchem %s > %s' % (nproc,In_File,Out_File))
+# 	else:
+# 		f.write('module load nwchem\nsrun --cpu-bind=cores -S 4 -n %d nwchem %s > %s' % (nproc,In_File,Out_File))
+# 	return
 
-def Write_SLURM(File_Name,In_File,Name,nproc,Cluster_Location,Job_Type,queue="shared",proc_per_node=32,account = "m3047",walltime = 2,Executable_Path = "",OMP_Path = "",constraint='knl',nodes=1):
+def Write_SLURM(config_dict,nproc,queue="shared",proc_per_node=32,account = "m3047",walltime = 2,constraint='knl',nodes=1):
+	
+	File_Name = config_dict['File_Name']
+	Job_Type = config_dict['Job_Type']
+	Name = config_dict['Job_Name']
+	Executable_Path = config_dict['Executable_Path']
+	OMP_Path = config_dict['OMP_Path']
+	In_File = config_dict['In_File']
+	Cluster_Location = config_dict['Cluster_Location']
+	
 	f = open(File_Name,'w')
 	"""nodes = math.floor(nproc/proc_per_node)
 	if nodes == 0:
@@ -49,10 +57,12 @@ def Write_SLURM(File_Name,In_File,Name,nproc,Cluster_Location,Job_Type,queue="sh
 		spec_core = ""
 	Out_File = In_File.split('.')[0] + ".out"
 	if walltime == 0:
-		f.write('#!/bin/bash\n#SBATCH --job-name="%s"\n#SBATCH --output=%s\n#SBATCH --qos=%s\n#SBATCH --nodes=%d\n#SBATCH --ntasks-per-node=%d\n#SBATCH -A %s\n#SBATCH --export=ALL\n#SBATCH -t 0:30:00\n#SBATCH --constraint=%s\ncd %s\n' % (Name,Name,queue,nodes,proc_per_node,account,constraint,Cluster_Location))
+		f.write('#!/bin/bash\n#SBATCH --job-name="%s"\n#SBATCH --output=%s\n#SBATCH --qos=%s\n#SBATCH \
+		--nodes=%d\n#SBATCH --ntasks-per-node=%d\n#SBATCH -A %s\n#SBATCH --export=ALL\n#SBATCH -t 0:30:00\n#SBATCH --constraint=%s\ncd %s\n' % (Name,Name,queue,nodes,proc_per_node,account,constraint,Cluster_Location))
 	else:
 		f.write('#!/bin/bash\n#SBATCH --job-name="%s"\n#SBATCH --output=%s\n#SBATCH --qos=%s\n#SBATCH --nodes=%d\n#SBATCH --ntasks-per-node=%d\n#SBATCH -A %s\n#SBATCH --export=ALL\n#SBATCH -t %d:00:00\n#SBATCH --constraint=%s\ncd %s\n' % (Name,Name,queue,nodes,proc_per_node,account,walltime,constraint,Cluster_Location))
 	if Job_Type == "QChem":	
+		raise Exception("not implemented yet")
 		if Executable_Path == "":
 			Write_Qchem(f,nproc,In_File,Name)
 
@@ -64,20 +74,32 @@ def Write_SLURM(File_Name,In_File,Name,nproc,Cluster_Location,Job_Type,queue="sh
 		Write_Orca(f,nproc,In_File,Name,Executable_Path,OMP_Path)
 
 	if Job_Type == "LAMMPS" and constraint == "knl":
+		raise Exception("not implemented yet")
 		if Executable_Path == "":
 			Write_LAMMPS_KNL(f,nproc,In_File,Name)
 
 	elif Job_Type == "LAMMPS":
+		raise Exception("not implemented yet")
 		if Executable_Path == "":
 			Write_LAMMPS(f,nproc,In_File,Name)
 
-	if Job_Type == "NWChem":
-		if Executable_Path == "":
-			Write_NWChem(f,nproc,In_File,constraint = constraint)
+	# if Job_Type == "NWChem":
+	# 	if Executable_Path == "":
+	# 		Write_NWChem(f,nproc,In_File,constraint = constraint)
 			
 	f.close()
 
-def Write_SLURM_Batch(File_Name,In_File_List,Name,nproc,Cluster_Location,Job_Type,queue="premium",proc_per_node=32,account = "m3047",walltime = 2,Executable_Path = "",OMP_Path = "",constraint = 'haswell',nodes = 1):
+
+def Write_SLURM_Batch(config_dict,In_File_List,nproc,queue="premium",proc_per_node=32,account = "m3047",walltime = 2,constraint = 'haswell',nodes = 1):
+	
+	File_Name = config_dict['File_Name']
+	Job_Type = config_dict['Job_Type']
+	Job_Name = config_dict['Job_Name']
+	Executable_Path = config_dict['Executable_Path']
+	OMP_Path = config_dict['OMP_Path']
+	In_File = config_dict['In_File']
+	Cluster_Location = config_dict['Cluster_Location']
+	
 	f = open(File_Name,'w')
 	"""nodes = math.floor(nproc/proc_per_node)
 	if nodes == 0:
@@ -92,10 +114,11 @@ def Write_SLURM_Batch(File_Name,In_File_List,Name,nproc,Cluster_Location,Job_Typ
 	else:
 		spec_core = ""
 	if walltime ==0:
-		f.write('#!/bin/bash\n#SBATCH --job-name="%s"\n#SBATCH --output=%s\n#SBATCH --qos=%s\n#SBATCH --nodes=%d\n#SBATCH --ntasks-per-node=%d\n#SBATCH -A %s\n#SBATCH --export=ALL\n#SBATCH -t 0:30:00\n#SBATCH --constraint=%s\n%scd %s\n' % (Name,Name,queue,nodes,proc_per_node,account,constraint,spec_core,Cluster_Location))
+		f.write('#!/bin/bash\n#SBATCH --job-name="%s"\n#SBATCH --output=%s\n#SBATCH --qos=%s\n#SBATCH --nodes=%d\n#SBATCH --ntasks-per-node=%d\n#SBATCH -A %s\n#SBATCH --export=ALL\n#SBATCH -t 0:30:00\n#SBATCH --constraint=%s\n%scd %s\n' % (Job_Name,Job_Name,queue,nodes,proc_per_node,account,constraint,spec_core,Cluster_Location))
 	else:
-		f.write('#!/bin/bash\n#SBATCH --job-name="%s"\n#SBATCH --output=%s\n#SBATCH --qos=%s\n#SBATCH --nodes=%d\n#SBATCH --ntasks-per-node=%d\n#SBATCH -A %s\n#SBATCH --export=ALL\n#SBATCH -t %d:00:00\n#SBATCH --constraint=%s\n%scd %s\n' % (Name,Name,queue,nodes,proc_per_node,account,walltime,constraint,spec_core,Cluster_Location))
+		f.write('#!/bin/bash\n#SBATCH --job-name="%s"\n#SBATCH --output=%s\n#SBATCH --qos=%s\n#SBATCH --nodes=%d\n#SBATCH --ntasks-per-node=%d\n#SBATCH -A %s\n#SBATCH --export=ALL\n#SBATCH -t %d:00:00\n#SBATCH --constraint=%s\n%scd %s\n' % (Job_Name,Job_Name,queue,nodes,proc_per_node,account,walltime,constraint,spec_core,Cluster_Location))
 	if Job_Type == "QChem":	
+		raise Exception("not implemented yet")
 		if Executable_Path == "":
 			Out_File = In_File_List[0].split('.')[0]
 			Write_Qchem(f,nproc,In_File_List[0],Out_File)
@@ -105,41 +128,51 @@ def Write_SLURM_Batch(File_Name,In_File_List,Name,nproc,Cluster_Location,Job_Typ
 
 
 	if Job_Type == "Orca":
-		if Executable_Path == "":
-			raise Exception("Executable_Path required for Orca")
-		if OMP_Path == "":	
-			raise Exception("OMP_Path required for Orca")
 		for In_File in In_File_List:
-			Write_Orca(f,nproc,In_File,Name,Executable_Path,OMP_Path)
+			Write_Orca(f,nproc,In_File,Job_Name,Executable_Path,OMP_Path)
 
 	if Job_Type == "LAMMPS" and constraint == "knl":
+		raise Exception("not implemented yet")
 		if Executable_Path == "":
-			Write_LAMMPS_KNL(f,nproc,In_File,Name)
+			Write_LAMMPS_KNL(f,nproc,In_File,Job_Name)
 
 	elif Job_Type == "LAMMPS":
+		raise Exception("not implemented yet")
 		if Executable_Path == "":
 			for In_File in In_File_List:
-				Write_LAMMPS(f,nproc,In_File,Name)
+				Write_LAMMPS(f,nproc,In_File,Job_Name)
 
-	if Job_Type == "NWChem":
-		if Executable_Path == "":
-			for In_File in In_File_List:
-				Write_NWChem(f,nproc,In_File,constraint = constraint)
+	# if Job_Type == "NWChem":
+	# 	if Executable_Path == "":
+	# 		for In_File in In_File_List:
+	# 			Write_NWChem(f,nproc,In_File,constraint = constraint)
 				
 	f.close()
 
-def Write_TORQUE(File_Name,In_File,Name,nproc,Cluster_Location,Job_Type,proc_per_node=28,walltime = 2,Executable_Path = "",OMP_Path = "",queue = "condo"):
-	f = open(File_Name,'w')
+#def Write_TORQUE(File_Name,In_File,Job_Name,nproc,Cluster_Location,Job_Type,proc_per_node=28,walltime = 2,Executable_Path = "",OMP_Path = "",queue = "condo"):	
+def Write_TORQUE(config_dict, nproc, proc_per_node=28, walltime=2, queue="condo"):
+
+	Job_Type = config_dict['Job_Type']
+	Job_Name = config_dict['Job_Name']
+	Executable_Path = config_dict['Executable_Path']
+	OMP_Path = config_dict['OMP_Path']
+	In_File = config_dict['In_File']
+	Cluster_Location = config_dict['Cluster_Location']
+
+	f = open(config_dict['File_Name'],'w')
 	nodes = math.floor(nproc/proc_per_node)
 	if nodes == 0:
 		nodes = 1
 		ppn = nproc
 	else:
 		ppn = proc_per_node
-	f.write('#!/bin/bash\n#PBS -N %s\n#PBS -o %s\n#PBS -q %s\n#PBS -l nodes=%d:ppn=%d\n#PBS -l walltime=%d:00:00\n\ncd %s\n\n' % (Name,Name,queue,nodes,ppn,walltime,Cluster_Location))
+	
+	f.write('#!/bin/bash\n#PBS -N %s\n#PBS -o %s\n#PBS -q %s\n#PBS -l nodes=%d:ppn=%d\n#PBS -l walltime=%d:00:00\n\ncd %s\n\n' % (Job_Name,Job_Name,queue,nodes,ppn,walltime,Cluster_Location))
+	
 	if Job_Type == "QChem":	
+		raise Exception("not implemented yet")
 		if Executable_Path == "":
-			Write_Qchem(f,nproc,In_File,Name)
+			Write_Qchem(f,nproc,In_File,Job_Name)
 
 
 	if Job_Type == "Orca":
@@ -147,10 +180,11 @@ def Write_TORQUE(File_Name,In_File,Name,nproc,Cluster_Location,Job_Type,proc_per
 			raise Exception("Executable_Path required for Orca")
 		if OMP_Path == "":	
 			raise Exception("OMP_Path required for Orca")
-		Write_Orca(f,nproc,In_File,Name,Executable_Path,OMP_Path)
+		Write_Orca(f,nproc,In_File,Job_Name,Executable_Path,OMP_Path)
 
 	elif Job_Type == "LAMMPS":
+		raise Exception("not implemented yet")
 		if Executable_Path == "":
-			Write_LAMMPS(f,nproc,In_File,Name)
+			Write_LAMMPS(f,nproc,In_File,Job_Name)
 			
 	f.close()
