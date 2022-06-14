@@ -199,12 +199,12 @@ class DA_Polymer(object):
                     #print "Extracting Bonds"
                     for i in range(int(Num_Bonds)):
                         Bond_Info = File_Lines[i+j+2].strip('\n').split(' ')
-                        Master = self.Atom_List[int(Bond_Info[2])-1]
-                        Slave = self.Atom_List[int(Bond_Info[3])-1]
+                        Main = self.Atom_List[int(Bond_Info[2])-1]
+                        Node = self.Atom_List[int(Bond_Info[3])-1]
                         Kb = Bond_Coeffs[int(Bond_Info[1])-1, 0]
                         Req = Bond_Coeffs[int(Bond_Info[1])-1,1]
                         Bond_ID = int(Bond_Info[0])
-                        self.Bond_List.append(Bond.Bond(Master, Slave,Req))
+                        self.Bond_List.append(Bond.Bond(Main, Node,Req))
                         self.Bond_List[i].kb = Kb
                         self.Bond_List[i].Bond_ID = Bond_ID
                         self.Bond_List[i].LAMMPS_Type = Bond_ID = int(Bond_Info[1])
@@ -212,13 +212,13 @@ class DA_Polymer(object):
                     #print "Extracting Angles"
                     for i in range(int(Num_Angles)):
                         Angle_Info = File_Lines[i+j+2].strip('\n').split(' ')
-                        Slave1 = self.Atom_List[int(Angle_Info[2])-1]
-                        Master = self.Atom_List[int(Angle_Info[3])-1]
-                        Slave2 = self.Atom_List[int(Angle_Info[4])-1]
+                        Node1 = self.Atom_List[int(Angle_Info[2])-1]
+                        Main = self.Atom_List[int(Angle_Info[3])-1]
+                        Node2 = self.Atom_List[int(Angle_Info[4])-1]
                         Ka = Angle_Coeffs[int(Angle_Info[1])-1,0]
                         Th0 = Angle_Coeffs[int(Angle_Info[1])-1,1]
                         Angle_ID = int(Angle_Info[0])
-                        self.Angle_List.append(Angle.Angle(Master, Slave1, Slave2, Th0))
+                        self.Angle_List.append(Angle.Angle(Main, Node1, Node2, Th0))
                         self.Angle_List[i].ka = Ka
                         self.Angle_List[i].Angle_ID = Angle_ID
                         self.Angle_List[i].LAMMPS_Type = int(Angle_Info[1])
@@ -227,16 +227,16 @@ class DA_Polymer(object):
                     #print "Extracting Dihedrals"
                     for i in range(int(Num_Dihedrals)):
                         Dihedral_Info = File_Lines[i+j+2].strip('\n').split(' ')
-                        Slave1 = self.Atom_List[int(Dihedral_Info[2])-1]
-                        Master1 = self.Atom_List[int(Dihedral_Info[3])-1]
-                        Master2 = self.Atom_List[int(Dihedral_Info[4])-1]
-                        Slave2 = self.Atom_List[int(Dihedral_Info[5])-1]
+                        Node1 = self.Atom_List[int(Dihedral_Info[2])-1]
+                        Main1 = self.Atom_List[int(Dihedral_Info[3])-1]
+                        Main2 = self.Atom_List[int(Dihedral_Info[4])-1]
+                        Node2 = self.Atom_List[int(Dihedral_Info[5])-1]
                         Coeffs = Dihedral_Coeffs[int(Dihedral_Info[1])-1]
                         #Coeffs = []
                         #Style = Dihedral_Styles[int(Dihedral_Info[1])-1]
                         Style = int(Dihedral_Info[1])
                         Dihedral_ID = int(Dihedral_Info[0])
-                        self.Dihedral_List.append(Dihedral.Dihedral(Master1, Master2, Slave1, Slave2, 0.0))
+                        self.Dihedral_List.append(Dihedral.Dihedral(Main1, Main2, Node1, Node2, 0.0))
                         self.Dihedral_List[i].Coeffs = Coeffs
                         self.Dihedral_List[i].Dihedral_ID = Dihedral_ID
                         self.Dihedral_List[i].Style = Style
@@ -246,13 +246,13 @@ class DA_Polymer(object):
                     #print "Extracting Impropers"
                     for i in range(int(Num_Impropers)):
                         Improper_Info = File_Lines[i+j+2].strip('\n').split(' ')
-                        Master = self.Atom_List[int(Improper_Info[2])-1]
-                        Slave1 = self.Atom_List[int(Improper_Info[3])-1]
-                        Slave2 = self.Atom_List[int(Improper_Info[4])-1]
-                        Slave3 = self.Atom_List[int(Improper_Info[5])-1]
+                        Main = self.Atom_List[int(Improper_Info[2])-1]
+                        Node1 = self.Atom_List[int(Improper_Info[3])-1]
+                        Node2 = self.Atom_List[int(Improper_Info[4])-1]
+                        Node3 = self.Atom_List[int(Improper_Info[5])-1]
                         Coeff = Improper_Coeffs[int(Improper_Info[1])-1,0]
                         Improper_ID = int(Improper_Info[0])
-                        self.Improper_List.append(Improper.Improper(Master, Slave1, Slave2, Slave3, Coeff, 180.0, Improper_ID))
+                        self.Improper_List.append(Improper.Improper(Main, Node1, Node2, Node3, Coeff, 180.0, Improper_ID))
                         self.Improper_List[i].LAMMPS_Type = int(Improper_Info[1])
                         
                             
@@ -364,26 +364,26 @@ class DA_Polymer(object):
             f.write("%d 1 %d %.16f %.16f %.16f %.16f %d %d %d\n" % (atom.Atom_ID,atom.LAMMPS_Type,atom.Charge,atom.Position[0],atom.Position[1],atom.Position[2],atom.Image_Flags[0],atom.Image_Flags[1],atom.Image_Flags[2]))
         f.write("\nBonds\n\n")
         for bond in self.Bond_List:
-            f.write("%d %d %d %d\n" % (bond.Bond_ID,bond.LAMMPS_Type,bond.Bond_Master.Atom_ID,bond.Bond_Slave.Atom_ID))
+            f.write("%d %d %d %d\n" % (bond.Bond_ID,bond.LAMMPS_Type,bond.Bond_Main.Atom_ID,bond.Bond_Node.Atom_ID))
         f.write("\nAngles\n\n")
         for ang in self.Angle_List:
-            f.write("%d %d %d %d %d\n" % (ang.Angle_ID,ang.LAMMPS_Type,ang.Angle_Slave1.Atom_ID,ang.Angle_Master.Atom_ID,ang.Angle_Slave2.Atom_ID))
+            f.write("%d %d %d %d %d\n" % (ang.Angle_ID,ang.LAMMPS_Type,ang.Angle_Node1.Atom_ID,ang.Angle_Main.Atom_ID,ang.Angle_Node2.Atom_ID))
         f.write("\nDihedrals\n\n")
         for dih in self.Dihedral_List:
-            f.write("%d %d %d %d %d %d\n" % (dih.Dihedral_ID,int(dih.LAMMPS_Type),dih.Dihedral_Slave1.Atom_ID,dih.Dihedral_Master1.Atom_ID,dih.Dihedral_Master2.Atom_ID,dih.Dihedral_Slave2.Atom_ID))
+            f.write("%d %d %d %d %d %d\n" % (dih.Dihedral_ID,int(dih.LAMMPS_Type),dih.Dihedral_Node1.Atom_ID,dih.Dihedral_Main1.Atom_ID,dih.Dihedral_Main2.Atom_ID,dih.Dihedral_Node2.Atom_ID))
         f.write("\nImpropers\n\n")
         for imp in self.Improper_List:
-            f.write("%d %d %d %d %d %d\n" % (imp.Improper_ID,int(imp.LAMMPS_Type),imp.Improper_Master.Atom_ID,imp.Improper_Slave1.Atom_ID,imp.Improper_Slave2.Atom_ID,imp.Improper_Slave3.Atom_ID))
+            f.write("%d %d %d %d %d %d\n" % (imp.Improper_ID,int(imp.LAMMPS_Type),imp.Improper_Main.Atom_ID,imp.Improper_Node1.Atom_ID,imp.Improper_Node2.Atom_ID,imp.Improper_Node3.Atom_ID))
         f.close()
 
 
     def Add_Bond_List(self):
         for atom in self.Atom_List:
             for bond in self.Bond_List:
-                if bond.Bond_Master == atom:
-                    atom.Bond_List.append(bond.Bond_Slave)
-                elif bond.Bond_Slave == atom:
-                    atom.Bond_List.append(bond.Bond_Master)
+                if bond.Bond_Main == atom:
+                    atom.Bond_List.append(bond.Bond_Node)
+                elif bond.Bond_Node == atom:
+                    atom.Bond_List.append(bond.Bond_Main)
                 if len(atom.Bond_List) == 4 or (atom.Element == "H" and len(atom.Bond_List) == 1):
                     break
 
@@ -453,16 +453,16 @@ class DA_Polymer(object):
                 addflag = False
                 for atom in Group:
                     for bond in self.Bond_List:
-                        if bond.Bond_Master.Atom_ID == atom.Atom_ID:
-                            if bond.Bond_Slave in self.Sidechain_Atom_List:
-                                Group.append(bond.Bond_Slave)
+                        if bond.Bond_Main.Atom_ID == atom.Atom_ID:
+                            if bond.Bond_Node in self.Sidechain_Atom_List:
+                                Group.append(bond.Bond_Node)
                                 addflag = True
-                                self.Sidechain_Atom_List.remove(bond.Bond_Slave)
-                        if bond.Bond_Slave.Atom_ID == atom.Atom_ID:
-                            if bond.Bond_Master in self.Sidechain_Atom_List:
-                                Group.append(bond.Bond_Master)
+                                self.Sidechain_Atom_List.remove(bond.Bond_Node)
+                        if bond.Bond_Node.Atom_ID == atom.Atom_ID:
+                            if bond.Bond_Main in self.Sidechain_Atom_List:
+                                Group.append(bond.Bond_Main)
                                 addflag = True
-                                self.Sidechain_Atom_List.remove(bond.Bond_Master)
+                                self.Sidechain_Atom_List.remove(bond.Bond_Main)
             self.Sidechain_Groups.append(Group)
 
 
@@ -478,18 +478,18 @@ class DA_Polymer(object):
                     self.Conj_Dihs.append(dih)
 
         for dih in self.Conj_Dihs:
-            Vector1 = dih.Dihedral_Master1.Position - dih.Dihedral_Master2.Position
+            Vector1 = dih.Dihedral_Main1.Position - dih.Dihedral_Main2.Position
             Vector1 = Vector1/np.linalg.norm(Vector1)
-            Vector2 = dih.Dihedral_Slave1.Position - dih.Dihedral_Master1.Position
+            Vector2 = dih.Dihedral_Node1.Position - dih.Dihedral_Main1.Position
             Vector2 = Vector2/np.linalg.norm(Vector2)
-            Vector3 = dih.Dihedral_Master2.Position - dih.Dihedral_Slave2.Position
+            Vector3 = dih.Dihedral_Main2.Position - dih.Dihedral_Node2.Position
             Vector3 = Vector3/np.linalg.norm(Vector3)
             Plane1 = np.cross(Vector1,Vector2)
             Plane1 = Plane1/np.linalg.norm(Plane1)
             Plane2 = np.cross(Vector1,Vector3)
             Plane2 = Plane2/np.linalg.norm(Plane2)
             Theta = math.acos(np.dot(Plane1,Plane2))
-            Conj_Dih_Atoms.append([dih.Dihedral_Slave1.Atom_ID,dih.Dihedral_Master1.Atom_ID,dih.Dihedral_Master2.Atom_ID,dih.Dihedral_Slave2.Atom_ID,Theta*180/math.pi])
+            Conj_Dih_Atoms.append([dih.Dihedral_Node1.Atom_ID,dih.Dihedral_Main1.Atom_ID,dih.Dihedral_Main2.Atom_ID,dih.Dihedral_Node2.Atom_ID,Theta*180/math.pi])
             Conj_Dih_Angles.append(Theta*180/math.pi)
             E = .5 * dih.Coeffs[0] * (1 + math.cos(Theta)) + .5 * dih.Coeffs[1] * (1 - math.cos(2*Theta)) + .5 * dih.Coeffs[2] * (1 + math.cos(3*Theta)) + .5 * dih.Coeffs[3] * (1 -- math.cos(4*Theta))
             Conj_Dih_Energies.append(E)
@@ -646,7 +646,7 @@ class DA_Polymer(object):
                 Sidechain_String = Sidechain_String + "," + str(atom.Atom_ID) 
 
         for dih in self.Conj_Dihs:
-            Conj_Dih_List.append([dih.Dihedral_Slave1.Atom_ID,dih.Dihedral_Master1.Atom_ID,dih.Dihedral_Master2.Atom_ID,dih.Dihedral_Slave2.Atom_ID])
+            Conj_Dih_List.append([dih.Dihedral_Node1.Atom_ID,dih.Dihedral_Main1.Atom_ID,dih.Dihedral_Main2.Atom_ID,dih.Dihedral_Node2.Atom_ID])
         Conj_Dih_List = sorted(Conj_Dih_List,key=itemgetter(0))
         for i,dih1,dih2 in zip(range(len(Conj_Dih_List)),Conj_Dih_List[0:-2],Conj_Dih_List[1:-1]):
             Conj_Dih_String = Conj_Dih_String + "\tATOMS%d=%d,%d,%d,%d,%d,%d,%d,%d\n" % (i+1,dih1[0],dih1[1],dih1[2],dih1[3],dih2[0],dih2[1],dih2[2],dih2[3])
@@ -804,7 +804,7 @@ class DA_Polymer(object):
                 Conj_Atom_String = Conj_Atom_String + "," + str(atom.Atom_ID) 
 
         for dih in self.Conj_Dihs:
-            Conj_Dih_List.append([dih.Dihedral_Slave1.Atom_ID,dih.Dihedral_Master1.Atom_ID,dih.Dihedral_Master2.Atom_ID,dih.Dihedral_Slave2.Atom_ID])
+            Conj_Dih_List.append([dih.Dihedral_Node1.Atom_ID,dih.Dihedral_Main1.Atom_ID,dih.Dihedral_Main2.Atom_ID,dih.Dihedral_Node2.Atom_ID])
         Conj_Dih_List = sorted(Conj_Dih_List,key=itemgetter(0))
         for i,dih1,dih2 in zip(range(len(Conj_Dih_List)),Conj_Dih_List[0:-2],Conj_Dih_List[1:-1]):
             Conj_Dih_String = Conj_Dih_String + "\tATOMS%d=%d,%d,%d,%d,%d,%d,%d,%d\n" % (i+1,dih1[0],dih1[1],dih1[2],dih1[3],dih2[0],dih2[1],dih2[2],dih2[3])

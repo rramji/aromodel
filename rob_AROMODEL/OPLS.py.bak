@@ -13,10 +13,10 @@ import Configure
 
 def Assign_OPLS(Molecule, ChelpG = True):
     # Assign OPLS TYPES and CLASSES
-    print("Finding OPLS Types and Classes")
-    print("------------------------------")
-    print("Element Type Class")
-    print("______________________________")
+    print "Finding OPLS Types and Classes"
+    print "------------------------------"
+    print "Element Type Class"
+    print "______________________________"
     Fullerene = False
     """for Atom_Obj in Molecule.Atom_List:
         if Atom_Obj.Element != 'H':
@@ -65,11 +65,11 @@ def Assign_OPLS(Molecule, ChelpG = True):
             continue
 
 
-    print("------------------------------------")
-    print("Finding VDW parameters")
-    print("------------------------------------")
-    print("Element, OPLS TYPE, Sigma, Epsilon")
-    print("------------------------------------")
+    print "------------------------------------"
+    print "Finding VDW parameters"
+    print "------------------------------------"
+    print "Element, OPLS TYPE, Sigma, Epsilon"
+    print "------------------------------------"
 
     i = 0
     for Atom_Obj in Molecule.Atom_List:
@@ -78,25 +78,25 @@ def Assign_OPLS(Molecule, ChelpG = True):
                 i += 1
                 Atom_Obj.Sigma = float(VDW[2])
                 Atom_Obj.Epsilon = float(VDW[3])
-                print(Atom_Obj.Atom_ID, Atom_Obj.Element, Atom_Obj.OPLS_Type, Atom_Obj.Sigma, Atom_Obj.Epsilon)
+                print Atom_Obj.Atom_ID, Atom_Obj.Element, Atom_Obj.OPLS_Type, Atom_Obj.Sigma, Atom_Obj.Epsilon
 
     if i == len(Molecule.Atom_List):
-        print("All atom types present and accounted for :)")
+        print "All atom types present and accounted for :)"
     else:
-        print("Missing OPLS Type: Edit Find_OPLS_ID function in Atom.py")
+        print "Missing OPLS Type: Edit Find_OPLS_ID function in Atom.py"
 
     if ChelpG == False:
-        print("--------------------------------")
-        print("Finding partial charges")
-        print("--------------------------------")
+        print "--------------------------------"
+        print "Finding partial charges"
+        print "--------------------------------"
         for Atom_Obj in Molecule.Atom_List:
             for CHARGE in OPLS_CHARGE:
                 if int(CHARGE[1]) == Atom_Obj.OPLS_Type:
-                    print(Atom_Obj.OPLS_Type)
-                    print("CHelpG:", Atom_Obj.Charge)
-                    print("OPLS:", float(CHARGE[2]))
+                    print Atom_Obj.OPLS_Type
+                    print "CHelpG:", Atom_Obj.Charge
+                    print "OPLS:", float(CHARGE[2])
                     Atom_Obj.Charge = float(CHARGE[2])
-        print("Neutralizing Molecule")
+        print "Neutralizing Molecule"
         Q = 0.0
         Num_Atoms = 0.0
         for Atom_Obj in Molecule.Atom_List:
@@ -104,18 +104,18 @@ def Assign_OPLS(Molecule, ChelpG = True):
                 Q += Atom_Obj.Charge
                 Num_Atoms += 1.0
         
-        print("Total Charge on Molecule is", Q)
-        print("N is", Num_Atoms)
+        print "Total Charge on Molecule is", Q
+        print "N is", Num_Atoms
         dQ = Q/Num_Atoms
-        print("dQ =", dQ)
+        print "dQ =", dQ
         for Atom_Obj in Molecule.Atom_List:
             if Atom_Obj.Charge != 0.0:
                 if Atom_Obj.Charge < 0.0:
                     Atom_Obj.Charge -= dQ
-                    print("Adjusting Charge +")
+                    print "Adjusting Charge +"
                 if Atom_Obj.Charge > 0.0:
                     Atom_Obj.Charge -= dQ
-                    print("Adjusting Charge -")
+                    print "Adjusting Charge -"
         Q = 0.0
         Num_Atoms = 0.0
         for Atom_Obj in Molecule.Atom_List:
@@ -123,7 +123,7 @@ def Assign_OPLS(Molecule, ChelpG = True):
                 Q += Atom_Obj.Charge
                 Num_Atoms += 1.0
                                                 
-        print("Total Charge on Molecule is", Q)
+        print "Total Charge on Molecule is", Q
 
 
     print("------------------------------------")
@@ -142,7 +142,7 @@ def Assign_OPLS(Molecule, ChelpG = True):
                 Bond_Obj.kb = float(B_OPLS[3])
                 if Molecule.UnConverged:
                     Bond_Obj.req = float(B_OPLS[4])
-                print(i, Bond_Obj.req, B_OPLS[4], Bond_Obj.kb)
+                print i, Bond_Obj.req, B_OPLS[4], Bond_Obj.kb
 
     print("-------------------------------------")
     if j == len(Molecule.Bond_List):
@@ -151,8 +151,8 @@ def Assign_OPLS(Molecule, ChelpG = True):
         print("MISSING BOND PARAMETER!!!!!")
         for Bond_Obj in Molecule.Bond_List:
             if Bond_Obj.kb == 0:
-                print(Bond_Obj.Bond_Main.OPLS_Class, Bond_Obj.Bond_Node.OPLS_Class)
-                print(Bond_Obj.Bond_Main.Atom_ID, Bond_Obj.Bond_Node.Atom_ID)
+                print Bond_Obj.Bond_Main.OPLS_Class, Bond_Obj.Bond_Node.OPLS_Class
+                print Bond_Obj.Bond_Main.Atom_ID, Bond_Obj.Bond_Node.Atom_ID
                 # Set arbitrary value for bond constant
                 Bond_Obj.Kb = 300.0
 
@@ -165,8 +165,8 @@ def Assign_OPLS(Molecule, ChelpG = True):
     j = 0
     for Angle_Obj in Molecule.Angle_List:
         Angle_Nodes = sorted([Angle_Obj.Angle_Node1.OPLS_Class, Angle_Obj.Angle_Node2.OPLS_Class])
-        print(Angle_Obj.Angle_Main.OPLS_Class)
-        print(Angle_Nodes)
+        print Angle_Obj.Angle_Main.OPLS_Class
+        print Angle_Nodes
         i += 1
         Angle_Obj.Angle_ID = i
         for A_OPLS in OPLS_Angles:
@@ -175,17 +175,17 @@ def Assign_OPLS(Molecule, ChelpG = True):
                 j += 1
                 if Molecule.UnConverged:
                     Angle_Obj.Angle_Eq = float(A_OPLS[5])
-                print(i, Angle_Obj.Angle_Eq, float(A_OPLS[5]))
-    print("-------------------------------------")
+                print i, Angle_Obj.Angle_Eq, float(A_OPLS[5])
+    print "-------------------------------------"
 
     if j == len(Molecule.Angle_List):
-        print(" All angles present and accounted for :)")
+        print " All angles present and accounted for :)"
     else:
-        print("MISSING ANGLE PARAMETER!!!")
+        print "MISSING ANGLE PARAMETER!!!"
         for Angle_Obj in Molecule.Angle_List:
             if Angle_Obj.ka == 0.0:
-                print(Angle_Obj.Angle_Main.OPLS_Class, Angle_Obj.Angle_Node1.OPLS_Class, Angle_Obj.Angle_Node2.OPLS_Class)
-                print(Angle_Obj.Angle_Main.Element, Angle_Obj.Angle_Node1.Element, Angle_Obj.Angle_Node2.Element)
+                print Angle_Obj.Angle_Main.OPLS_Class, Angle_Obj.Angle_Node1.OPLS_Class, Angle_Obj.Angle_Node2.OPLS_Class
+                print Angle_Obj.Angle_Main.Element, Angle_Obj.Angle_Node1.Element, Angle_Obj.Angle_Node2.Element
                 Angle_Obj.ka = 35.0
 
     print("-------------------------------------")
@@ -234,21 +234,21 @@ def Assign_OPLS(Molecule, ChelpG = True):
 
 
     if j == len(Molecule.Dihedral_List):
-        print("All dihedrals present and accounted for :)")
+        print "All dihedrals present and accounted for :)"
     else:
-        print("MISSING DIHEDRAL PARAMETERS!!!")
-        print("i =", i)
-        print("Num Dih=", len(Molecule.Dihedral_List))
+        print "MISSING DIHEDRAL PARAMETERS!!!"
+        print "i =", i
+        print "Num Dih=", len(Molecule.Dihedral_List)
         Molecule.Missing_Dihedrals = len(Molecule.Dihedral_List) - i 
         for Dihedral_Obj in Molecule.Dihedral_List:
             if Dihedral_Obj.Dihedral_ID == 0:
                 i+=1
                 Dihedral_Obj.Dihedral_ID = i
                 #print Dihedral_Obj.Dihedral_Node1.OPLS_Class, Dihedral_Obj.Dihedral_Main1.OPLS_Class, Dihedral_Obj.Dihedral_Main2.OPLS_Class, Dihedral_Obj.Dihedral_Node2.OPLS_Class
-                print(Dihedral_Obj.Dihedral_Node1.Element, Dihedral_Obj.Dihedral_Main1.Element, Dihedral_Obj.Dihedral_Main2.Element, Dihedral_Obj.Dihedral_Node2.Element)
-                print(Dihedral_Obj.Dihedral_Node1.Atom_ID, Dihedral_Obj.Dihedral_Main1.Atom_ID, Dihedral_Obj.Dihedral_Main2.Atom_ID, Dihedral_Obj.Dihedral_Node2.Atom_ID)
+                print Dihedral_Obj.Dihedral_Node1.Element, Dihedral_Obj.Dihedral_Main1.Element, Dihedral_Obj.Dihedral_Main2.Element, Dihedral_Obj.Dihedral_Node2.Element
+                print Dihedral_Obj.Dihedral_Node1.Atom_ID, Dihedral_Obj.Dihedral_Main1.Atom_ID, Dihedral_Obj.Dihedral_Main2.Atom_ID, Dihedral_Obj.Dihedral_Node2.Atom_ID
                 
-    print("Finding Improper interactions (Aromatic Carbons OPLS_CLASS=48)")
+    print "Finding Improper interactions (Aromatic Carbons OPLS_CLASS=48)"
     i = 0
     """for Atom_Obj in Molecule.Atom_List:
         if Atom_Obj.OPLS_Class == 48:
@@ -258,10 +258,10 @@ def Assign_OPLS(Molecule, ChelpG = True):
                 Temp_List.append(Molecule.Get_Atom(atom))
             Temp_Bond_List = sorted(Temp_List, key=lambda x: x.Element)
             Molecule.Improper_List.append(Improper.Improper( Atom_Obj, Temp_Bond_List[0], Temp_Bond_List[1], Temp_Bond_List[2], 5.0, 180.0, i ))"""
-    print("Found ", i , "Improper interactions")
-    print("---------------------------------------")
-    print(" Force Field Building is complete")
-    print("---------------------------------------")
+    print "Found ", i , "Improper interactions"
+    print "---------------------------------------"
+    print " Force Field Building is complete"
+    print "---------------------------------------"
 
 
     return
@@ -269,20 +269,20 @@ def Assign_OPLS(Molecule, ChelpG = True):
 
     def Assign_DA_Polymer_OPLS(Molecule, Dih_Bond_Atoms, ChelpG = True):
     # Assign OPLS TYPES and CLASSES
-        print("Finding OPLS Types and Classes")
-        print("------------------------------")
-        print("Element Type Class")
-        print("______________________________")
+        print "Finding OPLS Types and Classes"
+        print "------------------------------"
+        print "Element Type Class"
+        print "______________________________"
         Fullerene = False
         for Atom_Obj in Molecule.Atom_List:
             if Atom_Obj.Element != 'H':
                 Fullerene = Atom.Find_OPLS_ID(Molecule,Atom_Obj, Fullerene)
-                print(Atom_Obj.Atom_ID, Atom_Obj.Element, Atom_Obj.OPLS_Type, Atom_Obj.OPLS_Class)
+                print Atom_Obj.Atom_ID, Atom_Obj.Element, Atom_Obj.OPLS_Type, Atom_Obj.OPLS_Class
 
         for Atom_Obj in Molecule.Atom_List:
             if Atom_Obj.Element == 'H':
                 Fullerene = Atom.Find_OPLS_ID(Molecule,Atom_Obj, Fullerene)
-                print(Atom_Obj.Atom_ID, Atom_Obj.Element, Atom_Obj.OPLS_Type, Atom_Obj.OPLS_Class)
+                print Atom_Obj.Atom_ID, Atom_Obj.Element, Atom_Obj.OPLS_Type, Atom_Obj.OPLS_Class
         
         # Open up OPLS FILE
         OPLS_Path = Configure.Template_Path + "oplsaa.prm.txt"
@@ -321,11 +321,11 @@ def Assign_OPLS(Molecule, ChelpG = True):
                 continue
 
 
-        print("------------------------------------")
-        print("Finding VDW parameters")
-        print("------------------------------------")
-        print("Element, OPLS TYPE, Sigma, Epsilon")
-        print("------------------------------------")
+        print "------------------------------------"
+        print "Finding VDW parameters"
+        print "------------------------------------"
+        print "Element, OPLS TYPE, Sigma, Epsilon"
+        print "------------------------------------"
 
         i = 0
         for Atom_Obj in Molecule.Atom_List:
@@ -334,25 +334,25 @@ def Assign_OPLS(Molecule, ChelpG = True):
                     i += 1
                     Atom_Obj.Sigma = float(VDW[2])
                     Atom_Obj.Epsilon = float(VDW[3])
-                    print(Atom_Obj.Atom_ID, Atom_Obj.Element, Atom_Obj.OPLS_Type, Atom_Obj.Sigma, Atom_Obj.Epsilon)
+                    print Atom_Obj.Atom_ID, Atom_Obj.Element, Atom_Obj.OPLS_Type, Atom_Obj.Sigma, Atom_Obj.Epsilon
 
         if i == len(Molecule.Atom_List):
-            print("All atom types present and accounted for :)")
+            print "All atom types present and accounted for :)"
         else:
-            print("Missing OPLS Type: Edit Find_OPLS_ID function in Atom.py")
+            print "Missing OPLS Type: Edit Find_OPLS_ID function in Atom.py"
 
         if ChelpG == False:
-            print("--------------------------------")
-            print("Finding partial charges")
-            print("--------------------------------")
+            print "--------------------------------"
+            print "Finding partial charges"
+            print "--------------------------------"
             for Atom_Obj in Molecule.Atom_List:
                 for CHARGE in OPLS_CHARGE:
                     if int(CHARGE[1]) == Atom_Obj.OPLS_Type:
-                        print(Atom_Obj.OPLS_Type)
-                        print("CHelpG:", Atom_Obj.Charge)
-                        print("OPLS:", float(CHARGE[2]))
+                        print Atom_Obj.OPLS_Type
+                        print "CHelpG:", Atom_Obj.Charge
+                        print "OPLS:", float(CHARGE[2])
                         Atom_Obj.Charge = float(CHARGE[2])
-            print("Neutralizing Molecule")
+            print "Neutralizing Molecule"
             Q = 0.0
             Num_Atoms = 0.0
             for Atom_Obj in Molecule.Atom_List:
@@ -360,18 +360,18 @@ def Assign_OPLS(Molecule, ChelpG = True):
                     Q += Atom_Obj.Charge
                     Num_Atoms += 1.0
             
-            print("Total Charge on Molecule is", Q)
-            print("N is", Num_Atoms)
+            print "Total Charge on Molecule is", Q
+            print "N is", Num_Atoms
             dQ = Q/Num_Atoms
-            print("dQ =", dQ)
+            print "dQ =", dQ
             for Atom_Obj in Molecule.Atom_List:
                 if Atom_Obj.Charge != 0.0:
                     if Atom_Obj.Charge < 0.0:
                         Atom_Obj.Charge -= dQ
-                        print("Adjusting Charge +")
+                        print "Adjusting Charge +"
                     if Atom_Obj.Charge > 0.0:
                         Atom_Obj.Charge -= dQ
-                        print("Adjusting Charge -")
+                        print "Adjusting Charge -"
             Q = 0.0
             Num_Atoms = 0.0
             for Atom_Obj in Molecule.Atom_List:
@@ -379,13 +379,13 @@ def Assign_OPLS(Molecule, ChelpG = True):
                     Q += Atom_Obj.Charge
                     Num_Atoms += 1.0
                                                     
-            print("Total Charge on Molecule is", Q)
+            print "Total Charge on Molecule is", Q
 
 
-        print("------------------------------------")
-        print("Finding Bonds")
-        print("------------------------------------")
-        print("Bond #, Orca eq, OPLS eq")
+        print "------------------------------------"
+        print "Finding Bonds"
+        print "------------------------------------"
+        print "Bond #, Orca eq, OPLS eq"
         i = 0
         for Bond_Obj in Molecule.Bond_List:
             Bonded_Atoms = sorted([Bond_Obj.Bond_Main.OPLS_Class, Bond_Obj.Bond_Node.OPLS_Class])
@@ -396,17 +396,17 @@ def Assign_OPLS(Molecule, ChelpG = True):
                     if Molecule.UnConverged:
                         Bond_Obj.req = float(B_OPLS[4])
                     Bond_Obj.Bond_ID = i
-                    print(i, Bond_Obj.req, B_OPLS[4], Bond_Obj.kb)
+                    print i, Bond_Obj.req, B_OPLS[4], Bond_Obj.kb
 
-        print("-------------------------------------")
+        print "-------------------------------------"
         if i == len(Molecule.Bond_List):
-            print("All bonds present and accounted for :)")
+            print "All bonds present and accounted for :)"
         else:
-            print("MISSING BOND PARAMETER!!!!!")
+            print "MISSING BOND PARAMETER!!!!!"
             for Bond_Obj in Molecule.Bond_List:
                 if Bond_Obj.kb == 0:
-                    print(Bond_Obj.Bond_Main.OPLS_Class, Bond_Obj.Bond_Node.OPLS_Class)
-                    print(Bond_Obj.Bond_Main.Atom_ID, Bond_Obj.Bond_Node.Atom_ID)
+                    print Bond_Obj.Bond_Main.OPLS_Class, Bond_Obj.Bond_Node.OPLS_Class
+                    print Bond_Obj.Bond_Main.Atom_ID, Bond_Obj.Bond_Node.Atom_ID
                     # Set arbitrary value for bond constant
                     Bond_Obj.Kb = 300.0
 
@@ -418,8 +418,8 @@ def Assign_OPLS(Molecule, ChelpG = True):
         i = 0
         for Angle_Obj in Molecule.Angle_List:
             Angle_Nodes = sorted([Angle_Obj.Angle_Node1.OPLS_Class, Angle_Obj.Angle_Node2.OPLS_Class])
-            print(Angle_Obj.Angle_Main.OPLS_Class)
-            print(Angle_Nodes)
+            print Angle_Obj.Angle_Main.OPLS_Class
+            print Angle_Nodes
             for A_OPLS in OPLS_Angles:
                 if (int(A_OPLS[2]) == Angle_Obj.Angle_Main.OPLS_Class and Angle_Nodes[0] == int(A_OPLS[1]) and Angle_Nodes[1] == int(A_OPLS[3])):
                     i += 1
@@ -427,7 +427,7 @@ def Assign_OPLS(Molecule, ChelpG = True):
                     if Molecule.UnConverged:
                         Angle_Obj.Angle_Eq = float(A_OPLS[5])
                     Angle_Obj.Angle_ID = i
-                    print(i, Angle_Obj.Angle_Eq, float(A_OPLS[5]))
+                    print i, Angle_Obj.Angle_Eq, float(A_OPLS[5])
         print("-------------------------------------")
 
         if i == len(Molecule.Angle_List):
@@ -436,8 +436,8 @@ def Assign_OPLS(Molecule, ChelpG = True):
             print("MISSING ANGLE PARAMETER!!!")
             for Angle_Obj in Molecule.Angle_List:
                 if Angle_Obj.ka == 0.0:
-                    print(Angle_Obj.Angle_Main.OPLS_Class, Angle_Obj.Angle_Node1.OPLS_Class, Angle_Obj.Angle_Node2.OPLS_Class)
-                    print(Angle_Obj.Angle_Main.Element, Angle_Obj.Angle_Node1.Element, Angle_Obj.Angle_Node2.Element)
+                    print Angle_Obj.Angle_Main.OPLS_Class, Angle_Obj.Angle_Node1.OPLS_Class, Angle_Obj.Angle_Node2.OPLS_Class
+                    print Angle_Obj.Angle_Main.Element, Angle_Obj.Angle_Node1.Element, Angle_Obj.Angle_Node2.Element
                     Angle_Obj.ka = 35.0
 
         print("-------------------------------------")
@@ -488,16 +488,16 @@ def Assign_OPLS(Molecule, ChelpG = True):
             print("All dihedrals present and accounted for :)")
         else:
             print("MISSING DIHEDRAL PARAMETERS!!!")
-            print(("i =", i))
-            print(("Num Dih=", len(Molecule.Dihedral_List)))
+            print("i =", i)
+            print("Num Dih=", len(Molecule.Dihedral_List))
             Molecule.Missing_Dihedrals = len(Molecule.Dihedral_List) - i 
             for Dihedral_Obj in Molecule.Dihedral_List:
                 if Dihedral_Obj.Dihedral_ID == 0:
                     i+=1
                     Dihedral_Obj.Dihedral_ID = i
                     #print Dihedral_Obj.Dihedral_Node1.OPLS_Class, Dihedral_Obj.Dihedral_Main1.OPLS_Class, Dihedral_Obj.Dihedral_Main2.OPLS_Class, Dihedral_Obj.Dihedral_Node2.OPLS_Class
-                    print((Dihedral_Obj.Dihedral_Node1.Element, Dihedral_Obj.Dihedral_Main1.Element, Dihedral_Obj.Dihedral_Main2.Element, Dihedral_Obj.Dihedral_Node2.Element))
-                    print((Dihedral_Obj.Dihedral_Node1.Atom_ID, Dihedral_Obj.Dihedral_Main1.Atom_ID, Dihedral_Obj.Dihedral_Main2.Atom_ID, Dihedral_Obj.Dihedral_Node2.Atom_ID))
+                    print(Dihedral_Obj.Dihedral_Node1.Element, Dihedral_Obj.Dihedral_Main1.Element, Dihedral_Obj.Dihedral_Main2.Element, Dihedral_Obj.Dihedral_Node2.Element)
+                    print(Dihedral_Obj.Dihedral_Node1.Atom_ID, Dihedral_Obj.Dihedral_Main1.Atom_ID, Dihedral_Obj.Dihedral_Main2.Atom_ID, Dihedral_Obj.Dihedral_Node2.Atom_ID)
                     
         print("Finding Improper interactions (Aromatic Carbons OPLS_CLASS=48)")
         i = 0
@@ -509,7 +509,7 @@ def Assign_OPLS(Molecule, ChelpG = True):
                     Temp_List.append(Molecule.Get_Atom(atom))
                 Temp_Bond_List = sorted(Temp_List, key=lambda x: x.Element)
                 Molecule.Improper_List.append(Improper.Improper( Atom_Obj, Temp_Bond_List[0], Temp_Bond_List[1], Temp_Bond_List[2], 5.0, 180.0, i ))
-        print(("Found ", i , "Improper interactions"))
+        print("Found ", i , "Improper interactions")
         print("---------------------------------------")
         print(" Force Field Building is complete")
         print("---------------------------------------")

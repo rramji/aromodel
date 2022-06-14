@@ -175,11 +175,11 @@ class Conjugated_Polymer(Molecule.Molecule):
         for i in range(len(self.Ring_List) - 1):
             for b_atom in self.Ring_List[i].Bonded_Atoms:
                 if b_atom.Is_Linked and b_atom.Bonded_Ring == self.Ring_List[i+1]:
-                    bond_master = b_atom.Central_Atom
+                    bond_Main = b_atom.Central_Atom
             for b_atom in self.Ring_List[i+1].Bonded_Atoms:
                 if b_atom.Is_Linked and b_atom.Bonded_Ring == self.Ring_List[i]:
-                    bond_slave = b_atom.Central_Atom
-            self.Interring_Bond_List.append(Bond.Bond(bond_master,bond_slave,np.linalg.norm(bond_master.Position - bond_slave.Position)))
+                    bond_Node = b_atom.Central_Atom
+            self.Interring_Bond_List.append(Bond.Bond(bond_Main,bond_Node,np.linalg.norm(bond_Main.Position - bond_Node.Position)))
         #self.Map_From_Bonds()
 
         for ring in self.Ring_List:
@@ -205,7 +205,7 @@ class Conjugated_Polymer(Molecule.Molecule):
                 if b_atom.Is_Linked:
                     Existing_Improper = False
                     for imp in self.Improper_List:
-                        if imp.Improper_Master == b_atom.Central_Atom and imp.Improper_Slave3 == b_atom.Interring_Bond_Atom:
+                        if imp.Improper_Main == b_atom.Central_Atom and imp.Improper_Node3 == b_atom.Interring_Bond_Atom:
                             Existing_Improper = True
                     if not Existing_Improper:
                         self.Improper_List.append(Improper.Improper(b_atom.Central_Atom,b_atom.Same_Ring_Bonded_Atom_List[0],b_atom.Same_Ring_Bonded_Atom_List[1],b_atom.Interring_Bond_Atom.Central_Atom,b_atom.K,0.0,len(self.Improper_List)+1,d=b_atom.d,n=b_atom.n))
@@ -1211,10 +1211,10 @@ class Conjugated_Polymer(Molecule.Molecule):
                 if b_atom.Is_Linked:
                     Bonded_Atom_List.append(b_atom)
         for bond in self.Interring_Bond_List:
-            atom1_ID = bond.Bond_Master.Atom_ID
-            atom2_ID = bond.Bond_Slave.Atom_ID
+            atom1_ID = bond.Bond_Main.Atom_ID
+            atom2_ID = bond.Bond_Node.Atom_ID
             for imp in self.Improper_List:
-                if (imp.Improper_Master.Atom_ID == atom1_ID and imp.Improper_Slave3.Atom_ID == atom2_ID) or (imp.Improper_Master.Atom_ID == atom2_ID and imp.Improper_Slave3.Atom_ID == atom1_ID):
+                if (imp.Improper_Main.Atom_ID == atom1_ID and imp.Improper_Node3.Atom_ID == atom2_ID) or (imp.Improper_Main.Atom_ID == atom2_ID and imp.Improper_Node3.Atom_ID == atom1_ID):
                     imp.Ki = 0.0
 
     def Replace_Interring_Dihedrals(self,index1,index2,coeffs_list,zero_coeffs = [0.0,0.0,0.0,0.0],different_dihedrals=1,double_dih=False):
@@ -1226,10 +1226,10 @@ class Conjugated_Polymer(Molecule.Molecule):
                     Bonded_Atom_List.append(b_atom)
         n=0
         for bond in self.Interring_Bond_List:
-            atom1_ID = bond.Bond_Master.Atom_ID
-            atom2_ID = bond.Bond_Slave.Atom_ID
+            atom1_ID = bond.Bond_Main.Atom_ID
+            atom2_ID = bond.Bond_Node.Atom_ID
             for dih in self.Dihedral_List:
-                if (dih.Dihedral_Master1.Atom_ID == atom1_ID and dih.Dihedral_Master2.Atom_ID == atom2_ID):
+                if (dih.Dihedral_Main1.Atom_ID == atom1_ID and dih.Dihedral_Main2.Atom_ID == atom2_ID):
                     for b_atom in Bonded_Atom_List:
                         if b_atom.Central_Atom.Atom_ID == atom1_ID:
                             bonded_atom_ID_1 = b_atom.Same_Ring_Bonded_Atom_List[index1[n]].Atom_ID
@@ -1246,16 +1246,16 @@ class Conjugated_Polymer(Molecule.Molecule):
                                 alt_bonded_atom_ID_1 = b_atom.Same_Ring_Bonded_Atom_List[alt_index1].Atom_ID
                                 alt_bonded_atom_ID_2 = b_atom.Interring_Bond_Atom.Same_Ring_Bonded_Atom_List[alt_index2].Atom_ID
                             break
-                    if double_dih and dih.Dihedral_Slave1.Atom_ID == alt_bonded_atom_ID_1 and dih.Dihedral_Slave2.Atom_ID == alt_bonded_atom_ID_2:
+                    if double_dih and dih.Dihedral_Node1.Atom_ID == alt_bonded_atom_ID_1 and dih.Dihedral_Node2.Atom_ID == alt_bonded_atom_ID_2:
                         dih.Coeffs = coeffs_list[n]
-                    if dih.Dihedral_Slave1.Atom_ID == bonded_atom_ID_1 and dih.Dihedral_Slave2.Atom_ID == bonded_atom_ID_2:
+                    if dih.Dihedral_Node1.Atom_ID == bonded_atom_ID_1 and dih.Dihedral_Node2.Atom_ID == bonded_atom_ID_2:
                         dih.Coeffs = coeffs_list[n]
                         n+=1
                         if n >= different_dihedrals:
                             n=0
                     else:
                         dih.Coeffs = zero_coeffs
-                elif (dih.Dihedral_Master1.Atom_ID == atom2_ID and dih.Dihedral_Master2.Atom_ID == atom1_ID):
+                elif (dih.Dihedral_Main1.Atom_ID == atom2_ID and dih.Dihedral_Main2.Atom_ID == atom1_ID):
                     for b_atom in Bonded_Atom_List:
                         if b_atom.Central_Atom.Atom_ID == atom1_ID:
                             bonded_atom_ID_1 = b_atom.Same_Ring_Bonded_Atom_List[index1[n]].Atom_ID
@@ -1272,12 +1272,12 @@ class Conjugated_Polymer(Molecule.Molecule):
                                 alt_bonded_atom_ID_1 = b_atom.Same_Ring_Bonded_Atom_List[alt_index1].Atom_ID
                                 alt_bonded_atom_ID_2 = b_atom.Interring_Bond_Atom.Same_Ring_Bonded_Atom_List[alt_index2].Atom_ID
                             break
-                    if dih.Dihedral_Slave2.Atom_ID == bonded_atom_ID_1 and dih.Dihedral_Slave1.Atom_ID == bonded_atom_ID_2:
+                    if dih.Dihedral_Node2.Atom_ID == bonded_atom_ID_1 and dih.Dihedral_Node1.Atom_ID == bonded_atom_ID_2:
                         dih.Coeffs = coeffs_list[n]
                         n+=1
                         if n >= different_dihedrals:
                             n=0
-                    elif double_dih and dih.Dihedral_Slave2.Atom_ID == alt_bonded_atom_ID_1 and dih.Dihedral_Slave1.Atom_ID == alt_bonded_atom_ID_2:
+                    elif double_dih and dih.Dihedral_Node2.Atom_ID == alt_bonded_atom_ID_1 and dih.Dihedral_Node1.Atom_ID == alt_bonded_atom_ID_2:
                         dih.Coeffs = coeffs_list[n]
                     else:
                         dih.Coeffs = zero_coeffs
@@ -1406,7 +1406,7 @@ class Conjugated_Polymer(Molecule.Molecule):
     def Parameterize_Interring_Bonds(self):
         #Creates interring bonds, angles, and dihedrals after LigParGen read in
         for b_bond in self.Interring_Bond_List:
-            self.Bond_List.append(Bond.Bond(b_bond.Bond_Master, b_bond.Bond_Slave, b_bond.req))
+            self.Bond_List.append(Bond.Bond(b_bond.Bond_Main, b_bond.Bond_Node, b_bond.req))
             self.Bond_List[-1].kb = 469.0
             #b_bond.req = 1.424
         #Create interring angles
@@ -1470,6 +1470,7 @@ class Conjugated_Polymer(Molecule.Molecule):
                 self.Dihedral_List[-1].Dihedral_ID = len(self.Dihedral_List)
 
     def Read_From_Data_File(self,Input_File,No_Position_Update = False):
+        
         Element_Dict = { 12.011:"C", 1.008:"H", 18.998:"F", 15.999:"O", 32.06:"S", 14.007:"N", 28.085:"Si",28.086:"Si", 35.453:"Cl"}
         Full = False
         j = -1
@@ -1600,14 +1601,14 @@ class Conjugated_Polymer(Molecule.Molecule):
                     #print "Extracting Bonds"
                     for i in range(int(Num_Bonds)):
                         Bond_Info = File_Lines[i+j+2].strip().split()
-                        #Master = self.Atom_List[int(Bond_Info[2])-1]
-                        Master = self.Get_Atom(int(Bond_Info[2]))
-                        #Slave = self.Atom_List[int(Bond_Info[3])-1]
-                        Slave = self.Get_Atom(int(Bond_Info[3]))
+                        #Main = self.Atom_List[int(Bond_Info[2])-1]
+                        Main = self.Get_Atom(int(Bond_Info[2]))
+                        #Node = self.Atom_List[int(Bond_Info[3])-1]
+                        Node = self.Get_Atom(int(Bond_Info[3]))
                         Kb = Bond_Coeffs[int(Bond_Info[1])-1, 0]
                         Req = Bond_Coeffs[int(Bond_Info[1])-1,1]
                         Bond_ID = int(Bond_Info[0])
-                        self.Bond_List.append(Bond.Bond(Master, Slave,Req))
+                        self.Bond_List.append(Bond.Bond(Main, Node,Req))
                         self.Bond_List[i].kb = Kb
                         self.Bond_List[i].Bond_ID = Bond_ID
                         self.Bond_List[i].LAMMPS_Type = Bond_ID = int(Bond_Info[1])
@@ -1615,16 +1616,16 @@ class Conjugated_Polymer(Molecule.Molecule):
                     #print "Extracting Angles"
                     for i in range(int(Num_Angles)):
                         Angle_Info = File_Lines[i+j+2].strip('\n').split()
-                        #Slave1 = self.Atom_List[int(Angle_Info[2])-1]
-                        Slave1 = self.Get_Atom(int(Angle_Info[2]))
-                        #Master = self.Atom_List[int(Angle_Info[3])-1]
-                        Master = self.Get_Atom(int(Angle_Info[3]))
-                        #Slave2 = self.Atom_List[int(Angle_Info[4])-1]
-                        Slave2 = self.Get_Atom(int(Angle_Info[4]))
+                        #Node1 = self.Atom_List[int(Angle_Info[2])-1]
+                        Node1 = self.Get_Atom(int(Angle_Info[2]))
+                        #Main = self.Atom_List[int(Angle_Info[3])-1]
+                        Main = self.Get_Atom(int(Angle_Info[3]))
+                        #Node2 = self.Atom_List[int(Angle_Info[4])-1]
+                        Node2 = self.Get_Atom(int(Angle_Info[4]))
                         Ka = Angle_Coeffs[int(Angle_Info[1])-1,0]
                         Th0 = Angle_Coeffs[int(Angle_Info[1])-1,1]
                         Angle_ID = int(Angle_Info[0])
-                        self.Angle_List.append(Angle.Angle(Master, Slave1, Slave2, Th0))
+                        self.Angle_List.append(Angle.Angle(Main, Node1, Node2, Th0))
                         self.Angle_List[i].ka = Ka
                         self.Angle_List[i].Angle_ID = Angle_ID
                         self.Angle_List[i].LAMMPS_Type = int(Angle_Info[1])
@@ -1632,20 +1633,20 @@ class Conjugated_Polymer(Molecule.Molecule):
                     #print "Extracting Dihedrals"
                     for i in range(int(Num_Dihedrals)):
                         Dihedral_Info = File_Lines[i+j+2].strip('\n').split()
-                        #Slave1 = self.Atom_List[int(Dihedral_Info[2])-1]
-                        Slave1 = self.Get_Atom(int(Dihedral_Info[2]))
-                        #Master1 = self.Atom_List[int(Dihedral_Info[3])-1]
-                        Master1 = self.Get_Atom(int(Dihedral_Info[3]))
-                        #Master2 = self.Atom_List[int(Dihedral_Info[4])-1]
-                        Master2 = self.Get_Atom(int(Dihedral_Info[4]))
-                        #Slave2 = self.Atom_List[int(Dihedral_Info[5])-1]
-                        Slave2 = self.Get_Atom(int(Dihedral_Info[5]))
+                        #Node1 = self.Atom_List[int(Dihedral_Info[2])-1]
+                        Node1 = self.Get_Atom(int(Dihedral_Info[2]))
+                        #Main1 = self.Atom_List[int(Dihedral_Info[3])-1]
+                        Main1 = self.Get_Atom(int(Dihedral_Info[3]))
+                        #Main2 = self.Atom_List[int(Dihedral_Info[4])-1]
+                        Main2 = self.Get_Atom(int(Dihedral_Info[4]))
+                        #Node2 = self.Atom_List[int(Dihedral_Info[5])-1]
+                        Node2 = self.Get_Atom(int(Dihedral_Info[5]))
                         Coeffs = Dihedral_Coeffs[int(Dihedral_Info[1])-1]
                         #Coeffs = []
                         #Style = Dihedral_Styles[int(Dihedral_Info[1])-1]
                         Style = int(Dihedral_Info[1])
                         Dihedral_ID = int(Dihedral_Info[0])
-                        self.Dihedral_List.append(Dihedral.Dihedral(Master1, Master2, Slave1, Slave2, 0.0))
+                        self.Dihedral_List.append(Dihedral.Dihedral(Main1, Main2, Node1, Node2, 0.0))
                         self.Dihedral_List[i].Coeffs = Coeffs
                         self.Dihedral_List[i].Dihedral_ID = Dihedral_ID
                         self.Dihedral_List[i].Style = Style
@@ -1655,17 +1656,17 @@ class Conjugated_Polymer(Molecule.Molecule):
                     #print "Extracting Impropers"
                     for i in range(int(Num_Impropers)):
                         Improper_Info = File_Lines[i+j+2].strip('\n').split()
-                        #Master = self.Atom_List[int(Improper_Info[2])-1]
-                        Master = self.Get_Atom(int(Improper_Info[2]))
-                        #Slave1 = self.Atom_List[int(Improper_Info[3])-1]
-                        Slave1 = self.Get_Atom(int(Improper_Info[3]))
-                        #Slave2 = self.Atom_List[int(Improper_Info[4])-1]
-                        Slave2 = self.Get_Atom(int(Improper_Info[4]))
-                        #Slave3 = self.Atom_List[int(Improper_Info[5])-1]
-                        Slave3 = self.Get_Atom(int(Improper_Info[5]))
+                        #Main = self.Atom_List[int(Improper_Info[2])-1]
+                        Main = self.Get_Atom(int(Improper_Info[2]))
+                        #Node1 = self.Atom_List[int(Improper_Info[3])-1]
+                        Node1 = self.Get_Atom(int(Improper_Info[3]))
+                        #Node2 = self.Atom_List[int(Improper_Info[4])-1]
+                        Node2 = self.Get_Atom(int(Improper_Info[4]))
+                        #Node3 = self.Atom_List[int(Improper_Info[5])-1]
+                        Node3 = self.Get_Atom(int(Improper_Info[5]))
                         Coeff = Improper_Coeffs[int(Improper_Info[1])-1,0]
                         Improper_ID = int(Improper_Info[0])
-                        self.Improper_List.append(Improper.Improper(Master, Slave1, Slave2, Slave3, Coeff, 180.0, Improper_ID))
+                        self.Improper_List.append(Improper.Improper(Main, Node1, Node2, Node3, Coeff, 180.0, Improper_ID))
                         self.Improper_List[i].LAMMPS_Type = int(Improper_Info[1])
 
         self.Atom_List = sorted(self.Atom_List, key=lambda AtomO: AtomO.Atom_ID)

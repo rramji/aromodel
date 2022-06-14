@@ -16,7 +16,7 @@ def main():
     Density = 0.1
     Mult = int(Mult)
     File_List = glob.glob('data.*')
-    print File_List
+    print(File_List)
     Mol_Temp_List = []
     i = 0
     Total_Mass = 0.0
@@ -37,7 +37,7 @@ def main():
     #Name = File_List[0].split('.')[1].split('_')[0] + "_%s" % i*Mult
     
     Name = os.getcwd().split('/')[-1] + "_%s" % int(i*Mult)
-    print Name
+    print(Name)
     DA_System = System.System(Mol_Temp_List, Comp_List, Box_Length, Name)
     DA_System.Gen_Rand()
     DA_System.Write_LAMMPS_Data()
