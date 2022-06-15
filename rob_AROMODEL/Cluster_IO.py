@@ -1,7 +1,7 @@
-#! usr/bin/python
 import os
 import subprocess
 import time
+import numpy as np
 
 def Quantum_Orca(file):
 #Returns True if an Orca job has finished running, and False if not
@@ -517,13 +517,15 @@ def Return_Info(Analyze_File,End_File,Folder_Name,Job_Name,Cluster_Login,Cluster
 						print("Job Exists")
 						Finished = True
 				elif End_Condition == "Opt_QChem":
-					if Opt_QChem("./%s/%s" % (Folder_Name,End_File)):
-						print("Job Exists")
-						Finished = True
+					raise Exception("Opt_QChem not implemented")
+					# if Opt_QChem("./%s/%s" % (Folder_Name,End_File)):
+					# 	print("Job Exists")
+					# 	Finished = True
 				elif End_Condition == "Opt_NWChem":
-					if Opt_NWChem("./%s/%s" % (Folder_Name,End_File)):
-						print("Job Exists")
-						Finished = True
+					raise Exception("Opt_NWChem not implemented")
+					# if Opt_NWChem("./%s/%s" % (Folder_Name,End_File)):
+					# 	print("Job Exists")
+					# 	Finished = True
 				else:
 					Finished = True
 			if not Finished:
@@ -595,13 +597,15 @@ def Return_Info_Batch(Analyze_File_List,End_File_List,Folder_Name,Job_Name,Clust
 							print("Job Exists")
 							Finished = True
 					elif End_Condition == "Opt_QChem":
-						if Opt_QChem("./%s/%s" % (Folder_Name,End_File)):
-							print("Job Exists")
-							Finished = True
+						raise Exception("Opt_QChem not implemented")
+						# if Opt_QChem("./%s/%s" % (Folder_Name,End_File)):
+						# 	print("Job Exists")
+						# 	Finished = True
 					elif End_Condition == "Opt_NWChem":
-						if Opt_NWChem("./%s/%s" % (Folder_Name,End_File)):
-							print("Job Exists")
-							Finished = True
+						raise Exception("Opt_NWChem not implemented")
+						# if Opt_NWChem("./%s/%s" % (Folder_Name,End_File)):
+						# 	print("Job Exists")
+						# 	Finished = True
 					else:
 						Finished = True
 				if not Finished:

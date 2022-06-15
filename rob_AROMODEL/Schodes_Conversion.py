@@ -68,13 +68,13 @@ def main():
             if line.strip().split() != [] and line.strip().split()[0] == "TIME:":
                 NonbondedFlag = False
             elif len(line.strip().split()) >1 and line.strip().split()[0].isdigit():
-                print line.strip().split()[0]
+                print(line.strip().split()[0])
                 NonParams.append(str(NonNum)+" "+line.strip().split()[2]+" "+line.strip().split()[3])
                 NonDefs.append(str(NonNum)+" "+line.strip().split()[0]+" "+line.strip().split()[1])
                 NonNum+=1
         if line.strip().split() != [] and line.strip().split()[0] == "Connection":
             TypeFlag = True
-            print line
+            print(line)
         if TypeFlag:
             if len(line.strip().split()) > 1 and line.strip().split()[0][1].isdigit():
                 Masses.append(str(TypeNum)+" "+AtomWeights[line.strip().split()[0][0]])

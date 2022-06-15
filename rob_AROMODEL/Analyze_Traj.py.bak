@@ -32,11 +32,11 @@ class Atom(object):
         return
 
     def Print_Info(self):
-        print("Atom ID = %d, Type = %d\n, Mol_ID = %d" % (self.id, self.Type, self.Mol_ID))
-        print("Position")
-        print(self.position)
-        print(self.image_flags)
-        print("-----------------------------------------")
+        print "Atom ID = %d, Type = %d\n, Mol_ID = %d" % (self.id, self.Type, self.Mol_ID)
+        print "Position"
+        print self.position
+        print self.image_flags
+        print "-----------------------------------------"
         return
 
 class CG_Bead(object):
@@ -83,7 +83,7 @@ class CG_Bead(object):
         Vec3[0] = Vec1[1]*Vec2[2] - Vec1[2]*Vec2[1]
         Vec3[1] = Vec1[2]*Vec2[0] - Vec1[0]*Vec2[2]
         Vec3[2] = Vec1[0]*Vec2[1] - Vec1[1]*Vec2[0]
-        print(np.dot(Vec1,Vec1), np.dot(Vec1,Vec2), np.dot(Vec1,Vec3))
+        print np.dot(Vec1,Vec1), np.dot(Vec1,Vec2), np.dot(Vec1,Vec3)
         self.basis[0] = Vec1
         self.basis[1] = Vec2
         self.basis[2] = Vec3
@@ -394,47 +394,45 @@ class Snap_Shot(object):
                 Atom_Types.append(Bead.CG_Type)
         return Atom_Types
 
-## Appears to be unused
-    # def Define_CG_Bonds(self, Bond_Type, Type1, Type2):
-    #     for Mol in self.CG_Mol_List:
-    #         i= 0
-    #         Temp_Bond_List = []
-    #         for CG_Bead in Mol.CG_Bead_List:
-    #             if CG_Bead.CG_Type == "D" and i == 0:
-    #                 Bond_Main = CG_Bead
-    #             if CG_Bead.CG_Type == "D" and i != 0:
-    #                 Bond_Main = CG_Bead
-    #                 Temp_Bond = CG_Bond("AD", Bond_Node, Bond_Main)
-    #                 Temp_Bond_List.append(Temp_Bond)
-    #                 Bond_List_AD.append(Temp_Bond.Bond_Length)
-    #             if CG_Bead.CG_Type == "A":
-    #                 Bond_Node = CG_Bead
-    #                 Temp_Bond = CG_Bond("DA", Bond_Main, Bond_Node)
-    #                 Temp_Bond_List.append(Temp_Bond)
-    #                 Bond_List_DA.append(Temp_Bond.Bond_Length)
-    #                 i += 1
-    #         self.CG_Bond_List.append(Temp_Bond_List)
-        
-    #     """
-    #     plt.hist([Bond_List_DA, Bond_List_AD], bins = 40, normed=True, histtype = 'bar', label = ["DA Bond", "AD Bond"])
-    #     plt.legend( loc = 'upper right', frameon = False, fontsize= 25)
-    #     plt.tick_params( labelsize = 20, width=2, length=7)
-    #     plt.xlabel("Distance ($\AA$)", fontsize=25)
-    #     plt.ylabel("Probability", fontsize=25)
-    #     plt.xlim((6.5,8))
-    #     plt.show()
-    #     """
+    def Define_CG_Bonds(self, Bond_Type, Type1, Type2):
+        for Mol in self.CG_Mol_List:
+            i= 0
+            Temp_Bond_List = []
+            for CG_Bead in Mol.CG_Bead_List:
+                if CG_Bead.CG_Type == "D" and i == 0:
+                    Bond_Main = CG_Bead
+                if CG_Bead.CG_Type == "D" and i != 0:
+                    Bond_Main = CG_Bead
+                    Temp_Bond = CG_Bond("AD", Bond_Node, Bond_Main)
+                    Temp_Bond_List.append(Temp_Bond)
+                    Bond_List_AD.append(Temp_Bond.Bond_Length)
+                if CG_Bead.CG_Type == "A":
+                    Bond_Node = CG_Bead
+                    Temp_Bond = CG_Bond("DA", Bond_Main, Bond_Node)
+                    Temp_Bond_List.append(Temp_Bond)
+                    Bond_List_DA.append(Temp_Bond.Bond_Length)
+                    i += 1
+            self.CG_Bond_List.append(Temp_Bond_List)
+        """
+        plt.hist([Bond_List_DA, Bond_List_AD], bins = 40, normed=True, histtype = 'bar', label = ["DA Bond", "AD Bond"])
+        plt.legend( loc = 'upper right', frameon = False, fontsize= 25)
+        plt.tick_params( labelsize = 20, width=2, length=7)
+        plt.xlabel("Distance ($\AA$)", fontsize=25)
+        plt.ylabel("Probability", fontsize=25)
+        plt.xlim((6.5,8))
+        plt.show()
+        """
 
 
-    #     """
-    #     plt.hist([Angle_List_DAD, Angle_List_ADA], bins = 40, normed=True, histtype = 'bar', label = ["DAD Angle", "ADA Angle"])
-    #     plt.legend( loc = 'upper right', frameon = False, fontsize= 25)
-    #     plt.tick_params( labelsize = 20, width=2, length=7)
-    #     plt.xlabel("Distance ($\AA$)", fontsize=25)
-    #     plt.ylabel("Probability", fontsize=25)
-    #     plt.xlim((0,120))
-    #     plt.show()
-    #     """
+        """
+        plt.hist([Angle_List_DAD, Angle_List_ADA], bins = 40, normed=True, histtype = 'bar', label = ["DAD Angle", "ADA Angle"])
+        plt.legend( loc = 'upper right', frameon = False, fontsize= 25)
+        plt.tick_params( labelsize = 20, width=2, length=7)
+        plt.xlabel("Distance ($\AA$)", fontsize=25)
+        plt.ylabel("Probability", fontsize=25)
+        plt.xlim((0,120))
+        plt.show()
+        """
             
     def Group_CG_Bonds(self):
         Grouped_Bonds = []
@@ -468,11 +466,11 @@ class Snap_Shot(object):
                     self.Angle_Map[Bead1.CG_Type + Bead2.CG_Type + Bead3.CG_Type] = max(self.Angle_Map.values())+1
                     self.Angle_Map[Bead3.CG_Type + Bead2.CG_Type + Bead1.CG_Type] = max(self.Angle_Map.values())
                 self.Angle_Values.append(CG_Angle((self.Angle_Map[Bead1.CG_Type + Bead2.CG_Type + Bead3.CG_Type]),angle))
-        print(self.Angle_Map)
+        print self.Angle_Map
     #print self.Angle_Values
         for i in range(max(self.Angle_Map.values())):
-            print(i)
-            bin_list = list(range(60))
+            print i
+            bin_list = range(60)
             angle_bins = np.zeros(len(bin_list))
             for Angle in self.Angle_Values:
                 if Angle.Angle_Type == i+1:
@@ -480,8 +478,8 @@ class Snap_Shot(object):
             angle_plots.append((angle_bins))
         return angle_plots
 
-    # def Harmonic(K,theta0):
-    #     P = K*(theta-theta0)**2
+    def Harmonic(K,theta0):
+        P = K*(theta-theta0)**2
 
     def Compute_CG_Dihedrals(self):
         angle_plots = []
@@ -489,15 +487,15 @@ class Snap_Shot(object):
             vector1 = self.Find_Bead(Dih[0]).COM_PBC - self.Find_Bead(Dih[1]).COM_PBC
             vector2 = self.Find_Bead(Dih[1]).COM_PBC - self.Find_Bead(Dih[2]).COM_PBC
             plane1 = np.cross(vector1,vector2)
-            print(vector1)
-            print(vector2)
+            print vector1
+            print vector2
             plane1 = plane1/math.sqrt(plane1[0]**2+plane1[1]**2+plane1[2]**2)
-            print("Plane1")
-            print(plane1)
+            print "Plane1"
+            print plane1
             vector1 = self.Find_Bead(Dih[1]).COM_PBC - self.Find_Bead(Dih[2]).COM_PBC
             vector2 = self.Find_Bead(Dih[2]).COM_PBC - self.Find_Bead(Dih[3]).COM_PBC
-            print(vector1)
-            print(vector2)
+            print vector1
+            print vector2
             plane2 = np.cross(vector1,vector2)
             plane2 = plane2/math.sqrt(plane2[0]**2+plane2[1]**2+plane2[2]**2)
             Cos = np.dot(plane1, plane2)
@@ -513,17 +511,17 @@ class Snap_Shot(object):
                     self.Dih_Map[self.Find_Bead(Dih[0]).CG_Type + self.Find_Bead(Dih[1]).CG_Type + self.Find_Bead(Dih[2]).CG_Type + self.Find_Bead(Dih[3]).CG_Type] = max(self.Dih_Map.values())+1
                     self.Dih_Map[self.Find_Bead(Dih[3]).CG_Type + self.Find_Bead(Dih[2]).CG_Type + self.Find_Bead(Dih[1]).CG_Type + self.Find_Bead(Dih[0]).CG_Type] = max(self.Dih_Map.values())
                 self.Dih_Values.append(CG_Angle((self.Dih_Map[self.Find_Bead(Dih[0]).CG_Type + self.Find_Bead(Dih[1]).CG_Type + self.Find_Bead(Dih[2]).CG_Type + self.Find_Bead(Dih[3]).CG_Type]),angle))
-        print(self.Dih_Map)
-        print(self.Dih_Values)
-        print(plane1)
-        print(plane2)
+        print self.Dih_Map
+        print self.Dih_Values
+        print plane1
+        print plane2
         for i in range(max(self.Angle_Map.values())):
-           print(i)
-           bin_list = list(range(60))
+           print i
+           bin_list = range(60)
            angle_bins = np.zeros(len(bin_list))
            for Angle in self.Dih_Values:
                if Angle.Angle_Type == i+1:
-                   print(int(Angle.Angle/3))
+                   print int(Angle.Angle/3)
                    angle_bins[int(Angle.Angle/3)-1] += 1
            angle_plots.append((angle_bins)/sum(angle_bins))
         return angle_plots
@@ -549,7 +547,7 @@ class Snap_Shot(object):
                         Dihedral_List_AD.append(angle)
                     except:
                         i+=1
-                        print("exception %d" % i)
+                        print "exception %d" % i
                         continue
                                 
                             
@@ -565,16 +563,16 @@ class Snap_Shot(object):
                         Dihedral_List_DA.append(angle)
                     except:
                         i+=1
-                        print("exception %d" % i)
+                        print "exception %d" % i
                         continue
                 
                 if CG_Bead.CG_Type == "A" or CG_Bead.CG_Type == "D":
                     try:
                         if abs(angle) < 40.0 or abs(angle) > 140.0:
-                            print("Conjugated %.2f" % abs(angle))
+                            print "Conjugated %.2f" % abs(angle)
                             Conjugation_Dist[-1] += 1
                         else:
-                            print("Not Conjugated %.2f" % abs(angle))
+                            print "Not Conjugated %.2f" % abs(angle)
                             Conjugation_Dist.append(1)
                     except:
                             continue
@@ -656,7 +654,7 @@ class Snap_Shot(object):
             
         self.Tangent_Correlation = Tangent_Correlation
         self.Binormal_Correlation = Binormal_Correlation
-        print(Binormal_Correlation)
+        print Binormal_Correlation
         
         """
         plt.plot(Tangent_Correlation, linewidth=3)
@@ -715,17 +713,17 @@ class Snap_Shot(object):
                             R12SQ = R12[0]**2 + R12[1]**2 + R12[2]**2
                             Distance = math.sqrt(R12SQ)
                             if Distance < 3.5:
-                                print(CG_Bead1.COM_PBC)
-                                print(CG_Bead2.COM_PBC)
-                                print(CG_Bead1.COM)
-                                print(CG_Bead2.COM)
-                                print("Distance smaller than 3.5", Distance, CG_Bead1.CG_ID, CG_Bead2.CG_ID)
+                                print CG_Bead1.COM_PBC
+                                print CG_Bead2.COM_PBC
+                                print CG_Bead1.COM
+                                print CG_Bead2.COM
+                                print "Distance smaller than 3.5", Distance, CG_Bead1.CG_ID, CG_Bead2.CG_ID
                             RDF.append(Distance)
                             Bin = int(Distance/dr)
                             # Compute a histogram of pair seperations
                             if Bin <  MaxBin:
                                 Hist[Bin] += 1
-        print("Max Bin = ", MaxBin)
+        print "Max Bin = ", MaxBin
 
         rhoB = NB/(self.Box_Dim[0]**3)
         rdf = np.zeros(MaxBin, dtype=float)
@@ -742,7 +740,7 @@ class Snap_Shot(object):
         """
         Num_Beads = Polymer.Num_Beads
         
-        print("Computing order parameter")
+        print "Computing order parameter"
         for Mol in self.CG_Mol_List:
             j=0
             Donor_Index = Polymer.Donor_Index
@@ -779,7 +777,7 @@ class Snap_Shot(object):
         # Sum over all chains
         f = 0
         Eig_List = []
-        print("Computing Order")
+        print "Computing Order"
         for Mol in self.CG_Mol_List:
             f += 1
             for i in range(len(Mol.Orientation_Vector_List)):
@@ -794,7 +792,7 @@ class Snap_Shot(object):
                         if j != k:
                             Mol.Q[(j,k)] += (3.0/2.0)*Mol.Orientation_Vector_List[i][j]*Mol.Orientation_Vector_List[i][k]
             Mol.Q = Mol.Q / float(len(Mol.Orientation_Vector_List))
-            print(np.sort(np.linalg.eig(Mol.Q)[0]), np.max(np.linalg.eig(Mol.Q)[0]))
+            print np.sort(np.linalg.eig(Mol.Q)[0]), np.max(np.linalg.eig(Mol.Q)[0])
             fig, ax = plt.subplots()
             heatmap = ax.pcolor(self.Contact_Map, cmap=plt.cm.hot)
             ax.set_xlim((0,24))
@@ -810,7 +808,7 @@ class Snap_Shot(object):
         Eig_List = np.asarray(Eig_List)
         Average_Order = Eig_List.mean()
         Stdv = Eig_List.std()
-        print(" Average intrachain order is ", Average_Order, "+-", Stdv)
+        print " Average intrachain order is ", Average_Order, "+-", Stdv
 
         """
         fig, ax = plt.subplots()
@@ -838,7 +836,7 @@ class Snap_Shot(object):
     def Find_Dihedrals(self):
         for Bead in self.CG_List:
             Bead.Find_CG_Angles(self, Max_Num_Bonds = 4)
-        print(self.Dihedral_List)
+        print self.Dihedral_List
         return self.Dihedral_List
 
 
@@ -920,13 +918,13 @@ class Trajectory(object):
                     # Define the unstrained Box Length
                     if (Box_Dim[0] == Box_Dim[1]) and (Box_Dim[1] == Box_Dim[2]):
                         self.L0 = Box_Dim[1]
-                        print("Setting L0 to ", self.L0)
+                        print "Setting L0 to ", self.L0
                     
                     
-                    print("Timestep = %d, N = %d\n" % (Time_Step, N))
-                    print(Box_Dim)
+                    print "Timestep = %d, N = %d\n" % (Time_Step, N)
+                    print Box_Dim
                     # Extract Snapshot as list of atoms
-                    print("Extracting Atoms...\n")
+                    print "Extracting Atoms...\n"
                     for j in range(N):
                         Atom_Line = File_Lines[i + 9 + j].split(' ')
                         ID = int(Atom_Line[0])
@@ -936,11 +934,11 @@ class Trajectory(object):
                         IMAGE = [ int(Atom_Line[6]), int(Atom_Line[7]), int(Atom_Line[8])]
                         if MOL < (N_MOL + 1):
                             Atom_List.append(Atom(ID, TYPE, MOL, POS, IMAGE))
-                    print("Finished extracting atoms, now sorting them")
+                    print "Finished extracting atoms, now sorting them"
                     Sorted_Atom_List = sorted(Atom_List, key=lambda Atom: Atom.id)
                     # Extract Molecule Objects from Atom List
-                    print("Instantiating Molecule Objects")
-                    print("N_MOL = %d " % N_MOL)
+                    print "Instantiating Molecule Objects"
+                    print "N_MOL = %d " % N_MOL
                     Mol_List = np.empty(N_MOL, dtype=object)
                     for i in range(N_MOL):
                         Mol_List[i] = Molecule(i+1)
@@ -951,10 +949,10 @@ class Trajectory(object):
                         Mol_List[MOLID-1].Add_Atom(Atom_Obj)
                         Atom_Obj.position -= [ XBounds[0], YBounds[0], ZBounds[0]]
                     
-                    print("Converting to Numpy array")
+                    print "Converting to Numpy array"
                     for Mol_Obj in Mol_List:
                         Mol_Obj.NP_Convert()
-                    print("Instantiating Snap Shot Object, Computing properties")
+                    print "Instantiating Snap Shot Object, Computing properties"
                     Snap_Shot_Obj = Snap_Shot(Time_Step, Mol_List, Box_Dim)
                     
                     # Compute center of mass, Radius of Gyration, E2E, order parameter, Backbone Tangent Correlation, Contact Map, etc.
@@ -965,8 +963,8 @@ class Trajectory(object):
                     tic = time.clock()
                     Polymer.Map2CG(Snap_Shot_Obj)
                     toc = time.clock()
-                    print("Mapping Time:")
-                    print((toc-tic))
+                    print "Mapping Time:"
+                    print (toc-tic)
                     tic = time.clock()
                     if iter == 0:
                         self.Atom_Types = Snap_Shot_Obj.Find_Atom_Types()
@@ -978,8 +976,8 @@ class Trajectory(object):
                                 self.rdf[self.Atom_Types[i] + self.Atom_Types[j]]=(self.rdf[self.Atom_Types[i] + self.Atom_Types[j]]*iter + Snap_Shot_Obj.Compute_RDF(self.Atom_Types[i],self.Atom_Types[j]))
                                 self.rdf[self.Atom_Types[i] + self.Atom_Types[j]]/=(iter+1)
                     toc = time.clock()
-                    print("RDF Time:")
-                    print((toc-tic))
+                    print "RDF Time:"
+                    print (toc-tic)
                     tic = toc
                     if iter == 0:
                         self.Bond_List = Snap_Shot_Obj.CG_Bond_List
@@ -987,23 +985,23 @@ class Trajectory(object):
                     else:
                         self.Bond_Values += np.asarray(Snap_Shot_Obj.Group_CG_Bonds())
                     toc = time.clock()
-                    print("Bond Time:")
-                    print((toc-tic))
+                    print "Bond Time:"
+                    print (toc-tic)
                     tic = toc
                     if self.Angle_List == []:
-                        print("Empty Angles")
+                        print "Empty Angles"
                         self.Angle_List = Snap_Shot_Obj.Find_Angles()
                     else:
                         Snap_Shot_Obj.Angle_List = self.Angle_List
                     if iter == 0:
                         self.Angle_Values = np.asarray(Snap_Shot_Obj.Compute_CG_Angles())
                     else:
-                        print(sum(self.Angle_Values[0]))
+                        print sum(self.Angle_Values[0])
                         self.Angle_Values += np.asarray(Snap_Shot_Obj.Compute_CG_Angles())
-                        print(sum(self.Angle_Values[0]))
+                        print sum(self.Angle_Values[0])
                     toc = time.clock()
-                    print("Angle Time:")
-                    print((toc-tic))
+                    print "Angle Time:"
+                    print (toc-tic)
                     tic = toc
                     if self.Dihedral_List == []:
                         self.Dihedral_List = Snap_Shot_Obj.Find_Dihedrals()
@@ -1014,8 +1012,8 @@ class Trajectory(object):
                     else:
                         self.Dih_Values += np.asarray(Snap_Shot_Obj.Compute_CG_Dihedrals())
                     toc = time.clock()
-                    print("Dihedral Time:")
-                    print((toc-tic))
+                    print "Dihedral Time:"
+                    print (toc-tic)
                     """if self.Dihedral_List == []:
                         self.Dihedral_List = np.asarray(Snap_Shot_Obj.Find_Dihedrals())
                     else:
@@ -1076,7 +1074,7 @@ class Trajectory(object):
     def Plot_Angles(self):
         for plot in self.Angle_Values:
             plt.figure()
-            plt.plot(list(range(len(plot))),plot)
+            plt.plot(range(len(plot)),plot)
         plt.show()
 
 

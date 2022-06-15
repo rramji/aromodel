@@ -17,7 +17,7 @@ class Atom(object):
         self.Link = Link
 
     def print_atom(self):
-        print 'A %s atom, mass %f, at position %f, %f, %f' % (self.Atom_Type,self.Mass,self.Coord[0],self.Coord[1],self.Coord[2])
+        print('A %s atom, mass %f, at position %f, %f, %f' % (self.Atom_Type,self.Mass,self.Coord[0],self.Coord[1],self.Coord[2]))
 
 class Monomer(object):
     #Describes a full, unique monomer. Atom_List contains all the atoms present in the monomer, Bond_List contains the Atom_Num of bonded atoms, ID is the number used to represent the monomer in Mono_Order (begins at 0), Start_ and End_Atom give the coordinates of the connective atoms to adjacent monomers. End_Atom will not actually be present in the Monomer (the connecting atom of an adjacent monomer).

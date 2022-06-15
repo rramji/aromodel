@@ -84,7 +84,7 @@ def Write_QChem_Optimize_Geometry(File_Name,Test_Molecule,Basis = "def2-SVP",Met
 	for atom in Test_Molecule.Atom_List:
 		f.write('%s\t%f\t%f\t%f\n' % (atom.Element,atom.Position[0],atom.Position[1],atom.Position[2]))
 	f.write("$end\n\n$rem\n\tJOBTYPE\t\tOPT\n\tBASIS\t\t%s\n\tMETHOD\t\t%s\n\tDFT_D\t\tD3_BJ\n\tAUX_BASIS\t%s\n\tPURECART\t11111\n\tSYMMETRY\tfalse\n\tMEM_TOTAL\t%d\n\tSCF_CONVERGENCE = %d\n\tTHRESH=%d\n$end" % (Basis,Method,Aux_Basis,Memory,convergence,convergence + 4))
-	if Implicit_Solvent != "":
+	if Implicit_Solvent_Dielectric != "":
 		f.write("\n\n$solvent\nDielectric %.2f\n$end" % Implicit_Solvent_Dielectric)
 	f.close()
 

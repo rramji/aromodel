@@ -1,7 +1,9 @@
+#! usr/bin/python
+
 
 # Import relevant modules
 import numpy as np
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import math
 import pickle
 import Polymer
@@ -32,11 +34,11 @@ class Atom(object):
         return
 
     def Print_Info(self):
-        print("Atom ID = %d, Type = %d\n, Mol_ID = %d" % (self.id, self.Type, self.Mol_ID))
-        print("Position")
-        print(self.position)
-        print(self.image_flags)
-        print("-----------------------------------------")
+        print "Atom ID = %d, Type = %d\n, Mol_ID = %d" % (self.id, self.Type, self.Mol_ID)
+        print "Position"
+        print self.position
+        print self.image_flags
+        print "-----------------------------------------"
         return
 
 class CG_Bead(object):
@@ -83,7 +85,7 @@ class CG_Bead(object):
         Vec3[0] = Vec1[1]*Vec2[2] - Vec1[2]*Vec2[1]
         Vec3[1] = Vec1[2]*Vec2[0] - Vec1[0]*Vec2[2]
         Vec3[2] = Vec1[0]*Vec2[1] - Vec1[1]*Vec2[0]
-        print(np.dot(Vec1,Vec1), np.dot(Vec1,Vec2), np.dot(Vec1,Vec3))
+        print np.dot(Vec1,Vec1), np.dot(Vec1,Vec2), np.dot(Vec1,Vec3)
         self.basis[0] = Vec1
         self.basis[1] = Vec2
         self.basis[2] = Vec3
@@ -102,12 +104,12 @@ class CG_Bead(object):
     
     def Find_CG_Angles(self,SS,Num_Bonds = 0, Max_Num_Bonds = 2,Bead_List = []):
         for Bead_ID_2 in self.Bond_List:
-            print(self.CG_ID)
+            print self.CG_ID
             Temp_List = copy.deepcopy(Bead_List)
             if (len(Temp_List)== 0 or Bead_ID_2 not in Temp_List) and Num_Bonds <= Max_Num_Bonds:
-                print("Appending %d" % Bead_ID_2)
+                print "Appending %d" % Bead_ID_2
                 Temp_List.append(self.CG_ID)
-                print(Temp_List)
+                print Temp_List
                 #print Temp_List
                 SS.Find_Bead(Bead_ID_2).Find_CG_Angles(SS,Num_Bonds + 1, Max_Num_Bonds,Temp_List)
             elif Num_Bonds > Max_Num_Bonds:
@@ -118,11 +120,11 @@ class CG_Bead(object):
                     SS.Angle_List.append(Bead_List)
 
 class CG_Bond(object):
-    def __init__(self, Bond_Type, Bond_Main, Bond_Node):
+    def __init__(self, Bond_Type, Bond_Master, Bond_Slave):
         self.Bond_Type = Bond_Type # integer
-        self.Bond_Main = Bond_Main # CG_Bead object
-        self.Bond_Node = Bond_Node
-        self.Bond_Vector = (Bond_Main.COM - Bond_Node.COM)
+        self.Bond_Master = Bond_Master # CG_Bead object
+        self.Bond_Slave = Bond_Slave
+        self.Bond_Vector = (Bond_Master.COM - Bond_Slave.COM)
         self.Bond_Length = math.sqrt(self.Bond_Vector[0]**2 + self.Bond_Vector[1]**2 + self.Bond_Vector[2]**2)
         self.Bond_Vector /= self.Bond_Length
         return
@@ -267,7 +269,7 @@ class Snap_Shot(object):
             Mol.E2E = np.linalg.norm(Mol.Atom_List[-1].unwrapped_position - Mol.Atom_List[-2].unwrapped_position)
             self.E2E_Dist[Mol.Mol_ID-1] = Mol.E2E
             self.C_Ratio[Mol.Mol_ID-1] = (self.E2E_Dist[Mol.Mol_ID-1]/self.RG_Dist[Mol.Mol_ID - 1])**2
-            print(Mol.Mol_ID, self.RG_Dist[Mol.Mol_ID - 1], self.E2E_Dist[Mol.Mol_ID-1], (self.E2E_Dist[Mol.Mol_ID-1]/self.RG_Dist[Mol.Mol_ID - 1])**2)
+            print Mol.Mol_ID, self.RG_Dist[Mol.Mol_ID - 1], self.E2E_Dist[Mol.Mol_ID-1], (self.E2E_Dist[Mol.Mol_ID-1]/self.RG_Dist[Mol.Mol_ID - 1])**2
         return
 
 
@@ -373,15 +375,15 @@ class Snap_Shot(object):
             Temp_Bond_List = []
             for CG_Bead in Mol.CG_Bead_List:
                 if CG_Bead.CG_Type == "D" and i == 0:
-                    Bond_Main = CG_Bead
+                    Bond_Master = CG_Bead
                 if CG_Bead.CG_Type == "D" and i != 0:
-                    Bond_Main = CG_Bead
-                    Temp_Bond = CG_Bond("AD", Bond_Node, Bond_Main)
+                    Bond_Master = CG_Bead
+                    Temp_Bond = CG_Bond("AD", Bond_Slave, Bond_Master)
                     Temp_Bond_List.append(Temp_Bond)
                     Bond_List_AD.append(Temp_Bond.Bond_Length)
                 if CG_Bead.CG_Type == "A":
-                    Bond_Node = CG_Bead
-                    Temp_Bond = CG_Bond("DA", Bond_Main, Bond_Node)
+                    Bond_Slave = CG_Bead
+                    Temp_Bond = CG_Bond("DA", Bond_Master, Bond_Slave)
                     Temp_Bond_List.append(Temp_Bond)
                     Bond_List_DA.append(Temp_Bond.Bond_Length)
                     i += 1
@@ -415,25 +417,25 @@ class Snap_Shot(object):
         for Mol_Bond in self.CG_Bond_List:
             for i in range(len(Mol_Bond)-2):
                 # Define Bonded Components
-                Node1 = Mol_Bond[i]
-                Main = Mol_Bond[i+1]
-                Node2 = Mol_Bond[i+2]
+                Slave1 = Mol_Bond[i]
+                Master = Mol_Bond[i+1]
+                Slave2 = Mol_Bond[i+2]
                 # Define Normal vectors
                 N1 = np.zeros(3,float)
                 N2 = np.zeros(3,float)
                 M1 = np.zeros(3,float)
                 # Compute Normal Vectors
-                N1[0] = Node1.Bond_Vector[1]*Main.Bond_Vector[2] -  Node1.Bond_Vector[2]*Main.Bond_Vector[1]
-                N1[1] = Node1.Bond_Vector[2]*Main.Bond_Vector[0] -  Node1.Bond_Vector[0]*Main.Bond_Vector[2]
-                N1[2] = Node1.Bond_Vector[0]*Main.Bond_Vector[1] -  Node1.Bond_Vector[1]*Main.Bond_Vector[0]
+                N1[0] = Slave1.Bond_Vector[1]*Master.Bond_Vector[2] -  Slave1.Bond_Vector[2]*Master.Bond_Vector[1]
+                N1[1] = Slave1.Bond_Vector[2]*Master.Bond_Vector[0] -  Slave1.Bond_Vector[0]*Master.Bond_Vector[2]
+                N1[2] = Slave1.Bond_Vector[0]*Master.Bond_Vector[1] -  Slave1.Bond_Vector[1]*Master.Bond_Vector[0]
          
-                N2[0] = Main.Bond_Vector[1]*Node2.Bond_Vector[2] -  Main.Bond_Vector[2]*Node2.Bond_Vector[1]
-                N2[1] = Main.Bond_Vector[2]*Node2.Bond_Vector[0] -  Main.Bond_Vector[0]*Node2.Bond_Vector[2]
-                N2[2] = Main.Bond_Vector[0]*Node2.Bond_Vector[1] -  Main.Bond_Vector[1]*Node2.Bond_Vector[0]
+                N2[0] = Master.Bond_Vector[1]*Slave2.Bond_Vector[2] -  Master.Bond_Vector[2]*Slave2.Bond_Vector[1]
+                N2[1] = Master.Bond_Vector[2]*Slave2.Bond_Vector[0] -  Master.Bond_Vector[0]*Slave2.Bond_Vector[2]
+                N2[2] = Master.Bond_Vector[0]*Slave2.Bond_Vector[1] -  Master.Bond_Vector[1]*Slave2.Bond_Vector[0]
                 
-                M1[0] = N1[1]*Main.Bond_Vector[2] - N1[2]*Main.Bond_Vector[1]
-                M1[1] = N1[2]*Main.Bond_Vector[0] - N1[0]*Main.Bond_Vector[2]
-                M1[2] = N1[0]*Main.Bond_Vector[1] - N1[1]*Main.Bond_Vector[0]
+                M1[0] = N1[1]*Master.Bond_Vector[2] - N1[2]*Master.Bond_Vector[1]
+                M1[1] = N1[2]*Master.Bond_Vector[0] - N1[0]*Master.Bond_Vector[2]
+                M1[2] = N1[0]*Master.Bond_Vector[1] - N1[1]*Master.Bond_Vector[0]
                 
                 x = np.dot(N1,N2)
                 y = np.dot(M1,N2)
@@ -441,9 +443,9 @@ class Snap_Shot(object):
                 angle = np.arctan2(y,x)*(180./3.14)
                 
                 
-                if Node1.Bond_Main.CG_Type == "D":
+                if Slave1.Bond_Master.CG_Type == "D":
                     Dihedral_List_DADA.append(angle)
-                if Node1.Bond_Main.CG_Type == "A":
+                if Slave1.Bond_Master.CG_Type == "A":
                     Dihedral_List_ADAD.append(angle)
         """
         plt.hist([Dihedral_List_DADA, Dihedral_List_ADAD], bins = 40, normed=True, histtype = 'bar', label = ["DADA","ADAD"])
@@ -477,7 +479,7 @@ class Snap_Shot(object):
                         Dihedral_List_AD.append(angle)
                     except:
                         i+=1
-                        print("exception %d" % i)
+                        print "exception %d" % i
                         continue
                                 
                             
@@ -493,16 +495,16 @@ class Snap_Shot(object):
                         Dihedral_List_DA.append(angle)
                     except:
                         i+=1
-                        print("exception %d" % i)
+                        print "exception %d" % i
                         continue
                 
                 if CG_Bead.CG_Type == "A" or CG_Bead.CG_Type == "D":
                     try:
                         if abs(angle) < 40.0 or abs(angle) > 140.0:
-                            print("Conjugated %.2f" % abs(angle))
+                            print "Conjugated %.2f" % abs(angle)
                             Conjugation_Dist[-1] += 1
                         else:
-                            print("Not Conjugated %.2f" % abs(angle))
+                            print "Not Conjugated %.2f" % abs(angle)
                             Conjugation_Dist.append(1)
                     except:
                             continue
@@ -584,7 +586,7 @@ class Snap_Shot(object):
             
         self.Tangent_Correlation = Tangent_Correlation
         self.Binormal_Correlation = Binormal_Correlation
-        print(Binormal_Correlation)
+        print Binormal_Correlation
         
         """
         plt.plot(Tangent_Correlation, linewidth=3)
@@ -633,14 +635,14 @@ class Snap_Shot(object):
                                     R12SQ = R12[0]**2 + R12[1]**2 + R12[2]**2
                                     Distance = math.sqrt(R12SQ)
                                     if Distance < 3.5:
-                                        print("Distance smaller than 3.5", Distance, Mol1.Mol_ID, Mol2.Mol_ID) 
+                                        print "Distance smaller than 3.5", Distance, Mol1.Mol_ID, Mol2.Mol_ID 
                                     RDF.append(Distance)
                                     Bin = int(Distance/dr)
                                     # Compute a histogram of pair seperations
                                     if Bin <  MaxBin:
                                         Hist[Bin] += 1
     
-        print("Max Bin = ", MaxBin)
+        print "Max Bin = ", MaxBin
 
         rhoB = NB/(self.Box_Dim[0]**3)
         rdf = np.zeros(MaxBin, dtype=float)
@@ -656,7 +658,7 @@ class Snap_Shot(object):
         """
         Num_Beads = Polymer.Num_Beads
         
-        print("Computing order parameter")
+        print "Computing order parameter"
         for Mol in self.CG_Mol_List:
             j=0
             Donor_Index = Polymer.Donor_Index
@@ -665,13 +667,13 @@ class Snap_Shot(object):
             for CG_Bead in Mol.CG_Bead_List:
                 j += 1
                 if j > Num_Beads and j < Num_Beads*11 and CG_Bead.CG_Type == "D":
-                    print(j, Mol.CG_Bead_List[ j - Num_Beads + Acceptor_Index -1 ].CG_Type, Mol.CG_Bead_List[j + Acceptor_Index - 1].CG_Type)
+                    print j, Mol.CG_Bead_List[ j - Num_Beads + Acceptor_Index -1 ].CG_Type, Mol.CG_Bead_List[j + Acceptor_Index - 1].CG_Type
                     Bond = Mol.CG_Bead_List[ j - Num_Beads + Acceptor_Index - 1].COM - Mol.CG_Bead_List[j + Acceptor_Index -1].COM
                     Bond = Bond/np.linalg.norm(Bond)
                     CG_Bead.Orientation_Vector = Bond
                     Mol.Orientation_Vector_List.append(Bond)
                 if j > Num_Beads and j < Num_Beads*11 and CG_Bead.CG_Type == "A":
-                    print(j, Mol.CG_Bead_List[ j - Acceptor_Index - 1 ].CG_Type, Mol.CG_Bead_List[j + Num_Beads - Acceptor_Index  -1].CG_Type)
+                    print j, Mol.CG_Bead_List[ j - Acceptor_Index - 1 ].CG_Type, Mol.CG_Bead_List[j + Num_Beads - Acceptor_Index  -1].CG_Type
                     Bond = Mol.CG_Bead_List[ j - Acceptor_Index - 1].COM - Mol.CG_Bead_List[j + Num_Beads - Acceptor_Index -1].COM
                     Bond = Bond/np.linalg.norm(Bond)
                     CG_Bead.Orientation_Vector = Bond
@@ -693,7 +695,7 @@ class Snap_Shot(object):
         # Sum over all chains
         f = 0
         Eig_List = []
-        print("Computing Order")
+        print "Computing Order"
         for Mol in self.CG_Mol_List:
             f += 1
             for i in range(len(Mol.Orientation_Vector_List)):
@@ -708,7 +710,7 @@ class Snap_Shot(object):
                         if j != k:
                             Mol.Q[(j,k)] += (3.0/2.0)*Mol.Orientation_Vector_List[i][j]*Mol.Orientation_Vector_List[i][k]
             Mol.Q = Mol.Q / float(len(Mol.Orientation_Vector_List))
-            print(np.sort(np.linalg.eig(Mol.Q)[0]), np.max(np.linalg.eig(Mol.Q)[0]))
+            print np.sort(np.linalg.eig(Mol.Q)[0]), np.max(np.linalg.eig(Mol.Q)[0])
             fig, ax = plt.subplots()
             heatmap = ax.pcolor(self.Contact_Map, cmap=plt.cm.hot)
             ax.set_xlim((0,24))
@@ -724,7 +726,7 @@ class Snap_Shot(object):
         Eig_List = np.asarray(Eig_List)
         Average_Order = Eig_List.mean()
         Stdv = Eig_List.std()
-        print(" Average intrachain order is ", Average_Order, "+-", Stdv)
+        print " Average intrachain order is ", Average_Order, "+-", Stdv
 
         """
         fig, ax = plt.subplots()
@@ -749,7 +751,7 @@ class Snap_Shot(object):
             Bead.Find_CG_Angles(self)"""
         for i in range(11):
             self.CG_List[i].Find_CG_Angles(self)
-        print(self.Angle_List)
+        print self.Angle_List
 
 
 
@@ -827,13 +829,13 @@ class Trajectory(object):
                 # Define the unstrained Box Length
                 if (Box_Dim[0] == Box_Dim[1]) and (Box_Dim[1] == Box_Dim[2]):
                     self.L0 = Box_Dim[1]
-                    print("Setting L0 to ", self.L0)
+                    print "Setting L0 to ", self.L0
                 
                 
-                print("Timestep = %d, N = %d\n" % (Time_Step, N))
-                print(Box_Dim)
+                print "Timestep = %d, N = %d\n" % (Time_Step, N)
+                print Box_Dim
                 # Extract Snapshot as list of atoms
-                print("Extracting Atoms...\n")
+                print "Extracting Atoms...\n"
                 for j in range(N):
                     Atom_Line = File_Lines[i + 9 + j].split(' ')
                     ID = int(Atom_Line[0])
@@ -843,11 +845,11 @@ class Trajectory(object):
                     IMAGE = [ int(Atom_Line[6]), int(Atom_Line[7]), int(Atom_Line[8])]
                     if MOL < (N_MOL + 1):
                         Atom_List.append(Atom(ID, TYPE, MOL, POS, IMAGE))
-                print("Finished extracting atoms, now sorting them")
+                print "Finished extracting atoms, now sorting them"
                 Sorted_Atom_List = sorted(Atom_List, key=lambda Atom: Atom.id)
                 # Extract Molecule Objects from Atom List
-                print("Instantiating Molecule Objects")
-                print("N_MOL = %d " % N_MOL)
+                print "Instantiating Molecule Objects"
+                print "N_MOL = %d " % N_MOL
                 Mol_List = np.empty(N_MOL, dtype=object)
                 for i in range(N_MOL):
                     Mol_List[i] = Molecule(i+1)
@@ -858,10 +860,10 @@ class Trajectory(object):
                     Mol_List[MOLID-1].Add_Atom(Atom_Obj)
                     Atom_Obj.position -= [ XBounds[0], YBounds[0], ZBounds[0]]
                 
-                print("Converting to Numpy array")
+                print "Converting to Numpy array"
                 for Mol_Obj in Mol_List:
                     Mol_Obj.NP_Convert()
-                print("Instantiating Snap Shot Object, Computing properties")
+                print "Instantiating Snap Shot Object, Computing properties"
                 Snap_Shot_Obj = Snap_Shot(Time_Step, Mol_List, Box_Dim)
                 
                 # Compute center of mass, Radius of Gyration, E2E, order parameter, Backbone Tangent Correlation, Contact Map, etc.
@@ -896,8 +898,8 @@ class Trajectory(object):
                 #self.RG_x_Ave.append(Snap_Shot_Obj.RG_x_Dist.mean())
                 #self.RG_y_Ave.append(Snap_Shot_Obj.RG_y_Dist.mean())
                 #self.Strain.append(Snap_Shot_Obj.Strain)
-                print("Strain = ", Snap_Shot_Obj.Strain)
-                print("(E2E/RG)$^2$ = ", (Snap_Shot_Obj.E2E_Dist.mean()/Snap_Shot_Obj.RG_Dist.mean())**2)
+                print "Strain = ", Snap_Shot_Obj.Strain
+                print "(E2E/RG)$^2$ = ", (Snap_Shot_Obj.E2E_Dist.mean()/Snap_Shot_Obj.RG_Dist.mean())**2
                 Temp_Snap_List.append(Snap_Shot_Obj)
 
         # Set instance variables

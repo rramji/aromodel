@@ -1,3 +1,5 @@
+#! usr/bin/python
+
 import Molecule
 import random
 import numpy as np
@@ -39,7 +41,7 @@ class System(object):
         Num_Mol = 0
         for Comp in self.Composition_List:
             Num_Mol += Comp
-        print("Number of Molecules = ", Num_Mol)
+        print "Number of Molecules = ", Num_Mol
         self.Molecule_List = []
         self.Current_Restart = ""
         self.Temperature = 800
@@ -89,7 +91,7 @@ class System(object):
         for i,Molecule_Obj in enumerate(self.Moltemp_List):
             for j in range(self.Composition_List[i]):
                 Temp_Mol = deepcopy(Molecule_Obj)
-                print(("Depositing %d" % Mol_ID))
+                print("Depositing %d" % Mol_ID)
                 Temp_Mol.Mol_ID = Mol_ID
                 for k in range(len(Molecule_Obj.Atom_List)):
                     Temp_Mol.Atom_List[k].Position[0] = Coords[Atom_Counter].split()[1]
@@ -106,28 +108,27 @@ class System(object):
                 Q += Atom_Obj.Charge
                 if Atom_Obj.Charge != 0.0:
                     Num_Atoms += 1.0
-        print("The total charge of the system is ", Q)
+        print "The total charge of the system is ", Q
 
         dQ = np.longdouble(Q / Num_Atoms)
-        print("dQ =", dQ)
+        print "dQ =", dQ
 
         for Mol_Obj in self.Molecule_List:
             for Atom_Obj in Mol_Obj.Atom_List:
                 if Atom_Obj.Charge != 0.0:
                     Atom_Obj.Charge -= dQ
 
-    # Not Used or properly implemented
-    # def Assign_PQEq(self):
-    #     self.PQEq_Params = []
-    #     for Atom_Type in Atom_Params:
-    #         self.PQEq_Params.append(Atom.Find_PQEq_Params(Atom_Type[0]))
-    #     self.PQEq = True
+    def Assign_PQEq(self):
+        self.PQEq_Params = []
+        for Atom_Type in Atom_Params:
+            self.PQEq_Params.append(Atom.Find_PQEq_Params(Atom_Type[0]))
+        self.PQEq = True
 
     def Gen_Rand(self):
         i = 0
         k = 1
         for Molecule_Obj in self.Moltemp_List:
-            print("Genenerated", self.Composition_List[i], Molecule_Obj.Name, "Molecules")
+            print "Genenerated", self.Composition_List[i], Molecule_Obj.Name, "Molecules"
             for j in range(self.Composition_List[i]):
                 Temp_Mol = deepcopy(Molecule_Obj)
                 #Temp_Mol = Molecule_Obj
@@ -209,10 +210,10 @@ class System(object):
                 Q += Atom_Obj.Charge
                 if Atom_Obj.Charge != 0.0:
                     Num_Atoms += 1.0
-        print("The total charge of the system is ", Q)
+        print "The total charge of the system is ", Q
         
         dQ = np.longdouble(abs(Q/Num_Atoms))
-        print("dQ =", dQ)
+        print "dQ =", dQ
 
         for Mol_Obj in self.Molecule_List:
             for Atom_Obj in Mol_Obj.Atom_List:
@@ -543,7 +544,7 @@ class System(object):
                 File = open(File_Out,'r')
                 Finished = True
             except:
-                print("Sleeping process", i, "minutes")
+                print "Sleeping process", i, "minutes"
                 time.sleep(600)
                 i += 10
         os.system( 'rm %s' % File_Out)
@@ -647,7 +648,7 @@ class System(object):
                     File = open(File_Out,'r')
                     Finished = True
                 except:
-                    print("Sleeping process", i, "minutes")
+                    print "Sleeping process", i, "minutes"
                     if not Minimize_Only:
                         time.sleep(600)
                     else:
@@ -757,7 +758,7 @@ class System(object):
                     File = open(File_Out,'r')
                     Finished = True
                 except:
-                    print("Sleeping process", i, "minutes")
+                    print "Sleeping process", i, "minutes"
                     time.sleep(600)
                     i += 10
 
@@ -832,7 +833,7 @@ class System(object):
                 File = open(File_Out,'r')
                 Finished = True
             except:
-                print("Sleeping process", i, "minutes")
+                print "Sleeping process", i, "minutes"
                 time.sleep(600)
                 i += 10
 
@@ -888,7 +889,7 @@ class System(object):
                 File = open(File_Out,'r')
                 Finished = True
             except:
-                print("Sleeping process", i, "minutes")
+                print "Sleeping process", i, "minutes"
                 time.sleep(600)
                 i += 10
 
@@ -1069,16 +1070,14 @@ class System(object):
                             f.write("\n")
                         f.close()
 
-                        # Not fucking implemented!
                         if Non_Interacting:
-                            raise Exception("Non Interacting condition is not yet implemented")
-                            # f = open(Bias_File_Name + "_Nonbonded.dat", 'w')
-                            # f.write("#! FIELDS DIH_%d OOP_%d ext_%d_nb.bias der_DIH_%d der_OOP_%d\n#! SET min_DIH_%d -pi\n#! SET max_DIH_%d pi\n#! SET nbins_DIH_%d 199\n#! SET periodic_DIH_%d true\n#! SET min_OOP_%d 0\n#! SET max_OOP_%d 2*pi\n#! SET nbins_OOP_%d 199\n#! SET periodic_OOP_%d false\n" % (index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1))
-                            # for q,energy_list in enumerate(Nonbonded_Fit_Energies[Parameter_Index][:-1]):
-                            #     for j,e in enumerate(energy_list[:-1]):
-                            #         f.write("%.6f %.6f %.6f %.6f %.6f\n" % (dih_blocks[j],oop_blocks[q],e*Nonbonded_Modifier,Nonbonded_Force_x[Parameter_Index][q][j]*Nonbonded_Modifier,Nonbonded_Force_y[Parameter_Index][q][j]*Nonbonded_Modifier))
-                            #     f.write("\n")
-                            # f.close()
+                            f = open(Bias_File_Name + "_Nonbonded.dat", 'w')
+                            f.write("#! FIELDS DIH_%d OOP_%d ext_%d_nb.bias der_DIH_%d der_OOP_%d\n#! SET min_DIH_%d -pi\n#! SET max_DIH_%d pi\n#! SET nbins_DIH_%d 199\n#! SET periodic_DIH_%d true\n#! SET min_OOP_%d 0\n#! SET max_OOP_%d 2*pi\n#! SET nbins_OOP_%d 199\n#! SET periodic_OOP_%d false\n" % (index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1))
+                            for q,energy_list in enumerate(Nonbonded_Fit_Energies[Parameter_Index][:-1]):
+                                for j,e in enumerate(energy_list[:-1]):
+                                    f.write("%.6f %.6f %.6f %.6f %.6f\n" % (dih_blocks[j],oop_blocks[q],e*Nonbonded_Modifier,Nonbonded_Force_x[Parameter_Index][q][j]*Nonbonded_Modifier,Nonbonded_Force_y[Parameter_Index][q][j]*Nonbonded_Modifier))
+                                f.write("\n")
+                            f.close()
                         os.system("scp %s.dat ./%s" % (Bias_File_Name,Folder_Name))
                         os.system("rm -f %s.dat" % (Bias_File_Name))
                         if Non_Interacting:

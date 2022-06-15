@@ -14,7 +14,7 @@ import os
 import Aux_Ring
 import time
 import Atom
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 import random
 
 class Conjugated_Polymer(Molecule.Molecule):
@@ -382,7 +382,7 @@ class Conjugated_Polymer(Molecule.Molecule):
     def Rotate_Aux_Ring(self,Rotation_Type,Rotation_Angle,Rotation_Ring,Aux_Ring_Index):
         #Rotates the Rotation_Ring (and all rings along the chain in the direction away from the Linked_Rotation_Ring) about the Linked_Rotation_Ring. Rotation_Type can be Dih or OOP, for a dihedral rotation or improper rotation respectively. Rotation_Angle is given in degrees and converted to radians
         self.Translate_Polymer(Rotation_Ring.Aux_Ring_List[Aux_Ring_Index].Other_Bond_Atom.Position)
-        otation_Ring.Update_Normal_Vector()
+        Rotation_Ring.Update_Normal_Vector()
         New_X = Rotation_Ring.Normal_Vector
         New_Y = (Rotation_Ring.Aux_Ring_List[Aux_Ring_Index].Other_Bond_Atom.Position - Rotation_Ring.Aux_Ring_List[Aux_Ring_Index].Self_Bond_Atom.Position)/np.linalg.norm(Rotation_Ring.Aux_Ring_List[Aux_Ring_Index].Other_Bond_Atom.Position - Rotation_Ring.Aux_Ring_List[Aux_Ring_Index].Self_Bond_Atom.Position)
         New_X = (New_X - np.dot(New_X,New_Y)*New_Y)/np.linalg.norm(New_X - np.dot(New_X,New_Y)*New_Y)
@@ -805,13 +805,14 @@ class Conjugated_Polymer(Molecule.Molecule):
                 f.close()
 
                 if Non_Interacting:
-                    f = open(Bias_File_Name + "_Nonbonded.dat", 'w')
-                    f.write("#! FIELDS DIH_%d OOP_%d ext_%d_nb.bias der_DIH_%d der_OOP_%d\n#! SET min_DIH_%d -pi\n#! SET max_DIH_%d pi\n#! SET nbins_DIH_%d 199\n#! SET periodic_DIH_%d true\n#! SET min_OOP_%d 0\n#! SET max_OOP_%d 2*pi\n#! SET nbins_OOP_%d 199\n#! SET periodic_OOP_%d false\n" % (index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1))
-                    for q,energy_list in enumerate(Nonbonded_Fit_Energies[Parameter_Index][:-1]):
-                        for j,e in enumerate(energy_list[:-1]):
-                            f.write("%.6f %.6f %.6f %.6f %.6f\n" % (dih_blocks[j],oop_blocks[q],e*Nonbonded_Modifier,Nonbonded_Force_x[Parameter_Index][q][j]*Nonbonded_Modifier,Nonbonded_Force_y[Parameter_Index][q][j]*Nonbonded_Modifier))
-                        f.write("\n")
-                    f.close()
+                    raise Exception("Non_Interacting case not yet implemented")
+                    # f = open(Bias_File_Name + "_Nonbonded.dat", 'w')
+                    # f.write("#! FIELDS DIH_%d OOP_%d ext_%d_nb.bias der_DIH_%d der_OOP_%d\n#! SET min_DIH_%d -pi\n#! SET max_DIH_%d pi\n#! SET nbins_DIH_%d 199\n#! SET periodic_DIH_%d true\n#! SET min_OOP_%d 0\n#! SET max_OOP_%d 2*pi\n#! SET nbins_OOP_%d 199\n#! SET periodic_OOP_%d false\n" % (index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1,index-1))
+                    # for q,energy_list in enumerate(Nonbonded_Fit_Energies[Parameter_Index][:-1]):
+                    #     for j,e in enumerate(energy_list[:-1]):
+                    #         f.write("%.6f %.6f %.6f %.6f %.6f\n" % (dih_blocks[j],oop_blocks[q],e*Nonbonded_Modifier,Nonbonded_Force_x[Parameter_Index][q][j]*Nonbonded_Modifier,Nonbonded_Force_y[Parameter_Index][q][j]*Nonbonded_Modifier))
+                    #     f.write("\n")
+                    # f.close()
                 os.system("scp %s.dat ./Nontorsional_Inputs" % (Bias_File_Name))
                 #os.system("rm -f %s.dat" % (Bias_File_Name))
             index += 1
@@ -1289,7 +1290,7 @@ class Conjugated_Polymer(Molecule.Molecule):
             Mass_Weighted_Sum += Atom_Obj.Mass*((Atom_Obj.Position[0] - self.COM[0])**2 + (Atom_Obj.Position[1] - self.COM[1])**2  + (Atom_Obj.Position[2] - self.COM[2])**2 )
         Rg2 = Mass_Weighted_Sum/self.MW
         self.Rg = np.sqrt(Rg2)
-        print "The Radius of Gyration is", self.Rg
+        print("The Radius of Gyration is", self.Rg)
         return self.Rg
 
     def Calculate_PL(self,PL_Atom_ID,Polymer_Name,Make_Figure=False):

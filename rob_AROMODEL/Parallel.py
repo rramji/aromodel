@@ -1,5 +1,3 @@
-#! /usr/bin/python
-
 import Configure
 
 def Write_Submit_Script(Num_Atoms, Sim_Name, Name, GPU = False):
