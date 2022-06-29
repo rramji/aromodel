@@ -1,5 +1,6 @@
 # Open relevant modules
 
+from logging import raiseExceptions
 import Bond
 import numpy as np
 import copy
@@ -14,6 +15,7 @@ import Aux_Ring
 import math
 import Conjugated_Polymer
 import time
+import Configure
 
 class Ring(Molecule.Molecule):
    
@@ -70,8 +72,8 @@ class Ring(Molecule.Molecule):
             new_atom_id += 1
 
         #Optimize geometry
-        self.Optimize_H_Positions(Cluster_Location,Shared_File_Location = "/Users/andrewkleinschmidt/Shared_Files_Dihedral_Parameterization")
-        self.Optimize_H_Positions_Hydrogenated(Cluster_Location,Shared_File_Location = "/Users/andrewkleinschmidt/Shared_Files_Dihedral_Parameterization")
+        self.Optimize_H_Positions(Cluster_Location,Shared_File_Location = Configure.cluster_dict["Shared_File_Location"])
+        self.Optimize_H_Positions_Hydrogenated(Cluster_Location,Shared_File_Location = Configure.cluster_dict["Shared_File_Location"])
 
 
     def Add_Plumed_Rings(self,Plumed_Rings):
@@ -284,11 +286,19 @@ class Ring(Molecule.Molecule):
         
 
 
-    def Optimize_H_Positions(self,Cluster_Location, config_dict, Shared_File_Location = ""):
+    def Optimize_H_Positions(self,Cluster_Location,config_dict = {}, Shared_File_Location = ""):
         # config_dict should be a dictionary containing user-specific compute cluster information
+        config_dict = {
+            "Cluster_Login" : "0", # temp
+            'Base_Cluster_Directory':"0",
+            'Scheduler_Type':"0",
+            'End_Condition':"0",
+            "Executable_Location":"0",
+            "OpenMPI_Location":"0",
+        }
 
-        if not isinstance(config_dict, dict):
-            raise ValueError('config_dict must be a dictionary')
+        #if not isinstance(config_dict, dict):
+        #    raise ValueError('config_dict must be a dictionary')
 
         keys = [
             'Cluster_Login', 
@@ -320,12 +330,12 @@ class Ring(Molecule.Molecule):
         Folder_Name = config_dict['Folder_Name']
         Job_Name = config_dict['Job_Name']
 
-        Cluster_Login = "andrewk@tscc-login.sdsc.edu"
-        Base_Cluster_Location = '/oasis/tscc/scratch/andrewk/'
-        Scheduler_Type = "TORQUE"
-        End_Condition = "Opt_Orca"
-        Executable_Location = "/home/andrewk/orca_4_2_0_linux_x86-64_openmpi314"
-        OpenMP_Location = "/home/andrewk/openmpi-3.1.4"
+        Cluster_Login = Configure.lammps_dict["Cluster_Login"]
+        Base_Cluster_Location = Configure.lammps_dict["Base_Cluster_Location"]
+        Scheduler_Type = Configure.lammps_dict["Scheduler_Type"]
+        End_Condition = Configure.openmp_dict["End_Condition"]
+        Executable_Location = Configure.openmp_dict["Executable_Location"]
+        OpenMP_Location = Configure.openmp_dict["OpenMP_Location"]
 
 
         f = open("%s_%s_%d.xyz" % (self.Polymer_Name,self.Name,self.Ring_ID),'w')
@@ -340,11 +350,12 @@ class Ring(Molecule.Molecule):
         os.system("mkdir ./Optimized_Monomers")
 
 
-        Write_Inputs.Write_Orca_Optimize_Geometry(config_dict['In_File'],Monomer,H_Only = True)
-        # Write_Submit_Script.Write_TORQUE(File_Name,In_File,Job_Name,1,Cluster_Location,Job_Type,Executable_Path = Executable_Location,OMP_Path = OpenMP_Location)
+        #Write_Inputs.Write_Orca_Optimize_Geometry(config_dict['In_File'],Monomer,H_Only = True)
+        #Write_Submit_Script.Write_TORQUE(File_Name,In_File,Job_Name,1,Cluster_Location,Job_Type,Executable_Path = Executable_Location,OMP_Path = OpenMP_Location)
         Write_Submit_Script.Write_TORQUE(File_Name,In_File,Job_Name,1,Cluster_Location,Job_Type,Executable_Path = Executable_Location,OMP_Path = OpenMP_Location)
         Copy_File_List = [config_dict['File_Name'],config_dict['In_File']]
         if not os.path.exists("./Optimized_Monomers/%s" % End_File):
+            raise Exception("You've reached the end of the line :(, not implemented right now") #temp
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,File_Name,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
             Cluster_IO.Return_Info(End_File,End_File,Folder_Name,Job_Type,Cluster_Login,Cluster_Location,End_Condition = End_Condition,Shared_File_Location = Shared_File_Location)
         print(End_File)
@@ -664,12 +675,12 @@ class Ring(Molecule.Molecule):
             Folder_Name = "Improper_Bend_Test"
             #End_File = "%s_Improper_Bend_Phi_%d.out" % (self.Name,i*10)
             End_File = "%s_Improper_Bend_Phi_%d.out" % (self.Name,i*5)
-            Cluster_Login = "andrewk@cori.nersc.gov"
-            Base_Cluster_Location = '/global/cscratch1/sd/andrewk'
-            Cluster_Location='/global/cscratch1/sd/andrewk/Improper_Bend_Test'
-            Scheduler_Type = "SLURM"
-            End_Condition = "SPE_QChem"
-            Shared_File_Location = "/Users/andrewkleinschmidt/Shared_Files_Dihedral_Parameterization"
+            Cluster_Login = Configure.cluster_dict["Cluster_Login"]
+            Base_Cluster_Location = Configure.cluster_dict["Base_Cluster_Location"]
+            Cluster_Location=Base_Cluster_Location+"/Improper_Bend_Test"
+            Scheduler_Type = Configure.cluster_dict["Scheduler_Type"]
+            End_Condition = Configure.cluster_dict["End_condition"]
+            Shared_File_Location = Configure.cluster_dict["Shared_File_Location"]
             """Job_Name = "%s_Improper_Bend_Phi_%d" % (self.Name,i*10)
             In_File = "%s_Improper_Bend_Phi_%d.qcin" % (self.Name,i*10)
             Sub_File = "sub_%s_Improper_Bend_Phi_%d" % (self.Name,i*10)"""
@@ -761,12 +772,12 @@ class Ring(Molecule.Molecule):
             Folder_Name = "Improper_Bend_Test"
             #End_File = "%s_Improper_Bend_Methyl_Phi_%d.out" % (self.Name,i*10)
             End_File = "%s_Improper_Bend_Methyl_Phi_%d.out" % (self.Name,i*Step)
-            Cluster_Login = "andrewk@cori.nersc.gov"
-            Base_Cluster_Location = '/global/cscratch1/sd/andrewk'
-            Cluster_Location='/global/cscratch1/sd/andrewk/Improper_Bend_Test'
-            Scheduler_Type = "SLURM"
-            End_Condition = "SPE_QChem"
-            Shared_File_Location = "/Users/andrewkleinschmidt/Shared_Files_Dihedral_Parameterization"
+            Cluster_Login = Configure.cluster_dict["Cluster_Login"]
+            Base_Cluster_Location = Configure.cluster_dict["Base_Cluster_Location"]
+            Cluster_Location=Base_Cluster_Location+"/Improper_Bend_Test"
+            Scheduler_Type = Configure.cluster_dict["Scheduler_Type"]
+            End_Condition = Configure.cluster_dict["End_condition"]
+            Shared_File_Location = Configure.cluster_dict["Shared_File_Location"]
             """Job_Name = "%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*10)
             In_File = "%s_Improper_Bend_Methyl_Phi_%d.qcin" % (self.Name,i*10)
             Sub_File = "sub_%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*10)"""
@@ -854,12 +865,12 @@ class Ring(Molecule.Molecule):
             Job_Type = "QChem"
             Folder_Name = "Improper_Bend_Test"
             End_File = "%s_Improper_Bend_Methyl_Phi_%d.out" % (self.Name,i*2)
-            Cluster_Login = "andrewk@cori.nersc.gov"
-            Base_Cluster_Location = '/global/cscratch1/sd/andrewk'
-            Cluster_Location='/global/cscratch1/sd/andrewk/Improper_Bend_Test'
-            Scheduler_Type = "SLURM"
-            End_Condition = "SPE_QChem"
-            Shared_File_Location = "/Users/andrewkleinschmidt/Shared_Files_Dihedral_Parameterization"
+            Cluster_Login = Configure.cluster_dict["Cluster_Login"]
+            Base_Cluster_Location = Configure.cluster_dict["Base_Cluster_Location"]
+            Cluster_Location=Base_Cluster_Location+"/Improper_Bend_Test"
+            Scheduler_Type = Configure.cluster_dict["Scheduler_Type"]
+            End_Condition = Configure.cluster_dict["End_condition"]
+            Shared_File_Location = Configure.cluster_dict["Shared_File_Location"]
             Job_Name = "%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*2)
             In_File = "%s_Improper_Bend_Methyl_Phi_%d.qcin" % (self.Name,i*2)
             Sub_File = "sub_%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*2)

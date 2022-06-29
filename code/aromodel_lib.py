@@ -4,6 +4,7 @@ import Molecule
 import Ring
 import OPLS as op
 import System
+import Configure
 import Conjugated_Polymer
 import Cluster_IO
 import Write_Inputs
@@ -98,24 +99,24 @@ def Sigmoid(x,a,b,c,d,e,f):
 
 def Run_Parameters(Folder_Name):
     #Returns regularly the current lab parameters for the supercomputer (e.g. location)
-    Cluster_Login = "andrewk@cori.nersc.gov"
-    Base_Cluster_Location = '/global/cscratch1/sd/andrewk'
-    Cluster_Location='/global/cscratch1/sd/andrewk/' + Folder_Name
-    Scheduler_Type = "SLURM"
-    End_Condition = "SPE_QChem"
-    Shared_File_Location = "/Users/andrewkleinschmidt/Shared_Files_Dihedral_Parameterization"
+    Cluster_Login = Configure.cluster_dict["Cluster_Login"]
+    Base_Cluster_Location = Configure.cluster_dict["Base_Cluster_Location"]
+    Cluster_Location = Base_Cluster_Location + "/" + Folder_Name
+    Scheduler_Type = Configure.cluster_dict["Scheduler_Type"]
+    End_Condition = Configure.cluster_dict["End_Condition"]
+    Shared_File_Location = Configure.cluster_dict["Shared_File_Location"]
     qos = "overrun --time-min=00:30:00"
 
     return Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos
 
 def Run_Parameters_LAMMPS(Folder_Name):
     #What supercomputer (if any) to run LAMMPS on
-    Cluster_Login = "andrewk@tscc-login.sdsc.edu"
-    Base_Cluster_Location = '/oasis/tscc/scratch/andrewk/'
-    Cluster_Location='/oasis/tscc/scratch/andrewk/' + Folder_Name
-    Scheduler_Type = "TORQUE"
-    End_Condition = "SPE_QChem"
-    Shared_File_Location = "/Users/andrewkleinschmidt/Shared_Files_Dihedral_Parameterization"
+    Cluster_Login = Configure.lammps_dict["Cluster_Login"]
+    Base_Cluster_Location = Configure.lammps_dict["Base_Cluster_Location"]
+    Cluster_Location = Base_Cluster_Location + "/" + Folder_Name
+    Scheduler_Type = Configure.lammps_dict["Scheduler_Type"]
+    End_Condition = Configure.lammps_dict["End_Condition"]
+    Shared_File_Location = Configure.lammps_dict["Shared_File_Location"]
     qos = "overrun --time-min=00:30:00"
 
     return Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos
@@ -1001,12 +1002,12 @@ def Run_SPE_Trimers_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 Job_Type = "QChem"
                 Folder_Name = "Multi_Ring_Rotation_Test"
                 End_File = "%s.out" % Trimer.Name
-                Cluster_Login = "andrewk@cori.nersc.gov"
-                Base_Cluster_Location = '/global/cscratch1/sd/andrewk'
-                Cluster_Location='/global/cscratch1/sd/andrewk/Multi_Ring_Rotation_Test'
-                Scheduler_Type = "SLURM"
-                End_Condition = "SPE_QChem"
-                Shared_File_Location = "/Users/andrewkleinschmidt/Shared_Files_Dihedral_Parameterization"
+                Cluster_Login = Configure.cluster_dict["Cluster_Login"]
+                Base_Cluster_Location = Configure.cluster_dict["Base_Cluster_Location"]
+                Cluster_Location=Base_Cluster_Location + "/Multi_Ring_Rotation_Test"
+                Scheduler_Type = Configure.cluster_dict["Scheduler_Type"]
+                End_Condition = Configure.cluster_dict["End_Condition"]
+                Shared_File_Location = Configure.cluster_dict["Shared_File_Location"]
                 Job_Name = "%s" % Trimer.Name
                 In_File = "%s.qcin" % Trimer.Name
                 Sub_File = "sub_%s" % Trimer.Name
@@ -2574,11 +2575,11 @@ def Find_Charges(Ring_List,Polymer_Name):
     Job_Type = "QChem"
     Folder_Name = "Find_Charges"
     End_File = "%s_Find_Charges.out" % Polymer_Name
-    Cluster_Login = "andrewk@cori.nersc.gov"
-    Base_Cluster_Location = '/global/cscratch1/sd/andrewk'
-    Cluster_Location='/global/cscratch1/sd/andrewk/Find_Charges'
-    Scheduler_Type = "SLURM"
-    End_Condition = "SPE_QChem"
+    Cluster_Login = Configure.cluster_dict["Cluster_Login"]
+    Base_Cluster_Location = Configure.cluster_dict["Base_Cluster_Location"]
+    Cluster_Location=Base_Cluster_Location + "/Find_Charges"
+    Scheduler_Type = Configure.cluster_dict["Scheduler_Type"]
+    End_Condition = Configure.cluster_dict["End_Condition"]
     Copy_File_List = [In_File,Sub_File]
     #Write_Inputs.Write_QChem_SPE(In_File,Multimer,Exchange_Method = "B88",Correlation_Method = "P86",Basis = "def2-SVP",Implicit_Solvent_Dielectric = 0.0,ChelpG = True)
     Write_Inputs.Write_QChem_SPE(In_File,Multimer,Implicit_Solvent_Dielectric = 0.0,ChelpG = True)
@@ -2608,15 +2609,15 @@ def Strech_Bond(Ring_List,Polymer_Name):
     for ring in Ring_List[1:]:
         Offset_Ring_List.append(ring)
     Offset_Ring_List.append(Ring_List[0])
-    Job_Type = "Orca"
-    Folder_Name = "Interring_Bonds"
-    Cluster_Login = "andrewk@tscc-login.sdsc.edu"
-    Base_Cluster_Location = '/oasis/tscc/scratch/andrewk/'
-    Cluster_Location='/oasis/tscc/scratch/andrewk/Interring_Bonds'
-    Scheduler_Type = "TORQUE"
-    End_Condition = "Opt_Orca"
-    Executable_Location = "/home/andrewk/orca_4_2_0_linux_x86-64_openmpi314"
-    OpenMP_Location = "/home/andrewk/openmpi-3.1.4"
+    Job_Type = Configure.openmp_dict["Job_Type"]
+    Folder_Name = Configure.openmp_dict["Folder_Name"]
+    Cluster_Login = Configure.openmp_dict["Cluster_Login"]
+    Base_Cluster_Location = Configure.openmp_dict["Base_Cluster_Location"]
+    Cluster_Location= Configure.openmp_dict["Cluster_Location"]
+    Scheduler_Type = Configure.openmp_dict["Scheduler_Type"]
+    End_Condition = Configure.openmp_dict["End_Condition"]
+    Executable_Location = Configure.openmp_dict["Executable_Location"]
+    OpenMP_Location = Configure.openmp_dict["OpenMP_Location"]
     Run_List = []
 
     for ring1,ring2 in zip(Ring_List,Offset_Ring_List):

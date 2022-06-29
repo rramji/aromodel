@@ -631,7 +631,7 @@ class Molecule(object):
                 try:
                     File = open(File_Out,'r')
                 except:
-                    os.system('/Users/andrewkleinschmidt/Library/Orca/orca %s > %s' %(File_Name, File_Out)) # Run Orca Job
+                    os.system('%s %s > %s' %(Configure.molecule_orca, File_Name, File_Out)) # Run Orca Job
             
             
             else:
