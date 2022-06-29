@@ -16,9 +16,10 @@ import time
 import Atom
 from matplotlib import pyplot as plt
 import random
+import Configure
 
 class Conjugated_Polymer(Molecule.Molecule):
-    def __init__(self,Ring_List,Scheduler = "Torque",Cluster_Location='/oasis/tscc/scratch/andrewk/Optimized_Monomers',Flip=10000000):
+    def __init__(self,Ring_List,Scheduler = Configure.lammps_dict["Scheduler_Type"],Cluster_Location=Configure.lammps_dict["Base_Cluster_Location"]+"/Optimized_Monomers",Flip=10000000):
         self.Ring_List = copy.deepcopy(Ring_List)
         for ring in self.Ring_List:
             ring.Relink()
@@ -855,7 +856,7 @@ class Conjugated_Polymer(Molecule.Molecule):
             if Bias:
                 torsion_file.write("EXTERNAL ARG=DIH_%d,OOP_%d FILE=%s.dat LABEL=ext_%d\n\n" % (index-1,index-1,Bias_File_Name,index-1))
             if Non_Interacting:
-                torsion_file.write("EXTERNAL ARG=DIH_%d,OOP_%d FILE=/scratch/andrewk/job_SLURM_JOBID/%s_Nonbonded.dat LABEL=ext_%d_nb\n\n" % (i,i,Bias_File_Name,i))
+                torsion_file.write("EXTERNAL ARG=DIH_%d,OOP_%d FILE=%s/job_SLURM_JOBID/%s_Nonbonded.dat LABEL=ext_%d_nb\n\n" % (i,i,Configure.scratch_dir,Bias_File_Name,i))
             Parameter_Index += 1
             if Parameter_Index == len(Fit_Energies)/2:
                 Parameter_Index = 0

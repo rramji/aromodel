@@ -149,17 +149,17 @@ def Write_SLURM_Batch(config_dict,In_File_List,nproc,queue="premium",proc_per_no
 				
 	f.close()
 
-#def Write_TORQUE(File_Name,In_File,Job_Name,nproc,Cluster_Location,Job_Type,proc_per_node=28,walltime = 2,Executable_Path = "",OMP_Path = "",queue = "condo"):	
-def Write_TORQUE(config_dict, nproc, proc_per_node=28, walltime=2, queue="condo"):
+def Write_TORQUE(File_Name,In_File,Job_Name,nproc,Cluster_Location,Job_Type,proc_per_node=28,walltime = 2,Executable_Path = "",OMP_Path = "",queue = "condo"):	
+#def Write_TORQUE(config_dict, nproc, proc_per_node=28, walltime=2, queue="condo"):
 
-	Job_Type = config_dict['Job_Type']
-	Job_Name = config_dict['Job_Name']
-	Executable_Path = config_dict['Executable_Path']
-	OMP_Path = config_dict['OMP_Path']
-	In_File = config_dict['In_File']
-	Cluster_Location = config_dict['Cluster_Location']
+	# Job_Type = config_dict['Job_Type']
+	# Job_Name = config_dict['Job_Name']
+	# Executable_Path = config_dict['Executable_Path']
+	# OMP_Path = config_dict['OMP_Path']
+	# In_File = config_dict['In_File']
+	# Cluster_Location = config_dict['Cluster_Location']
 
-	f = open(config_dict['File_Name'],'w')
+	f = open(File_Name,'w')
 	nodes = math.floor(nproc/proc_per_node)
 	if nodes == 0:
 		nodes = 1

@@ -19,21 +19,21 @@ class Atom(object):
         Atom_ID = 0
     """
     def __init__(self, position, element, atom_id):
-        self.position = position # Numpy[3,float]
+        self.Position = position # Numpy[3,float]
         self.x = position[0]
         self.y = position[1]
         self.z = position[2]
-        self.element = element # String
-        self.atom_id = atom_id
-        self.charge = np.longdouble(0.0) # Float
-        self.bond_list = [] # List of atom objects
+        self.Element = element # String
+        self.Atom_ID = atom_id
+        self.Charge = np.longdouble(0.0) # Float
+        self.Bond_list = [] # List of atom objects
         # self.OPLS_Type = 0
         # self.OPLS_Class = 0
-        self.mass = mass_dict[self.element]
-        self.sigma = 0.0
-        self.epsilon = 0.0
-        self.lammps_type = 0
-        self.system_id = 0
+        self.Mass = mass_dict[self.Element]
+        self.Sigma = 0.0
+        self.Epsilon = 0.0
+        self.Lammps_type = 0
+        self.System_id = 0
         # self.Image_Flags = np.zeros(3,dtype=int)
         # self.Unwrapped_Position = np.zeros(3,dtype=float)
         return

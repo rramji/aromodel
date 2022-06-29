@@ -1120,11 +1120,11 @@ class System(object):
                         Conventional_Add = "conventional_"
                     else:
                         Conventional_Add = ""
-                    torsion_file.write("PRINT ARG=DIH_%d,OOP_%d FILE=/scratch/andrewk/job_SLURM_JOBID/colvar_%s%d.txt STRIDE=100\n\n" % (index-1,index-1,Conventional_Add,index-1))
+                    torsion_file.write("PRINT ARG=DIH_%d,OOP_%d FILE=%s/job_SLURM_JOBID/colvar_%s%d.txt STRIDE=100\n\n" % (index-1,index-1,Configure.scratch_dir,Conventional_Add,index-1))
                     if Bias:
-                        torsion_file.write("EXTERNAL ARG=DIH_%d,OOP_%d FILE=/scratch/andrewk/job_SLURM_JOBID/%s.dat LABEL=ext_%d\n\n" % (index-1,index-1,Bias_File_Name,index-1))
+                        torsion_file.write("EXTERNAL ARG=DIH_%d,OOP_%d FILE=%s/job_SLURM_JOBID/%s.dat LABEL=ext_%d\n\n" % (index-1,index-1,Configure.scratch_dir,Bias_File_Name,index-1))
                     if Non_Interacting:
-                        torsion_file.write("EXTERNAL ARG=DIH_%d,OOP_%d FILE=/scratch/andrewk/job_SLURM_JOBID/%s_Nonbonded.dat LABEL=ext_%d_nb\n\n" % (i,i,Bias_File_Name,i))
+                        torsion_file.write("EXTERNAL ARG=DIH_%d,OOP_%d FILE=%s/job_SLURM_JOBID/%s_Nonbonded.dat LABEL=ext_%d_nb\n\n" % (i,i,Configure.scratch_dir,Bias_File_Name,i))
                     Parameter_Index += 1
                     if Parameter_Index == len(Fit_Energies)/2:
                         Parameter_Index = 0
