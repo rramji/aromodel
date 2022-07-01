@@ -72,8 +72,8 @@ class Ring(Molecule.Molecule):
             new_atom_id += 1
 
         #Optimize geometry
-        self.Optimize_H_Positions(Cluster_Location,Shared_File_Location = Configure.cluster_dict["Shared_File_Location"])
-        self.Optimize_H_Positions_Hydrogenated(Cluster_Location,Shared_File_Location = Configure.cluster_dict["Shared_File_Location"])
+        self.Optimize_H_Positions(Cluster_Location,Shared_File_Location = Configure.orca_dict["Shared_File_Location"])
+        self.Optimize_H_Positions_Hydrogenated(Cluster_Location,Shared_File_Location = Configure.orca_dict["Shared_File_Location"])
 
 
     def Add_Plumed_Rings(self,Plumed_Rings):
@@ -101,6 +101,7 @@ class Ring(Molecule.Molecule):
 
     def Update_Positions_Data_File(self,Updated_Data_File):
         f = open(Updated_Data_File,'r')
+        print(Updated_Data_File)
         lines = f.readlines()
         bond_atom_cutoff = (-1*len(self.Bonded_Atoms))
         regular_atom_lines = lines[2:bond_atom_cutoff]
@@ -333,13 +334,14 @@ class Ring(Molecule.Molecule):
         Cluster_Login = Configure.lammps_dict["Cluster_Login"]
         Base_Cluster_Location = Configure.lammps_dict["Base_Cluster_Location"]
         Scheduler_Type = Configure.lammps_dict["Scheduler_Type"]
-        End_Condition = Configure.openmp_dict["End_Condition"]
-        Executable_Location = Configure.openmp_dict["Executable_Location"]
-        OpenMP_Location = Configure.openmp_dict["OpenMP_Location"]
+        End_Condition = Configure.qchem_dict["End_Condition"]
+        Executable_Location = Configure.qchem_dict["Executable_Location"]
+        OpenMP_Location = Configure.qchem_dict["OpenMP_Location"]
 
-
+        print("I'm opening %s_%s_%d.xyz!"% (self.Polymer_Name,self.Name,self.Ring_ID))#temp
         f = open("%s_%s_%d.xyz" % (self.Polymer_Name,self.Name,self.Ring_ID),'w')
         num_atoms = len(self.Atom_List) + len(self.Bonded_Atoms)
+        
         f.write("%d\n\n" % (num_atoms))
         for atom in self.Atom_List:
             f.write("%s\t%f\t%f\t%f\n" % (atom.Element,atom.Position[0],atom.Position[1],atom.Position[2]))
@@ -675,12 +677,12 @@ class Ring(Molecule.Molecule):
             Folder_Name = "Improper_Bend_Test"
             #End_File = "%s_Improper_Bend_Phi_%d.out" % (self.Name,i*10)
             End_File = "%s_Improper_Bend_Phi_%d.out" % (self.Name,i*5)
-            Cluster_Login = Configure.cluster_dict["Cluster_Login"]
-            Base_Cluster_Location = Configure.cluster_dict["Base_Cluster_Location"]
+            Cluster_Login = Configure.orca_dict["Cluster_Login"]
+            Base_Cluster_Location = Configure.orca_dict["Base_Cluster_Location"]
             Cluster_Location=Base_Cluster_Location+"/Improper_Bend_Test"
-            Scheduler_Type = Configure.cluster_dict["Scheduler_Type"]
-            End_Condition = Configure.cluster_dict["End_condition"]
-            Shared_File_Location = Configure.cluster_dict["Shared_File_Location"]
+            Scheduler_Type = Configure.orca_dict["Scheduler_Type"]
+            End_Condition = Configure.orca_dict["End_condition"]
+            Shared_File_Location = Configure.orca_dict["Shared_File_Location"]
             """Job_Name = "%s_Improper_Bend_Phi_%d" % (self.Name,i*10)
             In_File = "%s_Improper_Bend_Phi_%d.qcin" % (self.Name,i*10)
             Sub_File = "sub_%s_Improper_Bend_Phi_%d" % (self.Name,i*10)"""
@@ -716,6 +718,7 @@ class Ring(Molecule.Molecule):
         self.Translate_Ring(copy.deepcopy(Initial_Position))
         for i in range(Num_Rotations):
             #f = open("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*10),'w')
+            print("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" )
             f = open("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*Step),'w')
             f.write("%d\n\n" % (len(self.Atom_List)+5))
             Align_X = self.Normal_Vector
@@ -772,12 +775,12 @@ class Ring(Molecule.Molecule):
             Folder_Name = "Improper_Bend_Test"
             #End_File = "%s_Improper_Bend_Methyl_Phi_%d.out" % (self.Name,i*10)
             End_File = "%s_Improper_Bend_Methyl_Phi_%d.out" % (self.Name,i*Step)
-            Cluster_Login = Configure.cluster_dict["Cluster_Login"]
-            Base_Cluster_Location = Configure.cluster_dict["Base_Cluster_Location"]
+            Cluster_Login = Configure.orca_dict["Cluster_Login"]
+            Base_Cluster_Location = Configure.orca_dict["Base_Cluster_Location"]
             Cluster_Location=Base_Cluster_Location+"/Improper_Bend_Test"
-            Scheduler_Type = Configure.cluster_dict["Scheduler_Type"]
-            End_Condition = Configure.cluster_dict["End_condition"]
-            Shared_File_Location = Configure.cluster_dict["Shared_File_Location"]
+            Scheduler_Type = Configure.orca_dict["Scheduler_Type"]
+            End_Condition = Configure.orca_dict["End_condition"]
+            Shared_File_Location = Configure.orca_dict["Shared_File_Location"]
             """Job_Name = "%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*10)
             In_File = "%s_Improper_Bend_Methyl_Phi_%d.qcin" % (self.Name,i*10)
             Sub_File = "sub_%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*10)"""
@@ -814,6 +817,7 @@ class Ring(Molecule.Molecule):
         Initial_Position = Rotation_B_Atom.Central_Atom.Position
         self.Translate_Ring(copy.deepcopy(Initial_Position))
         for i in range(11):
+            print("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*2))
             f = open("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*2),'w')
             f.write("%d\n\n" % (len(self.Atom_List)+5))
             Align_X = self.Normal_Vector
@@ -865,12 +869,12 @@ class Ring(Molecule.Molecule):
             Job_Type = "QChem"
             Folder_Name = "Improper_Bend_Test"
             End_File = "%s_Improper_Bend_Methyl_Phi_%d.out" % (self.Name,i*2)
-            Cluster_Login = Configure.cluster_dict["Cluster_Login"]
-            Base_Cluster_Location = Configure.cluster_dict["Base_Cluster_Location"]
+            Cluster_Login = Configure.orca_dict["Cluster_Login"]
+            Base_Cluster_Location = Configure.orca_dict["Base_Cluster_Location"]
             Cluster_Location=Base_Cluster_Location+"/Improper_Bend_Test"
-            Scheduler_Type = Configure.cluster_dict["Scheduler_Type"]
-            End_Condition = Configure.cluster_dict["End_condition"]
-            Shared_File_Location = Configure.cluster_dict["Shared_File_Location"]
+            Scheduler_Type = Configure.orca_dict["Scheduler_Type"]
+            End_Condition = Configure.orca_dict["End_condition"]
+            Shared_File_Location = Configure.orca_dict["Shared_File_Location"]
             Job_Name = "%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*2)
             In_File = "%s_Improper_Bend_Methyl_Phi_%d.qcin" % (self.Name,i*2)
             Sub_File = "sub_%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*2)

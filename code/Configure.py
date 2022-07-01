@@ -25,28 +25,28 @@ local_dict = {
     "Template_Path" : "/Users/andrewkleinschmidt/AROMODEL/AROMODEL/Templates/" # Aromodel_Path + "/Templates/"
 }
 
-cluster_dict = { # for aromodel_lib.py , ring.py
-    "Cluster_Login" : "andrewk@cori.nersc.gov",
-    "Base_Cluster_Location" : '/global/cscratch1/sd/andrewk',
+orca_dict = { # for aromodel_lib.py , ring.py,
+    "Cluster_Login" : "theleonzhang@login.expanse.sdsc.edu",
+    "Base_Cluster_Location" : '/expanse/lustre/scratch/theleonzhang/temp_project',
     "Scheduler_Type" : "SLURM",
-    "End_Condition" : "SPE_QChem",
-    "Shared_File_Location" : "/Users/andrewkleinschmidt/Shared_Files_Dihedral_Parameterization"
+    "End_Condition" : "Opt_Orca",
+    "Shared_File_Location" : "../Shared_Files_Dihedral_Parameterization" #assumes the code is running from aromodel/code
 }
 
 lammps_dict = { # for aromodel_lib.py, conjugated_polymer.py, ring.py
-    "Cluster_Login" : "andrewk@tscc-login.sdsc.edu",
-    "Base_Cluster_Location" : '/oasis/tscc/scratch/andrewk',
+    "Cluster_Login" : "theleonzhang@login.expanse.sdsc.edu",
+    "Base_Cluster_Location" : '/expanse/lustre/scratch/theleonzhang/temp_project',
     "Scheduler_Type" : "TORQUE",
     "End_Condition" : "SPE_QChem",
-    "Shared_File_Location" : "/Users/andrewkleinschmidt/Shared_Files_Dihedral_Parameterization"
+    "Shared_File_Location" :  "../Shared_Files_Dihedral_Parameterization"
 }
 
-openmp_dict = { # for aromodel_lib.py, ring.py
+qchem_dict = { # for aromodel_lib.py, ring.py, was openmp_dict
     "Job_Type" : "Orca",
     "Folder_Name" : "Interring_Bonds",
-    "Cluster_Login" :lammps_dict["Cluster_Login"],
-    "Base_Cluster_Location" : lammps_dict["Base_Cluster_Location"],
-    "Cluster_Location":lammps_dict["Base_Cluster_Location"]+"/Interring_Bonds",
+    "Cluster_Login" :"theleonzhang@login.expanse.sdsc.edu",
+    "Base_Cluster_Location" : '/expanse/lustre/scratch/theleonzhang/temp_project',
+    "Cluster_Location": "/expanse/lustre/scratch/theleonzhang/temp_project/Interring_Bonds",
     "Scheduler_Type" : "TORQUE",
     "End_Condition" : "Opt_Orca",
     "Executable_Location" : "/home/andrewk/orca_4_2_0_linux_x86-64_openmpi314",
