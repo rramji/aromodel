@@ -1,5 +1,6 @@
 #! usr/bin/python
 
+#from msilib.schema import File
 import os
 import subprocess
 import time
@@ -63,6 +64,7 @@ def Write_Orca_ChelpG(File_Name,Test_Molecule,Method = "RI BP86",Basis = "def2-S
 	f.close()
 
 def Write_QChem_SPE(File_Name,Test_Molecule,Exchange_Method = "HF",Correlation_Method = "pRIMP2",Basis = "cc-pvtz",Method = "rimp2",Aux_Basis = "rimp2-cc-pvtz",Memory = 110000,convergence = 6,Implicit_Solvent_Method = "PCM",Implicit_Solvent_Dielectric = 4.9,ChelpG=False):
+	print("Opening %s. UwU, this is in Write_QCHEM_SPE"%File_Name) #TODO: temporary, remove later, obviously
 	f = open(File_Name,'w')
 	f.write("$molecule\n\t0 1\n")
 	if ChelpG:

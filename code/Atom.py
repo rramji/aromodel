@@ -26,7 +26,7 @@ class Atom(object):
         self.Element = element # String
         self.Atom_ID = atom_id
         self.Charge = np.longdouble(0.0) # Float
-        self.Bond_list = [] # List of atom objects
+        self.Bond_List = [] # List of atom objects
         # self.OPLS_Type = 0
         # self.OPLS_Class = 0
         self.Mass = mass_dict[self.Element]

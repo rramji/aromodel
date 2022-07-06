@@ -345,6 +345,7 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 XYZ_Filename = Reversed_Dimer.Write_XYZ()
                 os.system("scp %s ./XYZ_Files" % XYZ_Filename)
                 os.system("rm -f ./%s" % XYZ_Filename)
+                print()
                 End_File,Reversed_End_File,Job_Name,Reversed_Job_Name,In_File,Reversed_In_File,Sub_File,Reversed_Sub_File = Return_Filenames("%s" % Dimer.Name,Reversed_Name = "%s" % Reversed_Dimer.Name)
                 Job_Type = "QChem"
                 Folder_Name = "Rotation_Test"

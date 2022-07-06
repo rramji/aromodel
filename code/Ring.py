@@ -19,7 +19,7 @@ import Configure
 
 class Ring(Molecule.Molecule):
    
-    def __init__(self,Supermolecule,Atom_Numbers,Core_Atom_List,Bond_Atoms,Bond_Atom_Vectors,Name,ID,Polymer_Name,Nickname,Symmetric = True,Cluster_Location='/oasis/tscc/scratch/andrewk/Optimized_Monomers',Scheduler = "Torque",Aux_Ring_List = [],Plumed_Rings = []):
+    def __init__(self,Supermolecule,Atom_Numbers,Core_Atom_List,Bond_Atoms,Bond_Atom_Vectors,Name,ID,Polymer_Name,Nickname,Symmetric = True,Cluster_Location=Configure.orca_dict["Base_Cluster_Location"]+'/Optimized_Monomers',Scheduler = "Torque",Aux_Ring_List = [],Plumed_Rings = []):
         self.Atom_List = []
         self.Angle_List = []
         self.Dihedral_List = []
@@ -252,6 +252,7 @@ class Ring(Molecule.Molecule):
         f = open(Orca_Output_File,'r')
         lines = f.readlines()
         read_bonds = False
+        print(len(lines)) #TODO: temporary delete later
         for line in lines:
             if read_bonds and len(line.strip().split()) >= 1:
                 for bond in line.strip().split("B("):
@@ -331,14 +332,14 @@ class Ring(Molecule.Molecule):
         Folder_Name = config_dict['Folder_Name']
         Job_Name = config_dict['Job_Name']
 
-        Cluster_Login = Configure.lammps_dict["Cluster_Login"]
-        Base_Cluster_Location = Configure.lammps_dict["Base_Cluster_Location"]
-        Scheduler_Type = Configure.lammps_dict["Scheduler_Type"]
-        End_Condition = Configure.qchem_dict["End_Condition"]
-        Executable_Location = Configure.qchem_dict["Executable_Location"]
-        OpenMP_Location = Configure.qchem_dict["OpenMP_Location"]
+        Cluster_Login = Configure.orca_dict["Cluster_Login"]
+        Base_Cluster_Location = Configure.orca_dict["Base_Cluster_Location"]
+        Scheduler_Type = Configure.orca_dict["Scheduler_Type"]
+        End_Condition = Configure.orca_dict["End_Condition"]
+        #Executable_Location = Configure.qchem_dict["Executable_Location"]
+        #OpenMP_Location = Configure.qchem_dict["OpenMP_Location"]
 
-        print("I'm opening %s_%s_%d.xyz!"% (self.Polymer_Name,self.Name,self.Ring_ID))#temp
+        print("I'm opening %s_%s_%d.xyz!"% (self.Polymer_Name,self.Name,self.Ring_ID))#TODO: temporary, delete later
         f = open("%s_%s_%d.xyz" % (self.Polymer_Name,self.Name,self.Ring_ID),'w')
         num_atoms = len(self.Atom_List) + len(self.Bonded_Atoms)
         
@@ -352,15 +353,18 @@ class Ring(Molecule.Molecule):
         os.system("mkdir ./Optimized_Monomers")
 
 
-        #Write_Inputs.Write_Orca_Optimize_Geometry(config_dict['In_File'],Monomer,H_Only = True)
+        Write_Inputs.Write_Orca_Optimize_Geometry(config_dict['In_File'],Monomer,H_Only = True)
         #Write_Submit_Script.Write_TORQUE(File_Name,In_File,Job_Name,1,Cluster_Location,Job_Type,Executable_Path = Executable_Location,OMP_Path = OpenMP_Location)
-        Write_Submit_Script.Write_TORQUE(File_Name,In_File,Job_Name,1,Cluster_Location,Job_Type,Executable_Path = Executable_Location,OMP_Path = OpenMP_Location)
+        print("Writing slurm; File_Name: %s, In_File: %s, Job_Name: %s" %(File_Name, In_File, Job_Name))#temp
+        Write_Submit_Script.Write_SLURM(File_Name,In_File,Job_Name,1,Cluster_Location,Job_Type)
         Copy_File_List = [config_dict['File_Name'],config_dict['In_File']]
         if not os.path.exists("./Optimized_Monomers/%s" % End_File):
-            raise Exception("You've reached the end of the line :(, not implemented right now") #temp
+            print("started submit job, in ring.py")#TODO: temporary, delete later
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,File_Name,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
+            print("started return_info, in ring.py")#TODO: temporary, delete later
             Cluster_IO.Return_Info(End_File,End_File,Folder_Name,Job_Type,Cluster_Login,Cluster_Location,End_Condition = End_Condition,Shared_File_Location = Shared_File_Location)
         print(End_File)
+        #raise Exception("You've reached the end of the line :(, not implemented right now") 
         self.Update_Positions_Orca_Output("./Optimized_Monomers/%s" % End_File)
         self.Set_Up_Bonds("./Optimized_Monomers/%s" % End_File)
 
@@ -681,7 +685,7 @@ class Ring(Molecule.Molecule):
             Base_Cluster_Location = Configure.orca_dict["Base_Cluster_Location"]
             Cluster_Location=Base_Cluster_Location+"/Improper_Bend_Test"
             Scheduler_Type = Configure.orca_dict["Scheduler_Type"]
-            End_Condition = Configure.orca_dict["End_condition"]
+            End_Condition = Configure.orca_dict["End_Condition"]
             Shared_File_Location = Configure.orca_dict["Shared_File_Location"]
             """Job_Name = "%s_Improper_Bend_Phi_%d" % (self.Name,i*10)
             In_File = "%s_Improper_Bend_Phi_%d.qcin" % (self.Name,i*10)
@@ -718,7 +722,7 @@ class Ring(Molecule.Molecule):
         self.Translate_Ring(copy.deepcopy(Initial_Position))
         for i in range(Num_Rotations):
             #f = open("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*10),'w')
-            print("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" )
+            print("Opening %s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz"% (self.Name,i*Step) )
             f = open("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*Step),'w')
             f.write("%d\n\n" % (len(self.Atom_List)+5))
             Align_X = self.Normal_Vector
@@ -775,12 +779,12 @@ class Ring(Molecule.Molecule):
             Folder_Name = "Improper_Bend_Test"
             #End_File = "%s_Improper_Bend_Methyl_Phi_%d.out" % (self.Name,i*10)
             End_File = "%s_Improper_Bend_Methyl_Phi_%d.out" % (self.Name,i*Step)
-            Cluster_Login = Configure.orca_dict["Cluster_Login"]
-            Base_Cluster_Location = Configure.orca_dict["Base_Cluster_Location"]
+            Cluster_Login = Configure.qchem_dict["Cluster_Login"]
+            Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
             Cluster_Location=Base_Cluster_Location+"/Improper_Bend_Test"
-            Scheduler_Type = Configure.orca_dict["Scheduler_Type"]
-            End_Condition = Configure.orca_dict["End_condition"]
-            Shared_File_Location = Configure.orca_dict["Shared_File_Location"]
+            Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
+            End_Condition = Configure.qchem_dict["End_Condition"]
+            Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
             """Job_Name = "%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*10)
             In_File = "%s_Improper_Bend_Methyl_Phi_%d.qcin" % (self.Name,i*10)
             Sub_File = "sub_%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*10)"""
@@ -873,7 +877,7 @@ class Ring(Molecule.Molecule):
             Base_Cluster_Location = Configure.orca_dict["Base_Cluster_Location"]
             Cluster_Location=Base_Cluster_Location+"/Improper_Bend_Test"
             Scheduler_Type = Configure.orca_dict["Scheduler_Type"]
-            End_Condition = Configure.orca_dict["End_condition"]
+            End_Condition = Configure.orca_dict["End_Condition"]
             Shared_File_Location = Configure.orca_dict["Shared_File_Location"]
             Job_Name = "%s_Improper_Bend_Methyl_Phi_%d" % (self.Name,i*2)
             In_File = "%s_Improper_Bend_Methyl_Phi_%d.qcin" % (self.Name,i*2)

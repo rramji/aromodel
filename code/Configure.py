@@ -8,7 +8,7 @@
 
 
 # Local Paths
-Aromodel_Path = "/Users/andrewkleinschmidt/AROMODEL/AROMODEL/"
+Aromodel_Path = "C:\\Users\\Leon\\Personal Document\\College class material\\2022 - 2.5 Summer\\aromodel\code"
 Template_Path = Aromodel_Path + "/Templates/"
 
 
@@ -20,9 +20,9 @@ NERSC_Path = "/scratch2/scratchdirs/andrewk/"
 Orca_Path = "/oasis/scratch/comet/cjpais/temp_project/programs/orca_3_0_3_linux_x86-64/orca"
 
 local_dict = {
-    "User_Path" : "/Users/andrewkleinschmidt",
-    "Aromodel_Path" : "/Users/andrewkleinschmidt/AROMODEL/AROMODEL/",
-    "Template_Path" : "/Users/andrewkleinschmidt/AROMODEL/AROMODEL/Templates/" # Aromodel_Path + "/Templates/"
+    "User_Path" : "C:\\Users\\Leon",
+    "Aromodel_Path" : "C:\\Users\\Leon\\Personal Document\\College class material\\2022 - 2.5 Summer\\aromodel\code/",
+    "Template_Path" : "C:\\Users\\Leon\\Personal Document\\College class material\\2022 - 2.5 Summer\\aromodel\code/Templates/" # Aromodel_Path + "/Templates/"
 }
 
 orca_dict = { # for aromodel_lib.py , ring.py,
@@ -30,13 +30,16 @@ orca_dict = { # for aromodel_lib.py , ring.py,
     "Base_Cluster_Location" : '/expanse/lustre/scratch/theleonzhang/temp_project',
     "Scheduler_Type" : "SLURM",
     "End_Condition" : "Opt_Orca",
-    "Shared_File_Location" : "../Shared_Files_Dihedral_Parameterization" #assumes the code is running from aromodel/code
+    "Shared_File_Location" : "../Shared_Files_Dihedral_Parameterization", #assumes the code is running from aromodel/code
+    #TODO add these to Write_Orca(), and modify the template
+    "module_name" : "orca/4.2.1", 
+    "dependency_name" : "cpu/0.15.4 gcc/9.2.0 openmpi/3.1.6"
 }
 
 lammps_dict = { # for aromodel_lib.py, conjugated_polymer.py, ring.py
     "Cluster_Login" : "theleonzhang@login.expanse.sdsc.edu",
     "Base_Cluster_Location" : '/expanse/lustre/scratch/theleonzhang/temp_project',
-    "Scheduler_Type" : "TORQUE",
+    "Scheduler_Type" : "SLURM",
     "End_Condition" : "SPE_QChem",
     "Shared_File_Location" :  "../Shared_Files_Dihedral_Parameterization"
 }
@@ -47,10 +50,14 @@ qchem_dict = { # for aromodel_lib.py, ring.py, was openmp_dict
     "Cluster_Login" :"theleonzhang@login.expanse.sdsc.edu",
     "Base_Cluster_Location" : '/expanse/lustre/scratch/theleonzhang/temp_project',
     "Cluster_Location": "/expanse/lustre/scratch/theleonzhang/temp_project/Interring_Bonds",
-    "Scheduler_Type" : "TORQUE",
-    "End_Condition" : "Opt_Orca",
-    "Executable_Location" : "/home/andrewk/orca_4_2_0_linux_x86-64_openmpi314",
-    "OpenMP_Location" : "/home/andrewk/openmpi-3.1.4"
+    "Scheduler_Type" : "SLURM",
+    "End_Condition" : "SPE_QChem",
+    "Shared_File_Location" : "../Shared_Files_Dihedral_Parameterization",
+    #"Executable_Location" : "/home/andrewk/orca_4_2_0_linux_x86-64_openmpi314",
+    #"OpenMP_Location" : "/home/andrewk/openmpi-3.1.4", #TODO: delete?
+    "module_name" : "qchem/5.4 ",
+    "dependency_name" : "cpu/0.15.4  gcc/10.2.0  mvapich2/2.3.6"
+    
 }
 
 scratch_dir = "/scratch/andrewk" #Conjugated_polymer.py
