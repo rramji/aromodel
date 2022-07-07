@@ -704,7 +704,7 @@ class Ring(Molecule.Molecule):
                 Write_Inputs.Write_QChem_SPE(In_File,Bent_Molecule)
 
         if len(In_File_List) != 0:
-            Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 3,queue = qos,proc_per_node = 32,constraint = 'haswell')
+            Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
             Copy_File_List.append(Sub_File)
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
             for file in Copy_File_List:
@@ -722,7 +722,7 @@ class Ring(Molecule.Molecule):
         self.Translate_Ring(copy.deepcopy(Initial_Position))
         for i in range(Num_Rotations):
             #f = open("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*10),'w')
-            print("Opening %s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz"% (self.Name,i*Step) )
+            print("Opening %s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz"% (self.Name,i*Step) ) #TODO: temporary?
             f = open("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*Step),'w')
             f.write("%d\n\n" % (len(self.Atom_List)+5))
             Align_X = self.Normal_Vector
@@ -803,7 +803,7 @@ class Ring(Molecule.Molecule):
 
         #print(In_File_List)
         if len(In_File_List) != 0:
-            Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 3,queue = qos,proc_per_node = 32,constraint = 'haswell')
+            Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
             Copy_File_List.append(Sub_File)
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File_List,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
             for file in Copy_File_List:
@@ -897,7 +897,7 @@ class Ring(Molecule.Molecule):
         if len(In_File_List) != 0:
             #print(Copy_File_List)
             End_File = Copy_File_List[-1]
-            Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 3,queue = qos,proc_per_node = 32,constraint = 'haswell')
+            Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
             Copy_File_List.append(Sub_File)
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
             for file in Copy_File_List:
