@@ -416,7 +416,7 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 Reversed_Dimer.Rotate_Ring("Dih",10,Reversed_Dimer.Ring_List[0],Reversed_Dimer.Ring_List[1])
             if len(In_File_List) != 0:
                 End_File = In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 5,queue = qos,proc_per_node = 32,constraint = 'haswell')
+                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
                 Copy_File_List.append(Sub_File)
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -426,7 +426,7 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
 
             if len(Reversed_In_File_List) != 0:
                 Reversed_End_File = Reversed_In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,32,Cluster_Location,Job_Type,walltime = 5,queue = qos,proc_per_node = 32,constraint = 'haswell')
+                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,Cluster_Location,Job_Type)
                 Reversed_Copy_File_List.append(Reversed_Sub_File)
                 Cluster_IO.Submit_Job(Reversed_Copy_File_List,Folder_Name,Reversed_Sub_File,Reversed_End_File,Reversed_Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = Reversed_End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -583,7 +583,8 @@ def Run_SPE_Dimers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_
                 Reversed_Dimer.Rotate_Ring("Dih",10,Reversed_Dimer.Ring_List[0],Reversed_Dimer.Ring_List[1])
             if len(In_File_List) != 0:
                 End_File = In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 5,queue = qos,proc_per_node = 32,constraint = 'haswell')
+                #Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 5,queue = qos,proc_per_node = 32,constraint = 'haswell')
+                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
                 Copy_File_List.append(Sub_File)
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -592,7 +593,7 @@ def Run_SPE_Dimers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_
 
             if len(Reversed_In_File_List) != 0:
                 Reversed_End_File = Reversed_In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,32,Cluster_Location,Job_Type,walltime = 5,queue = qos,proc_per_node = 32,constraint = 'haswell')
+                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,Cluster_Location,Job_Type)
                 Reversed_Copy_File_List.append(Reversed_Sub_File)
                 Cluster_IO.Submit_Job(Reversed_Copy_File_List,Folder_Name,Reversed_Sub_File,Reversed_End_File,Reversed_Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = Reversed_End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -742,7 +743,7 @@ def Run_SPE_Impropers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
 
             if len(In_File_List) != 0:
                 End_File = In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 5,queue = qos,proc_per_node = 32,constraint = 'haswell')
+                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
                 Copy_File_List.append(Sub_File)
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -751,7 +752,7 @@ def Run_SPE_Impropers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
 
             if len(Reversed_In_File_List) != 0:
                 Reversed_End_File = Reversed_In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,32,Cluster_Location,Job_Type,walltime = 5,queue = qos,proc_per_node = 32,constraint = 'haswell')
+                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,Cluster_Location,Job_Type)
                 Reversed_Copy_File_List.append(Reversed_Sub_File)
                 Cluster_IO.Submit_Job(Reversed_Copy_File_List,Folder_Name,Reversed_Sub_File,Reversed_End_File,Reversed_Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = Reversed_End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -1051,7 +1052,7 @@ def Run_SPE_Trimers_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 Trimer.Rotate_Ring("Dih",10,Trimer.Ring_List[0],Trimer.Ring_List[1])
             if len(In_File_List) != 0:
                 End_File = Copy_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 14,queue = qos,proc_per_node = 32,constraint = 'haswell')
+                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
                 Copy_File_List.append(Sub_File)
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -1123,7 +1124,7 @@ def Run_Paired_Hydrogenation_Energy(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Poly
         Symmetry_End_File = ""
 
         if len(In_File_List) != 0:
-            Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 0,queue = qos,proc_per_node = 32,constraint = 'haswell')
+            Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
             Copy_File_List.append(Sub_File)
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
             for file in Copy_File_List:
@@ -1336,7 +1337,7 @@ def Run_SPE_Trimers_Hydrogenated_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Pol
                 Trimer.Rotate_Ring("Dih",10,Trimer.Ring_List[0],Trimer.Ring_List[1])
             if len(In_File_List) != 0:
                 End_File = Copy_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 14,queue = qos,proc_per_node = 32,constraint = 'haswell')
+                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
                 Copy_File_List.append(Sub_File)
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1

@@ -191,7 +191,8 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 					Finished = True
 					Return_File = End_File
 					break
-			if End_Condition == "SPE_QChem":
+			#if End_Condition == "SPE_QChem":
+			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 				if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
@@ -227,7 +228,7 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 					Finished = True
 					Return_File = End_File
 					break
-			if End_Condition == "SPE_QChem":
+			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 				if Quantum_QChem("%s/%s" % (Shared_File_Location,Analyze_File)):
 					print("Job Exists")
 					os.system("scp %s/%s ./%s" % (Shared_File_Location,End_File,Folder_Name))
@@ -282,7 +283,7 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 						break
 					else:
 						print("Job Unfinished")
-				if End_Condition == "SPE_QChem":
+				if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 					if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 						if Shared_File_Location != "":
 							os.system("scp ./%s/%s %s" % (Folder_Name,End_File,Shared_File_Location))
@@ -332,7 +333,8 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 				if Opt_Orca("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
-			if End_Condition == "SPE_QChem":
+			#if End_Condition == "SPE_QChem":
+			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 				if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
@@ -356,7 +358,7 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 				if Opt_Orca("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
-			if End_Condition == "SPE_QChem":
+			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 				if Quantum_QChem("%s/%s" % (Shared_File_Location,Analyze_File)):
 					print("Job Exists")
 					os.system("scp %s/%s ./%s" % (Shared_File_Location,End_File,Folder_Name))
@@ -400,7 +402,7 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 						Finished = True
 					else:
 						print("Job Unfinished")
-				if End_Condition == "SPE_QChem":
+				if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 					if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 						if Shared_File_Location != "":
 							os.system("scp ./%s/%s %s" % (Folder_Name,End_File,Shared_File_Location))

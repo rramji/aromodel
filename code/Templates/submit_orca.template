@@ -1,14 +1,5 @@
-#!/bin/bash
-#SBATCH --job-name="$name"
-#SBATCH --partition=shared
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH -t 1:00:00
-#SBATCH -A ddp381
-#SBATCH --mail-type=ALL
-
-module load cpu/0.15.4
-module load gcc/9.2.0
-module load openmpi/3.1.6
-module load orca/4.2.1
+module add cpu/0.15.4
+module add gcc/9.2.0
+module add openmpi/3.1.6
+module add orca/4.2.1
 orca ${in_file} >> ${name}.out
