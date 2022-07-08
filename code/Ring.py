@@ -339,7 +339,7 @@ class Ring(Molecule.Molecule):
         #Executable_Location = Configure.qchem_dict["Executable_Location"]
         #OpenMP_Location = Configure.qchem_dict["OpenMP_Location"]
 
-        print("I'm opening %s_%s_%d.xyz!"% (self.Polymer_Name,self.Name,self.Ring_ID))#TODO: temporary, delete later
+        print("I'm making %s_%s_%d.xyz!"% (self.Polymer_Name,self.Name,self.Ring_ID))#TODO: temporary, delete later
         f = open("%s_%s_%d.xyz" % (self.Polymer_Name,self.Name,self.Ring_ID),'w')
         num_atoms = len(self.Atom_List) + len(self.Bonded_Atoms)
         
@@ -675,7 +675,7 @@ class Ring(Molecule.Molecule):
             os.system("rm -f ./%s_XYZ_Improper_Bend_Phi_%d.xyz" % (self.Name,i*10))"""
             Bent_Molecule = Molecule.Molecule("%s_XYZ_Improper_Bend_Phi_%d.xyz" % (self.Name,i*5))
             os.system("scp %s_XYZ_Improper_Bend_Phi_%d.xyz ./XYZ_Files" % (self.Name,i*5))
-            os.system("rm -f ./%s_XYZ_Improper_Bend_Phi_%d.xyz" % (self.Name,i*5))
+            os.remove("%s_XYZ_Improper_Bend_Phi_%d.xyz" % (self.Name,i*5))
 
             Job_Type = "QChem"
             Folder_Name = "Improper_Bend_Test"
@@ -709,7 +709,7 @@ class Ring(Molecule.Molecule):
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
             for file in Copy_File_List:
                 os.system("scp %s ./Rotation_Run_Input_Copies" % file)
-                os.system("rm -f %s" % file)
+                os.remove(file)
         self.Translate_Ring(-1*Initial_Position)
 
     def Improper_Bend_Methyl_Control_Submit(self,Num_Rotations,Step):
@@ -722,7 +722,7 @@ class Ring(Molecule.Molecule):
         self.Translate_Ring(copy.deepcopy(Initial_Position))
         for i in range(Num_Rotations):
             #f = open("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*10),'w')
-            print("Opening %s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz"% (self.Name,i*Step) ) #TODO: temporary?
+            print("Making %s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz"% (self.Name,i*Step) ) #TODO: temporary?
             f = open("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*Step),'w')
             f.write("%d\n\n" % (len(self.Atom_List)+5))
             Align_X = self.Normal_Vector
@@ -773,7 +773,7 @@ class Ring(Molecule.Molecule):
             os.system("rm -f ./%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*10))"""
             Bent_Molecule = Molecule.Molecule("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*Step))
             os.system("scp %s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz ./XYZ_Files" % (self.Name,i*Step))
-            os.system("rm -f ./%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*Step))
+            os.remove("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*Step))
 
             Job_Type = "QChem"
             Folder_Name = "Improper_Bend_Test"
@@ -781,7 +781,7 @@ class Ring(Molecule.Molecule):
             End_File = "%s_Improper_Bend_Methyl_Phi_%d.out" % (self.Name,i*Step)
             Cluster_Login = Configure.qchem_dict["Cluster_Login"]
             Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
-            Cluster_Location=Base_Cluster_Location+"/Improper_Bend_Test"
+            Cluster_Location=Base_Cluster_Location+"/" + Folder_Name
             Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
             End_Condition = Configure.qchem_dict["End_Condition"]
             Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
@@ -808,7 +808,7 @@ class Ring(Molecule.Molecule):
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File_List,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
             for file in Copy_File_List:
                 os.system("scp %s ./Rotation_Run_Input_Copies" % file)
-                os.system("rm -f %s" % file)
+                os.remove(file)
 
         self.Translate_Ring(-1*Initial_Position)
 
@@ -868,7 +868,7 @@ class Ring(Molecule.Molecule):
             f.close()
             Bent_Molecule = Molecule.Molecule("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*2))
             os.system("scp %s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz ./XYZ_Files" % (self.Name,i*2))
-            os.system("rm -f ./%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*2))
+            os.remove("%s_XYZ_Improper_Bend_Methyl_Phi_%d.xyz" % (self.Name,i*2))
 
             Job_Type = "QChem"
             Folder_Name = "Improper_Bend_Test"
@@ -902,7 +902,7 @@ class Ring(Molecule.Molecule):
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
             for file in Copy_File_List:
                 os.system("scp %s ./Rotation_Run_Input_Copies" % file)
-                os.system("rm -f %s" % file)
+                os.remove(file)
 
         self.Translate_Ring(-1*Initial_Position)
 

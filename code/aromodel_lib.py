@@ -318,7 +318,9 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
     for ring1,ring2 in zip(Ring_List,Offset_Ring_List):
         Dimer = Conjugated_Polymer.Conjugated_Polymer([ring1,ring2])
         Reversed_Dimer = Conjugated_Polymer.Conjugated_Polymer([ring2,ring1])
-        XYZ_Filename = Dimer.Write_XYZ()
+        XYZ_Filename = Dimer.Write_XYZ() 
+        if not os.path.isdir("XYZ_Files"):
+            os.mkdir('XYZ_Files')
         os.system("scp %s ./XYZ_Files" % XYZ_Filename)
         os.system("rm -f ./%s" % XYZ_Filename)
         Reversed_End_File_Matrix = []
@@ -338,7 +340,7 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
             Reversed_End_File_List = []
             Nontorsional_Energy_List = []
             Reversed_Nontorsional_Energy_List = []
-            for i in range(36):
+            for i in range(36): #TODO: figure out what 36 is
                 XYZ_Filename = Dimer.Write_XYZ()
                 os.system("scp %s ./XYZ_Files" % XYZ_Filename)
                 os.system("rm -f ./%s" % XYZ_Filename)
@@ -1116,20 +1118,27 @@ def Run_Paired_Hydrogenation_Energy(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Poly
         Job_Type = "QChem"
         Folder_Name = "Dual_Hydrogenated_Test"
         End_File = End_File_List[-1]
-        Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos = Run_Parameters(Folder_Name)
+        Cluster_Login = Configure.qchem_dict["Cluster_Login"]
+        Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
+        Cluster_Location = Configure.qchem_dict["Cluster_Location"]
+        Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
+        End_Condition = Configure.qchem_dict["End_Condition"]
+        Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
         Job_Name = "%s_Dual_Hydrogenated" % Trimer.Ring_List[1].Name
         In_File = "%s_Dual_Hydrogenated.qcin" % Trimer.Ring_List[1].Name
         Sub_File = "sub_%s_Dual_Hydrogenated" % Trimer.Ring_List[1].Name
-        qos = "debug"
-        Symmetry_End_File = ""
+        #qos = "debug"
+        #Symmetry_End_File = ""
 
         if len(In_File_List) != 0:
             Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
             Copy_File_List.append(Sub_File)
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
+            if not os.path.isdir('Rotation_Run_Input_Copies'):
+                os.mkdir('Rotation_Run_Input_Copies')
             for file in Copy_File_List:
                 os.system("scp %s ./Rotation_Run_Input_Copies" % file)
-                os.system("rm -f %s" % file)
+                os.remove(file)
 
         Ring_By_Ring_Dual_Hydrogenated_End_File_Matrices.append(End_File_List)
 

@@ -57,6 +57,7 @@ def Write_SLURM(File_Name,In_File,Job_Name,nproc,Cluster_Location,Job_Type,run_t
 	with open('./Templates/submit_slurm.template') as template_file:
 		t = Template(template_file.read().replace('\r\n','\n')) #the replace part 'should' turn file from dos to unix
 		f.write(t.substitute({'hour':hours,'min':minutes, 'dir' : Cluster_Location, 'tasks_per_node' : tasks_per_node, 'name':Job_Name}))
+		f.write('\n')#just in case the template doesn't have this at the end
 	#to be deleted
 	# nodes = math.floor(nproc/tasks_per_node)
 	# if nodes == 0:
