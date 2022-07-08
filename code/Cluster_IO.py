@@ -2,6 +2,7 @@ import os
 import subprocess
 import time
 import numpy as np
+from sympy import FiniteSet
 
 def Quantum_Orca(file):
 #Returns True if an Orca job has finished running, and False if not
@@ -190,7 +191,8 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 					Finished = True
 					Return_File = End_File
 					break
-			if End_Condition == "SPE_QChem":
+			#if End_Condition == "SPE_QChem":
+			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 				if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
@@ -226,7 +228,7 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 					Finished = True
 					Return_File = End_File
 					break
-			if End_Condition == "SPE_QChem":
+			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 				if Quantum_QChem("%s/%s" % (Shared_File_Location,Analyze_File)):
 					print("Job Exists")
 					os.system("scp %s/%s ./%s" % (Shared_File_Location,End_File,Folder_Name))
@@ -281,7 +283,7 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 						break
 					else:
 						print("Job Unfinished")
-				if End_Condition == "SPE_QChem":
+				if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 					if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 						if Shared_File_Location != "":
 							os.system("scp ./%s/%s %s" % (Folder_Name,End_File,Shared_File_Location))
@@ -331,7 +333,8 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 				if Opt_Orca("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
-			if End_Condition == "SPE_QChem":
+			#if End_Condition == "SPE_QChem":
+			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 				if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
@@ -339,7 +342,6 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 				if Quantum_NWChem("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
-
 		#Determine whether the output file already exists in the shared folder, and if so copy it locally
 		if not Finished and os.path.isfile("%s/%s" % (Shared_File_Location,End_File)):
 			#Check whether file exists in shared folder
@@ -356,7 +358,7 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 				if Opt_Orca("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
-			if End_Condition == "SPE_QChem":
+			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 				if Quantum_QChem("%s/%s" % (Shared_File_Location,Analyze_File)):
 					print("Job Exists")
 					os.system("scp %s/%s ./%s" % (Shared_File_Location,End_File,Folder_Name))
@@ -369,14 +371,13 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 					os.system("scp %s/%s ./%s" % (Shared_File_Location,Analyze_File,Folder_Name))
 					Finished = True
 
-
 		if not Finished:
 			#Check whether file exists on cluster/supercomputer and copy it locally and to the shared folder
-			os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,End_File,Folder_Name))
-			if Analyze_File != End_File:
-				os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,Analyze_File,Folder_Name))
-			if os.path.isfile("./%s/%s" % (Folder_Name,End_File)):
+			if os.path.isfile("%s:%s/%s" % (Cluster_Login,Cluster_Location,End_File)):
 				print("Job Exists")
+				os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,End_File,Folder_Name))
+				if Analyze_File != End_File: #TODO: temporary, should proabobly check if it exist first
+					os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,Analyze_File,Folder_Name))
 				#Check to see if remote file is complete
 				if End_Condition == "":
 					if Shared_File_Location != "":
@@ -401,7 +402,7 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 						Finished = True
 					else:
 						print("Job Unfinished")
-				if End_Condition == "SPE_QChem":
+				if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 					if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 						if Shared_File_Location != "":
 							os.system("scp ./%s/%s %s" % (Folder_Name,End_File,Shared_File_Location))
@@ -421,11 +422,26 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 						Finished = True
 					else:
 						print("Job Unfinished")
-
 	return Finished,Return_File
 
 def Submit_Job(Copy_File_List,Folder_Name,Submit_Script,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,Symmetry_End_File = "",Symmetry_Analyze_File = "",End_Condition = "",Analyze_File = "",Shared_File_Location = "",Force_Copy = False,Force_New_Job = False):
-	#Checks to see whether a job has already been completed, and if not submits a job to the cluster/supercomputer. Takes in: Copy_File_List: A List of files to be copied to the supercomputer to make the job run (usually a submit script, input file, and possible a data file), include path from ./ if in a subfolder; Folder_Name: The subdirectory to write all files to on the cluster/supercomputer and the shared folder; Submit_Script: script script file name (include path from ./ if in a subfolder); End_File: The script that will be output at the end of the run (for MD run, usually a data file with the final positions; for quantum file, the output file); Job_Name: the local location to copy files to. Will be made as a subdirectory under ./; Cluster_Login: String specifying your login for the cluster/supercomputer (e.g. yourname@comet.sdsc.edu); Cluster_Location: String specifying the folder to copy files to/from on the cluster; Base_Cluster_Location: String specifying cluster location for project as a whole; End_Condition: Optional string indicating if there is a special end condition that must be met or else resubmit the job. Options include "Quantum_Orca","Quantum_QChem", and "Quantum_NWChem" (checks that calculation converged and terminated for each quantum chemistry packaged); Analyze_File: The output file that will be parsed to get relevant information, required if End_Condition is defined; Shared_File_Location: String indicating a location where files can be shared between different runs of the program. Particularly useful for quantum calculations to avoid rerunning calculations between identical rings; Force_Copy: Boolean variable that if True forces the program to recopy from the cluster/supercomputer even if the file already exists locally; Force_New_Job: Boolean variable that if True forces the program to recopy from the cluster/supercomputer even if the job has already been run
+	"""
+	Checks to see whether a job has already been completed, and if not submits a job to the cluster/supercomputer. 
+	
+	Takes in: 
+	Copy_File_List: A List of files to be copied to the supercomputer to make the job run (usually a submit script, input file, and possible a data file), include path from ./ if in a subfolder; 
+	Folder_Name: The subdirectory to write all files to on the cluster/supercomputer and the shared folder; 
+	Submit_Script: script script file name (include path from ./ if in a subfolder); 
+	End_File: The script that will be output at the end of the run (for MD run, usually a data file with the final positions; for quantum file, the output file); 
+	Job_Name: the local location to copy files to. Will be made as a subdirectory under ./; Cluster_Login: String specifying your login for the cluster/supercomputer (e.g. yourname@comet.sdsc.edu); 
+	Cluster_Location: String specifying the folder to copy files to/from on the cluster; 
+	Base_Cluster_Location: String specifying cluster location for project as a whole; End_Condition: Optional string indicating if there is a special end condition that must be met or else resubmit the job. Options include "Quantum_Orca","Quantum_QChem", and "Quantum_NWChem" (checks that calculation converged and terminated for each quantum chemistry packaged); 
+	Analyze_File: The output file that will be parsed to get relevant information, required if End_Condition is defined; 
+	Shared_File_Location: String indicating a location where files can be shared between different runs of the program. Particularly useful for quantum calculations to avoid rerunning calculations between identical rings; 
+	Force_Copy: Boolean variable that if True forces the program to recopy from the cluster/supercomputer even if the file already exists locally; 
+	Force_New_Job: Boolean variable that if True forces the program to recopy from the cluster/supercomputer even if the job has already been run 
+	
+	"""
 	
 	if End_Condition != "" and Analyze_File == "":
 		raise Exception("Analyze_File must be defined if End_Condition is defined")
@@ -464,26 +480,43 @@ def Submit_Job(Copy_File_List,Folder_Name,Submit_Script,End_File,Job_Name,Cluste
 	else:
 		Finished = False
 	#Check to see whether the file already exists locally
-
+	print("in Cluster_IO.submit_job, I've determined that the job finish status is %s" % Finished)#temp
 	#run job
 	if not Finished:
 		#Make all subdirectories for location specified on cluster/supercomputer
 		Continuing_Cluster_Location = Base_Cluster_Location
 		Sub_Dir_List = Cluster_Location.split(Base_Cluster_Location)[-1].split('/')
 		for sub_dir in Sub_Dir_List:
-			Continuing_Cluster_Location = Continuing_Cluster_Location + ("%s/" % sub_dir)
-			subprocess.call(["ssh", "%s" % Cluster_Login, "mkdir %s" % Continuing_Cluster_Location])
+			Continuing_Cluster_Location = Continuing_Cluster_Location + ("%s/" % sub_dir) 
+			subprocess.run(["ssh", Cluster_Login, 'mkdir -p %s' % Continuing_Cluster_Location])#since -p is a thing, might get away with ditching this entire loop
+			
 		#Copy files to supercomputer and run
 		for file in Copy_File_List:
+			print("copying %s to the cluster" % (file))#TODO: temporary, remove later
 			os.system("scp %s %s:%s" % (file,Cluster_Login,Cluster_Location))
-		# if Scheduler_Type == "SLURM":
-		# 	subprocess.call(["ssh", "%s" % Cluster_Login, "sbatch %s/%s" % (Cluster_Location,Submit_Script)])
-		# elif Scheduler_Type == "TORQUE":
-		# 	subprocess.call(["ssh", "%s" % Cluster_Login, "qsub %s/%s" % (Cluster_Location,Submit_Script)])
+		if Scheduler_Type == "SLURM": #temp, need to add other scheduler_type later
+			print("in Cluster_IO.submit_Job, I'm attempting to use sbatch %s" % (Submit_Script))
+			commands = ["cd %s" % Cluster_Location, "dos2unix %s" % Submit_Script, "sbatch %s" % Submit_Script] 
+			#cd to the right directory because the submt_script assumes the file is run from the same directory it's in
+			subprocess.call(["ssh", "%s" % Cluster_Login, "&&".join(commands)])
+		elif Scheduler_Type == "TORQUE":#switch statement might be better
+			raise Exception("TORQUE scheduler not implmented right now.")
+			subprocess.call(["ssh", "%s" % Cluster_Login, "qsub %s/%s" % (Cluster_Location,Submit_Script)])
 
 
 def Return_Info(Analyze_File,End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,Symmetry_Analyze_File = "",Symmetry_End_File = "",End_Condition = "",Shared_File_Location = "",Return_Energy_Orca = False,Return_Loewdin_Charges_Orca = False,Return_Energy_QChem = False,Return_NBO_Charges_QChem=False,Return_Energy_NWChem = False,Return_Averaged_Energy_Lammps = False,Return_ChelpG_Charges_QChem = False,Start_Point = 0):
-	#Checks for completed runs from the cluster/supercomputer and returns desired values. Takes in: Analyze_File: The file which will be used to return values from (may be the same as End_File); End_File: The script that will be output at the end of the run (for MD run, usually a data file with the final positions; for quantum file, the output file); Folder_Name: the local location to copy files to. Will be made as a subdirectory under ./; Cluster_Login: String specifying your login for the cluster/supercomputer (e.g. yourname@comet.sdsc.edu); Cluster_Location: String specifying the folder to copy files to/from on the cluster; End_Condition: Optional string indicating if there is a special end condition that must be met or else resubmit the job. Options include "Quantum_Orca","Quantum_QChem", and "Quantum_NWChem" (checks that calculation converged and terminated for each quantum chemistry packaged); Shared_File_Location: String indicating a location where files can be shared between different runs of the program. Particularly useful for quantum calculations to avoid rerunning calculations between identical rings; The Return flags each are boolean values which, if True, make the function return the requested value for the requested program (e.g. Return_Energy_Orca will return the single point energy from an Orca output file). Values are always returned in a tuple in the same order as the flags are listed above.
+	#Checks for completed runs from the cluster/supercomputer and returns desired values. 
+	# Takes in: Analyze_File: The file which will be used to return values from (may be the same as End_File); 
+	# End_File: The script that will be output at the end of the run (for MD run, usually a data file with the final positions; for quantum file, the output file); 
+	# Folder_Name: the local location to copy files to. Will be made as a subdirectory under ./; 
+	# Cluster_Login: String specifying your login for the cluster/supercomputer (e.g. yourname@comet.sdsc.edu); 
+	# Cluster_Location: String specifying the folder to copy files to/from on the cluster; 
+	# End_Condition: Optional string indicating if there is a special end condition that must be met or else resubmit the job. 
+	# 	Options include "Quantum_Orca","Quantum_QChem", and "Quantum_NWChem" (checks that calculation converged and terminated for each quantum chemistry packaged); 
+	# Shared_File_Location: String indicating a location where files can be shared between different runs of the program. 
+	# 	Particularly useful for quantum calculations to avoid rerunning calculations between identical rings; 
+	# 	The Return flags each are boolean values which, if True, make the function return the requested value for the requested program (e.g. Return_Energy_Orca will return the single point energy from an Orca output file). 
+	# 	Values are always returned in a tuple in the same order as the flags are listed above.
 	
 	Symmetry_Flag = False
 	Finished,_ = Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,End_Condition,Analyze_File,Shared_File_Location)
@@ -492,50 +525,51 @@ def Return_Info(Analyze_File,End_File,Folder_Name,Job_Name,Cluster_Login,Cluster
 			Symmetry_Analyze_File = Symmetry_End_File
 		Finished,_ = Check_Finished(Symmetry_End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,End_Condition,Symmetry_Analyze_File,Shared_File_Location)
 		Symmetry_Flag = True
-	#check if file is in shared folder
-	if not Finished:
-		#loop until job completes
-		while not Finished:
-			#Check whether file exists on cluster/supercomputer and copy it locally
-			os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,End_File,Folder_Name))
-			if os.path.isfile("./%s/%s" % (Folder_Name,End_File)):
-				#Check to see if remote file is complete
-				if End_Condition == "Quantum_Orca":
-					if Quantum_Orca("./%s/%s" % (Folder_Name,End_File)):
-						print("Job Exists")
-						Finished = True
-				elif End_Condition == "Quantum_QChem":
-					if Quantum_QChem("./%s/%s" % (Folder_Name,End_File)):
-						print("Job Exists")
-						Finished = True
-				elif End_Condition == "Quantum_NWChem":
-					if Quantum_NWChem("./%s/%s" % (Folder_Name,End_File)):
-						print("Job Exists")
-						Finished = True
-				elif End_Condition == "Opt_Orca":
-					if Opt_Orca("./%s/%s" % (Folder_Name,End_File)):
-						print("Job Exists")
-						Finished = True
-				elif End_Condition == "Opt_QChem":
-					raise Exception("Opt_QChem not implemented")
-					# if Opt_QChem("./%s/%s" % (Folder_Name,End_File)):
-					# 	print("Job Exists")
-					# 	Finished = True
-				elif End_Condition == "Opt_NWChem":
-					raise Exception("Opt_NWChem not implemented")
-					# if Opt_NWChem("./%s/%s" % (Folder_Name,End_File)):
-					# 	print("Job Exists")
-					# 	Finished = True
-				else:
+	#loop until job completes
+	while not Finished:
+		print("looking for ./%s/%s in Clulster_IO.Return_Info" % (Folder_Name,End_File)) #TODO: temporary, remove later
+		#Check whether file exists on cluster/supercomputer and copy it locally
+		os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,End_File,Folder_Name))
+		if os.path.isfile("./%s/%s" % (Folder_Name,End_File)):
+			#Check to see if remote file is complete
+			print("for %s, the end condition is %s"%(End_File,End_Condition)) #TODO: temporary: remove later
+			if End_Condition == "Quantum_Orca":
+				if Quantum_Orca("./%s/%s" % (Folder_Name,End_File)):
+					print("Job Exists")
 					Finished = True
-			if not Finished:
-				time.sleep(300)
+			elif End_Condition == "Quantum_QChem":
+				if Quantum_QChem("./%s/%s" % (Folder_Name,End_File)):
+					print("Job Exists")
+					Finished = True
+			elif End_Condition == "Quantum_NWChem":
+				if Quantum_NWChem("./%s/%s" % (Folder_Name,End_File)):
+					print("Job Exists")
+					Finished = True
+			elif End_Condition == "Opt_Orca":
+				if Opt_Orca("./%s/%s" % (Folder_Name,End_File)):
+					print("Job Exists")
+					Finished = True
+			elif End_Condition == "Opt_QChem":
+				raise Exception("Opt_QChem not implemented")
+				# if Opt_QChem("./%s/%s" % (Folder_Name,End_File)):
+				# 	print("Job Exists")
+				# 	Finished = True
+			elif End_Condition == "Opt_NWChem":
+				raise Exception("Opt_NWChem not implemented")
+				# if Opt_NWChem("./%s/%s" % (Folder_Name,End_File)):
+				# 	print("Job Exists")
+				# 	Finished = True
+			else:
+				Finished = True
+		if not Finished:
+			print("taking a nap in Cluster_IO.Return_Info")#temp
+			time.sleep(30)
 
 		#copy file to be analyzed to the local folder and the shared folder
 		os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,Analyze_File,Folder_Name))
 		if Shared_File_Location != "":
 			os.system("scp %s:%s/%s %s/%s" % (Cluster_Login,Cluster_Location,Analyze_File,Shared_File_Location,Folder_Name))
-	
+	print("the status for finished is %s" %Finished)#TODO: temporary, delete later
 	if Symmetry_Flag:
 		Analyze_File = Symmetry_Analyze_File
 	Return_Values = []
@@ -609,6 +643,7 @@ def Return_Info_Batch(Analyze_File_List,End_File_List,Folder_Name,Job_Name,Clust
 					else:
 						Finished = True
 				if not Finished:
+					print("nap time!") #temp
 					time.sleep(300)
 
 		#copy file to be analyzed to the local folder and the shared folder

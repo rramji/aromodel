@@ -350,7 +350,7 @@ class Conjugated_Polymer(Molecule.Molecule):
         elif Rotation_Type == "In-Plane":
             Rotation_Matrix = [[1,0,0],[0,math.cos(Rotation_Angle),math.sin(Rotation_Angle)],[0,-math.sin(Rotation_Angle),math.cos(Rotation_Angle)]]
         else:
-            raise Exception("Unidentified Rotation_Type"())
+            raise Exception("Unidentified Rotation_Type")
         print(Rotation_Angle)
         print('hola')
         print(Rotation_Matrix)

@@ -2,6 +2,7 @@ import sys
 import os
 import random
 import Molecule
+import Configure
 
 #This script can build a linear polymer, either a random copolymer or a block copolymer. Polymers will be regioregular and run along the x-axis.
 

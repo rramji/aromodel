@@ -1,5 +1,6 @@
 #! usr/bin/python
 
+#from msilib.schema import File
 import os
 import subprocess
 import time
@@ -70,7 +71,7 @@ def Write_QChem_SPE(File_Name,Test_Molecule,Exchange_Method = "HF",Correlation_M
 	else:
 		ChelpG_Line = ''
 	if Implicit_Solvent_Dielectric != 0.0:
-		Solvent_Line = "\n\n$solvent dielectric 4.9 $end"
+		Solvent_Line = "\n\n$solvent\ndielectric %.2f\n$end"% Implicit_Solvent_Dielectric
 	else:
 		Solvent_Line = ''
 	for atom in Test_Molecule.Atom_List:
