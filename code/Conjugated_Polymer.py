@@ -329,7 +329,7 @@ class Conjugated_Polymer(Molecule.Molecule):
 
     def Rotate_Ring(self,Rotation_Type,Rotation_Angle,Rotation_Ring,Linked_Rotation_Ring,No_Bonded_Vector_Update=False):
         #Rotates the Rotation_Ring (and all rings along the chain in the direction away from the Linked_Rotation_Ring) about the Linked_Rotation_Ring. Rotation_Type can be Dih or OOP, for a dihedral rotation or improper rotation respectively. Rotation_Angle is given in degrees and converted to radians
-        print(Rotation_Angle)
+        #print(Rotation_Angle)
         for b_atom in Rotation_Ring.Bonded_Atoms:
             if b_atom.Is_Linked and b_atom.Bonded_Ring == Linked_Rotation_Ring:
                 rotation_bonded_atom = b_atom
@@ -351,9 +351,9 @@ class Conjugated_Polymer(Molecule.Molecule):
             Rotation_Matrix = [[1,0,0],[0,math.cos(Rotation_Angle),math.sin(Rotation_Angle)],[0,-math.sin(Rotation_Angle),math.cos(Rotation_Angle)]]
         else:
             raise Exception("Unidentified Rotation_Type")
-        print(Rotation_Angle)
-        print('hola')
-        print(Rotation_Matrix)
+        #print(Rotation_Angle)
+        #print('hola')
+        #print(Rotation_Matrix)
         Rotation_Ring.Rotate_Ring(Rotation_Matrix)
         Current_Ring = Rotation_Ring
         Last_Ring = Linked_Rotation_Ring
@@ -687,9 +687,9 @@ class Conjugated_Polymer(Molecule.Molecule):
             if Internal_Energy == 0.0:
                 print(LAMMPS_Filename)
                 #raise Exception("Energy Not Found")
-            os.system("scp %s ./Nontorsional_Inputs" % (LAMMPS_Filename))
-            os.system("scp %s ./Nontorsional_Inputs" % ("in.%s" % LAMMPS_Filename.split('.data')[0]))
-            os.system("scp %s ./Nontorsional_Outputs" % ("log.%s" % LAMMPS_Filename.split('.data')[0]))
+            os.system("scp %s ./Nontorsional_Inputs/" % (LAMMPS_Filename))
+            os.system("scp %s ./Nontorsional_Inputs/" % ("in.%s" % LAMMPS_Filename.split('.data')[0]))
+            os.system("scp %s ./Nontorsional_Outputs/" % ("log.%s" % LAMMPS_Filename.split('.data')[0]))
             if Symmetric:
                 Symmetry_LAMMPS_Name = Polymer_Name + "_" + self.Return_Symmetry_Name() + "_Internal_Energy"
                 if Exclude_All_Interring:
@@ -721,7 +721,7 @@ class Conjugated_Polymer(Molecule.Molecule):
                 print("./Nontorsional_Outputs/log.%s" % LAMMPS_Filename.split('.data')[0])
                 #raise Exception("Energy Not Found")
         if Plumed != "":
-            os.system("scp ./%s.txt ./Nontorsional_Outputs" % self.Name)
+            os.system("scp ./%s.txt ./Nontorsional_Outputs/" % self.Name)
             f = open('./Nontorsional_Outputs/%s.txt' % self.Name)
             Lines = f.readlines()
             f.close()
@@ -814,7 +814,7 @@ class Conjugated_Polymer(Molecule.Molecule):
                     #         f.write("%.6f %.6f %.6f %.6f %.6f\n" % (dih_blocks[j],oop_blocks[q],e*Nonbonded_Modifier,Nonbonded_Force_x[Parameter_Index][q][j]*Nonbonded_Modifier,Nonbonded_Force_y[Parameter_Index][q][j]*Nonbonded_Modifier))
                     #     f.write("\n")
                     # f.close()
-                os.system("scp %s.dat ./Nontorsional_Inputs" % (Bias_File_Name))
+                os.system("scp %s.dat ./Nontorsional_Inputs/" % (Bias_File_Name))
                 #os.system("rm -f %s.dat" % (Bias_File_Name))
             index += 1
             torsion_file.write("\n\nc%d: CENTER ATOMS=%d" % (index*2-3, self.Ring_List[i].Plumed_Rings[0][0].Atom_ID)) #Writes the first atom in the first plumed ring
@@ -870,7 +870,7 @@ class Conjugated_Polymer(Molecule.Molecule):
         torsion_file.write(" ENTITY0=1-%d,c3,c3_normal,c4,c4_normal" % len(self.Atom_List))
         torsion_file.write("\n\nPRINT ARG=ext_2.bias FILE=%s.txt STRIDE=1\n\n" % self.Name)
         torsion_file.close()
-        os.system("scp %s ./Nontorsional_Inputs" % (Base_Calculate_Torsions_String + ".dat"))
+        os.system("scp %s ./Nontorsional_Inputs/" % (Base_Calculate_Torsions_String + ".dat"))
 
     def Map_From_Bonds(self):
         for atom1 in self.Atom_List:
@@ -1321,7 +1321,7 @@ class Conjugated_Polymer(Molecule.Molecule):
                 fig.savefig('%s_%d_Persistence_Length' % (Polymer_Name,i))
                 plt.close(fig)
                 os.system("mkdir ./Figures/PL_Figures")
-                os.system("scp %s_%d_Persistence_Length.png ./Figures/PL_Figures" % (Polymer_Name,i))
+                os.system("scp %s_%d_Persistence_Length.png ./Figures/PL_Figures/" % (Polymer_Name,i))
                 os.system("rm -f %s_%d_Persistence_Length.png" % (Polymer_Name,i))
         return np.mean(np.array(Ps)),np.std(Ps)
 

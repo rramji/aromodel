@@ -18,17 +18,23 @@ def Write_Orca(f,In_File,Name):
 def Write_Orca_Run_Only(f,In_File,Name):
 	f.write('\norca %s >> %s.out' % (In_File,Name))
 
-def Write_LAMMPS(f,nproc,In_File,Name):
-	f.write('module load lammps/2018.12.12-knl\n\nsrun --cpu-bind=cores -n %d lmp_cori -pk intel 0 omp 4 -sf intel -in %s -log log.%s' % (nproc,In_File,Name))
+def Write_LAMMPS(f,In_File,Name):
+	#f.write('module load lammps/2018.12.12-knl\n\nsrun --cpu-bind=cores -n %d lmp_cori -pk intel 0 omp 4 -sf intel -in %s -log log.%s' % (nproc,In_File,Name))
+	with open('./Templates/submit_lammps.template') as template_file:
+		t = Template(template_file.read().replace('\r\n','\n'))
+		f.write(t.substitute({'name':Name, 'in_file' : In_File}))
 
-def Write_LAMMPS_KNL(f,nproc,In_File,Name):
-	f.write('export KMP_BLOCKTIME=0\n\nexport OMP_PROC_BIND=true\nexport OMP_PLACES=threads\nexport OMP_NUM_THREADS=4\nsource /opt/intel/parallel_studio_xe_2019.3.062/psxevars.sh\n\nmodule load lammps/2018.12.12-knl\n\nsrun --cpu-bind=cores -n %d lmp_cori -pk intel 0 omp 4 -sf intel -in %s -log log.%s\ns' % (nproc,In_File,Name))
+def Write_LAMMPS_KNL(f,In_File,Name):
+	Write_LAMMPS(f,In_File,Name)
+	#f.write('export KMP_BLOCKTIME=0\n\nexport OMP_PROC_BIND=true\nexport OMP_PLACES=threads\nexport OMP_NUM_THREADS=4\nsource /opt/intel/parallel_studio_xe_2019.3.062/psxevars.sh\n\nmodule load lammps/2018.12.12-knl\n\nsrun --cpu-bind=cores -n %d lmp_cori -pk intel 0 omp 4 -sf intel -in %s -log log.%s\ns' % (nproc,In_File,Name))
 
-def Write_LAMMPS_KNL_Run_Only(f,nproc,In_File,Name):
-	f.write('\nsrun --cpu-bind=cores -n %d lmp_cori -pk intel 0 omp 4 -sf intel -in %s -log log.%s' % (nproc,In_File,Name))
+def Write_LAMMPS_KNL_Run_Only(f,In_File,Name):
+	Write_LAMMPS_Run_Only(f,In_File,Name)
+	#f.write('\nsrun --cpu-bind=cores -n %d lmp_cori -pk intel 0 omp 4 -sf intel -in %s -log log.%s' % (nproc,In_File,Name))
 
-def Write_LAMMPS_Run_Only(f,nproc,In_File,Name):
-	f.write('srun --cpu-bind-cores -n %d lmp_cori -in %s -log log.%s' % (nproc,In_File,Name))
+def Write_LAMMPS_Run_Only(f,In_File,Name):
+	f.write('lmp -in %s -log log.%s'%(In_File,Name))
+	#f.write('srun --cpu-bind-cores -n %d lmp_cori -in %s -log log.%s' % (nproc,In_File,Name))
 
 # def Write_NWChem(f,nproc,In_File,constraint='cori'):
 # 	if constraint != 'knl':
@@ -57,6 +63,7 @@ def Write_SLURM(File_Name,In_File,Job_Name,nproc,Cluster_Location,Job_Type,run_t
 	with open('./Templates/submit_slurm.template') as template_file:
 		t = Template(template_file.read().replace('\r\n','\n')) #the replace part 'should' turn file from dos to unix
 		f.write(t.substitute({'hour':hours,'min':minutes, 'dir' : Cluster_Location, 'tasks_per_node' : tasks_per_node, 'name':Job_Name}))
+		f.write('\n')#just in case the template doesn't have this at the end
 	#to be deleted
 	# nodes = math.floor(nproc/tasks_per_node)
 	# if nodes == 0:
@@ -83,9 +90,7 @@ def Write_SLURM(File_Name,In_File,Job_Name,nproc,Cluster_Location,Job_Type,run_t
 		Write_Orca(f,In_File,Job_Name)
 
 	elif Job_Type == "LAMMPS":
-		raise Exception("not implemented yet")
-		if Executable_Path == "":
-			Write_LAMMPS(f,nproc,In_File,Name)
+		Write_LAMMPS(f,In_File,Name)
 
 	# if Job_Type == "NWChem":
 	# 	if Executable_Path == "":
@@ -143,10 +148,8 @@ def Write_SLURM_Batch(File_Name,In_File_List,Name,Cluster_Location,Job_Type,run_
 	# 		Write_LAMMPS_KNL(f,nproc,In_File,Name)
 
 	elif Job_Type == "LAMMPS":
-		raise Exception("LAMMPS sucks")
-		if Executable_Path == "":
-			for In_File in In_File_List:
-				Write_LAMMPS(f,nproc,In_File,Name)
+		for In_File in In_File_List:
+			Write_LAMMPS(f,In_File,Name)
 
 	f.close()
 
@@ -185,8 +188,6 @@ def Write_TORQUE(File_Name,In_File,Job_Name,nproc,Cluster_Location,Job_Type,task
 		Write_Orca(f,nproc,In_File,Job_Name)
 
 	elif Job_Type == "LAMMPS":
-		raise Exception("not implemented yet")
-		if Executable_Path == "":
-			Write_LAMMPS(f,nproc,In_File,Job_Name)
+		Write_LAMMPS(f,In_File,Job_Name)
 			
 	f.close()

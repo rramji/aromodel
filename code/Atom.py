@@ -34,8 +34,8 @@ class Atom(object):
         self.Epsilon = 0.0
         self.Lammps_type = 0
         self.System_id = 0
-        # self.Image_Flags = np.zeros(3,dtype=int)
-        # self.Unwrapped_Position = np.zeros(3,dtype=float)
+        self.Image_Flags = np.zeros(3,dtype=int)
+        self.Unwrapped_Position = np.zeros(3,dtype=float)
         return
 
 #     def Assign_OPLS_ID(self, Fullerene = False):
