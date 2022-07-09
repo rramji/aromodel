@@ -1,0 +1,20 @@
+#!/bin/bash
+#SBATCH --job-name="Methylthiophene_Improper_Bend_Methyl_Phi_60"
+#SBATCH --partition=shared
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=64
+#SBATCH -t 3:0:00
+#SBATCH -A ddp381
+#SBATCH --mail-type=ALL
+cd /expanse/lustre/scratch/theleonzhang/temp_project/Improper_Bend_Test
+module add cpu/0.15.4  
+module add gcc/10.2.0  
+module add mvapich2/2.3.6 
+module add qchem/5.4
+qchem Methylthiophene_Improper_Bend_Methyl_Phi_0.qcin >> Methylthiophene_Improper_Bend_Methyl_Phi_0.out
+qchem Methylthiophene_Improper_Bend_Methyl_Phi_10.qcin >> Methylthiophene_Improper_Bend_Methyl_Phi_10.out
+qchem Methylthiophene_Improper_Bend_Methyl_Phi_20.qcin >> Methylthiophene_Improper_Bend_Methyl_Phi_20.out
+qchem Methylthiophene_Improper_Bend_Methyl_Phi_30.qcin >> Methylthiophene_Improper_Bend_Methyl_Phi_30.out
+qchem Methylthiophene_Improper_Bend_Methyl_Phi_40.qcin >> Methylthiophene_Improper_Bend_Methyl_Phi_40.out
+qchem Methylthiophene_Improper_Bend_Methyl_Phi_50.qcin >> Methylthiophene_Improper_Bend_Methyl_Phi_50.out
+qchem Methylthiophene_Improper_Bend_Methyl_Phi_60.qcin >> Methylthiophene_Improper_Bend_Methyl_Phi_60.out

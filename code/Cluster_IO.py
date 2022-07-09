@@ -2,14 +2,14 @@ import os
 import subprocess
 import time
 import numpy as np
-from sympy import FiniteSet
+from sympy import EX, FiniteSet
 
 def Quantum_Orca(file):
 #Returns True if an Orca job has finished running, and False if not
 	Finished = False
 	Energy = 0.0
 	Ended_Flag = False
-	f = open("./%s" % (file),'r')
+	f = open("%s" % (file),'r')
 	lines = f.readlines()
 	for line in lines:
 		if len(line.strip().split()) > 2:
@@ -27,7 +27,7 @@ def Opt_Orca(file):
 #Returns True if an Orca job has finished running, and False if not
 	Finished = False
 	Ended_Flag = False
-	f = open("./%s" % (file),'r')
+	f = open("%s" % (file),'r')
 	lines = f.readlines()
 	for line in lines:
 		if len(line.strip().split()) > 2:
@@ -44,17 +44,27 @@ def Quantum_QChem(file):
 	Finished = False
 	Energy = 0.0
 	Ended_Flag = False
-	f = open("./%s" % (file),'r')
+	f = open("%s" % (file),'r') #Leon's edit: quite strange that this was originally ./%s
 	lines = f.readlines()
 	for line in lines:
 		if len(line.strip().split()) > 1:
-			if line.strip().split()[0] == "RIMP2" and line.strip().split()[1] == "total":
-				Energy = float(line.strip().split()[4]) * 627.5
+
+			#TODO: Figure out what the if statement is for. 
+			#There doesn't appear to be "RIMP2 total" in any qchem output file
+			#I did find "Total  RIMP2   correlation energy =        -1.3826332552 a.u."
+			#Maybe this is what it's trying to find?
+
+			#if line.strip().split()[0] == "RIMP2" and line.strip().split()[1] == "total":
+			#	Energy = float(line.strip().split()[4]) * 627.5
 			if line.strip().split()[0] == "Total" and line.strip().split()[1] == "job" and line.strip().split()[2] == "time:":
 				Ended_Flag = True
 	f.close()
+	#TODO: remove this once we figure out what's the deal with the if above. For now, bypass the Energy check
+	Energy = 1
 	if Energy != 0.0 and Ended_Flag:
 		Finished = True
+
+	print("the finished status of %s is %s"%(file,Finished))#TODO: temporary, delete later
 
 	return Finished
 
@@ -169,6 +179,7 @@ def Energy_Averaged_LAMMPS(Analyze_File,Folder_Name,Start_Point):
 	return Nonbonded_Energy
 
 def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,End_Condition = "",Analyze_File_List = "",Shared_File_Location = ""):
+	print("End condition for the batch is %s"%End_Condition)#TODO: temp
 	Finished = False
 	Return_File = ""
 	for End_File,Analyze_File in zip(End_File_List,Analyze_File_List):
@@ -192,7 +203,6 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 					Return_File = End_File
 					break
 			#if End_Condition == "SPE_QChem":
-			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
 				if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
@@ -223,12 +233,14 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 					Return_File = End_File
 					break
 			if End_Condition == "Opt_Orca":
-				if Opt_Orca("./%s/%s" % (Folder_Name,Analyze_File)):
+				if Opt_Orca("%s/%s" % (Shared_File_Location,Analyze_File)):
 					print("Job Exists")
+					os.system("scp %s/%s ./%s" % (Shared_File_Location,End_File,Folder_Name))
+					os.system("scp %s/%s ./%s" % (Shared_File_Location,Analyze_File,Folder_Name))
 					Finished = True
 					Return_File = End_File
 					break
-			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
+			if End_Condition == "SPE_QChem":
 				if Quantum_QChem("%s/%s" % (Shared_File_Location,Analyze_File)):
 					print("Job Exists")
 					os.system("scp %s/%s ./%s" % (Shared_File_Location,End_File,Folder_Name))
@@ -283,7 +295,8 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 						break
 					else:
 						print("Job Unfinished")
-				if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
+				if End_Condition == "SPE_QChem":
+					print("running da if statment ,")
 					if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 						if Shared_File_Location != "":
 							os.system("scp ./%s/%s %s" % (Folder_Name,End_File,Shared_File_Location))
@@ -311,7 +324,9 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 	return Finished,Return_File
 
 def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,End_Condition = "",Analyze_File = "",Shared_File_Location = ""):
-	#Determines whether the output file already exists in the desired location, in the shared folder, or on the supercomputer
+	"""Determines whether the output file already exists in the desired location, in the shared folder, or on the supercomputer"""
+
+	
 	Finished = False
 
 	#wrapper for batch version is list of files given for End_File
@@ -334,7 +349,7 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 					print("Job Exists")
 					Finished = True
 			#if End_Condition == "SPE_QChem":
-			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
+			if End_Condition == "SPE_QChem":
 				if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
@@ -358,7 +373,7 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 				if Opt_Orca("./%s/%s" % (Folder_Name,Analyze_File)):
 					print("Job Exists")
 					Finished = True
-			if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
+			if End_Condition == "SPE_QChem":
 				if Quantum_QChem("%s/%s" % (Shared_File_Location,Analyze_File)):
 					print("Job Exists")
 					os.system("scp %s/%s ./%s" % (Shared_File_Location,End_File,Folder_Name))
@@ -373,10 +388,11 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 
 		if not Finished:
 			#Check whether file exists on cluster/supercomputer and copy it locally and to the shared folder
-			if os.path.isfile("%s:%s/%s" % (Cluster_Login,Cluster_Location,End_File)):
+			print("attempting to retreave %s from the cluster, and save it to %s"%(End_File,Folder_Name))#TODO: temporary remove later
+			os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,End_File,Folder_Name))
+			if os.path.isfile("./%s/%s" % (Folder_Name,End_File)):
 				print("Job Exists")
-				os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,End_File,Folder_Name))
-				if Analyze_File != End_File: #TODO: temporary, should proabobly check if it exist first
+				if Analyze_File != End_File:
 					os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,Analyze_File,Folder_Name))
 				#Check to see if remote file is complete
 				if End_Condition == "":
@@ -402,7 +418,7 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 						Finished = True
 					else:
 						print("Job Unfinished")
-				if End_Condition == "Qchem" or End_Condition == "SPE_QChem":
+				if End_Condition == "SPE_QChem":
 					if Quantum_QChem("./%s/%s" % (Folder_Name,Analyze_File)):
 						if Shared_File_Location != "":
 							os.system("scp ./%s/%s %s" % (Folder_Name,End_File,Shared_File_Location))
@@ -448,9 +464,11 @@ def Submit_Job(Copy_File_List,Folder_Name,Submit_Script,End_File,Job_Name,Cluste
 	if End_Condition != "" and Symmetry_End_File != "" and Symmetry_Analyze_File == "":
 		raise Exception("Symmetry_Analyze_File must be defined if End_Condition and Symmetry_End_File are defined")
 	#Make local directories
-	os.system('mkdir ./%s' % Folder_Name)
+	if not os.path.isdir(Folder_Name):
+		os.mkdir(Folder_Name)
 	if Shared_File_Location != "":
-		os.system('mkdir %s/%s' % (Shared_File_Location,Folder_Name))
+		if not os.path.isdir('%s/%s' % (Shared_File_Location,Folder_Name)):
+			os.mkdir('%s/%s' % (Shared_File_Location,Folder_Name))
 
 	if Force_New_Job or Force_Copy:
 		os.system('rm -f ./%s/%s' % (Folder_Name,End_File))
@@ -496,6 +514,7 @@ def Submit_Job(Copy_File_List,Folder_Name,Submit_Script,End_File,Job_Name,Cluste
 			os.system("scp %s %s:%s" % (file,Cluster_Login,Cluster_Location))
 		if Scheduler_Type == "SLURM": #temp, need to add other scheduler_type later
 			print("in Cluster_IO.submit_Job, I'm attempting to use sbatch %s" % (Submit_Script))
+			raise Exception("But I just don't feel like wasting 20 min rn")#TODO: Temporary remove later
 			commands = ["cd %s" % Cluster_Location, "dos2unix %s" % Submit_Script, "sbatch %s" % Submit_Script] 
 			#cd to the right directory because the submt_script assumes the file is run from the same directory it's in
 			subprocess.call(["ssh", "%s" % Cluster_Login, "&&".join(commands)])
@@ -532,7 +551,6 @@ def Return_Info(Analyze_File,End_File,Folder_Name,Job_Name,Cluster_Login,Cluster
 		os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,End_File,Folder_Name))
 		if os.path.isfile("./%s/%s" % (Folder_Name,End_File)):
 			#Check to see if remote file is complete
-			print("for %s, the end condition is %s"%(End_File,End_Condition)) #TODO: temporary: remove later
 			if End_Condition == "Quantum_Orca":
 				if Quantum_Orca("./%s/%s" % (Folder_Name,End_File)):
 					print("Job Exists")

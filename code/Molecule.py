@@ -623,8 +623,8 @@ class Molecule(object):
             if local:
                 #Run subprocess on local machine
                 
-                
-                os.system('mkdir Orca')
+                if not os.path.isdir('Orca'):
+                    os.mkdir('Orca')
                 os.system('mv %s ./Orca' % File_Name)
                 os.chdir('./Orca')
                 File_Out = self.Name + ".out"
