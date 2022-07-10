@@ -83,9 +83,7 @@ def Write_SLURM(File_Name,In_File,Job_Name,nproc,Cluster_Location,Job_Type,run_t
 		Write_Orca(f,In_File,Job_Name)
 
 	elif Job_Type == "LAMMPS":
-		raise Exception("not implemented yet")
-		if Executable_Path == "":
-			Write_LAMMPS(f,nproc,In_File,Name)
+		Write_LAMMPS(f,In_File,Job_Name)
 
 	# if Job_Type == "NWChem":
 	# 	if Executable_Path == "":

@@ -46,10 +46,8 @@ lammps_dict = { # for aromodel_lib.py, conjugated_polymer.py, ring.py
 
 qchem_dict = { # for aromodel_lib.py, ring.py, was openmp_dict
     "Job_Type" : "Orca",
-    "Folder_Name" : "Interring_Bonds",
     "Cluster_Login" :"theleonzhang@login.expanse.sdsc.edu",
     "Base_Cluster_Location" : '/expanse/lustre/scratch/theleonzhang/temp_project',
-    "Cluster_Location": "/expanse/lustre/scratch/theleonzhang/temp_project/Interring_Bonds",
     "Scheduler_Type" : "SLURM",
     "End_Condition" : "SPE_QChem",
     "Shared_File_Location" : "../Shared_Files_Dihedral_Parameterization",

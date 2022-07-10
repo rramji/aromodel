@@ -338,7 +338,7 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
             Reversed_End_File_List = []
             Nontorsional_Energy_List = []
             Reversed_Nontorsional_Energy_List = []
-            for i in range(36):
+            for i in range(36): #TODO: figure out what 36 is
                 XYZ_Filename = Dimer.Write_XYZ()
                 os.system("scp %s ./XYZ_Files" % XYZ_Filename)
                 os.system("rm -f ./%s" % XYZ_Filename)
@@ -349,7 +349,14 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 End_File,Reversed_End_File,Job_Name,Reversed_Job_Name,In_File,Reversed_In_File,Sub_File,Reversed_Sub_File = Return_Filenames("%s" % Dimer.Name,Reversed_Name = "%s" % Reversed_Dimer.Name)
                 Job_Type = "QChem"
                 Folder_Name = "Rotation_Test"
-                Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos = Run_Parameters(Folder_Name)
+                #Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos = Run_Parameters(Folder_Name)
+                #TODO: Confirm this should actually use qchem
+                Cluster_Login = Configure.qchem_dict["Cluster_Login"]
+                Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
+                Cluster_Location= Base_Cluster_Location + "/%s"%Folder_Name
+                Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
+                End_Condition = Configure.qchem_dict["End_Condition"]
+                Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
                 N = 2
                 Percent_Change = 0.0
                 """if ring1.Symmetric and ring2.Symmetric:
@@ -416,7 +423,7 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 Reversed_Dimer.Rotate_Ring("Dih",10,Reversed_Dimer.Ring_List[0],Reversed_Dimer.Ring_List[1])
             if len(In_File_List) != 0:
                 End_File = In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
+                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type,run_time = 500)
                 Copy_File_List.append(Sub_File)
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -426,7 +433,7 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
 
             if len(Reversed_In_File_List) != 0:
                 Reversed_End_File = Reversed_In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,Cluster_Location,Job_Type)
+                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,Cluster_Location,Job_Type,run_time = 500)
                 Reversed_Copy_File_List.append(Reversed_Sub_File)
                 Cluster_IO.Submit_Job(Reversed_Copy_File_List,Folder_Name,Reversed_Sub_File,Reversed_End_File,Reversed_Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = Reversed_End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -443,6 +450,7 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
             Reversed_End_File_Matrix.append(Reversed_End_File_List)
             Nontorsional_Energy_Matrix.append(np.array(Nontorsional_Energy_List))
             Reversed_Nontorsional_Energy_Matrix.append(np.array(Reversed_Nontorsional_Energy_List))
+            
 
         Ring_By_Ring_End_File_Matrices.append(End_File_Matrix)
         Ring_By_Ring_End_File_Matrices.append(Reversed_End_File_Matrix)
@@ -533,10 +541,10 @@ def Run_SPE_Dimers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_
                     Reversed_Hydrogenated_Dimer = Reversed_Dimer.Create_Hydrogenated_Copy_Alternate(0,1)
                     Reversed_XYZ_Filename = Reversed_Hydrogenated_Dimer.Write_XYZ()
 
-                os.system("scp %s ./Hydrogenated_XYZ_Files" % XYZ_Filename)
-                os.system("rm -f ./%s" % XYZ_Filename)
-                os.system("scp %s ./Hydrogenated_XYZ_Files" % Reversed_XYZ_Filename)
+                os.system("scp %s ./Hydrogenated_XYZ_Files/" % XYZ_Filename)
+                os.system("scp %s ./Hydrogenated_XYZ_Files/" % Reversed_XYZ_Filename)
                 os.system("rm -f ./%s" % Reversed_XYZ_Filename)
+                os.system("rm -f ./%s" % XYZ_Filename)
 
                 if not Alternate:
                     End_File,Reversed_End_File,Job_Name,Reversed_Job_Name,In_File,Reversed_In_File,Sub_File,Reversed_Sub_File = Return_Filenames("%s_Hydrogenated" % Hydrogenated_Dimer.Name,"%s_Hydrogenated" % Reversed_Hydrogenated_Dimer.Name)
@@ -544,7 +552,12 @@ def Run_SPE_Dimers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_
                     End_File,Reversed_End_File,Job_Name,Reversed_Job_Name,In_File,Reversed_In_File,Sub_File,Reversed_Sub_File = Return_Filenames("%s_Hydrogenated_Alternate" % Hydrogenated_Dimer.Name,"%s_Hydrogenated_Alternate" % Reversed_Hydrogenated_Dimer.Name)
                 Job_Type = "QChem"
                 Folder_Name = "Hydrogenated_Rotation_Test"
-                Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos = Run_Parameters(Folder_Name)
+                Cluster_Login = Configure.qchem_dict["Cluster_Login"]
+                Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
+                Cluster_Location= Base_Cluster_Location + "/%s"%Folder_Name
+                Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
+                End_Condition = Configure.qchem_dict["End_Condition"]
+                Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
 
                 """if ring1.Symmetric and ring2.Symmetric:
                     Symmetry_End_File = Hydrogenated_Dimer.Return_Symmetry_Name() + "_Hydrogenated.out"
@@ -584,7 +597,7 @@ def Run_SPE_Dimers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_
             if len(In_File_List) != 0:
                 End_File = In_File_List[-1]
                 #Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,32,Cluster_Location,Job_Type,walltime = 5,queue = qos,proc_per_node = 32,constraint = 'haswell')
-                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
+                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type, run_time = 500)
                 Copy_File_List.append(Sub_File)
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -593,7 +606,7 @@ def Run_SPE_Dimers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_
 
             if len(Reversed_In_File_List) != 0:
                 Reversed_End_File = Reversed_In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,Cluster_Location,Job_Type)
+                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,Cluster_Location,Job_Type,run_time = 500)
                 Reversed_Copy_File_List.append(Reversed_Sub_File)
                 Cluster_IO.Submit_Job(Reversed_Copy_File_List,Folder_Name,Reversed_Sub_File,Reversed_End_File,Reversed_Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = Reversed_End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -663,6 +676,8 @@ def Run_SPE_Impropers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
     Run_List = []
     k = 0
     Ring_By_Ring_End_File_Matrices = []
+    if not os.path.isdir('./Hydrogenated_Improper_XYZ_Files'):
+        os.mkdr('Hydrogenated_Improper_XYZ_Files')
     for ring1,ring2 in zip(Ring_List,Offset_Ring_List):
         Dimer = Conjugated_Polymer.Conjugated_Polymer([ring1,ring2])
         Reversed_Dimer = Conjugated_Polymer.Conjugated_Polymer([ring2,ring1])
@@ -704,7 +719,12 @@ def Run_SPE_Impropers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
                 Job_Type = "QChem"
                 Folder_Name = "Hydrogenated_Impropers_Test"
 
-                Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos = Run_Parameters(Folder_Name)
+                Cluster_Login = Configure.qchem_dict["Cluster_Login"]
+                Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
+                Cluster_Location= Base_Cluster_Location + "/%s"%Folder_Name
+                Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
+                End_Condition = Configure.qchem_dict["End_Condition"]
+                Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
 
                 """if ring1.Symmetric and ring2.Symmetric:
                     Symmetry_End_File = Dimer.Return_Symmetry_Name() + "_Hydrogenated_Improper.out"
@@ -743,7 +763,7 @@ def Run_SPE_Impropers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
 
             if len(In_File_List) != 0:
                 End_File = In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
+                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type, run_time = 500)
                 Copy_File_List.append(Sub_File)
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -752,7 +772,7 @@ def Run_SPE_Impropers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
 
             if len(Reversed_In_File_List) != 0:
                 Reversed_End_File = Reversed_In_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,Cluster_Location,Job_Type)
+                Write_Submit_Script.Write_SLURM_Batch(Reversed_Sub_File,Reversed_In_File_List,Reversed_Job_Name,Cluster_Location,Job_Type, run_time = 500)
                 Reversed_Copy_File_List.append(Reversed_Sub_File)
                 Cluster_IO.Submit_Job(Reversed_Copy_File_List,Folder_Name,Reversed_Sub_File,Reversed_End_File,Reversed_Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = Reversed_End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -885,7 +905,12 @@ def Return_SPE_Dimers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
 
     Job_Type = "QChem"
     Folder_Name = "Hydrogenated_Rotation_Test"
-    Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos = Run_Parameters(Folder_Name)
+    Cluster_Login = Configure.qchem_dict["Cluster_Login"]
+    Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
+    Cluster_Location= Base_Cluster_Location + "/%s"%Folder_Name
+    Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
+    End_Condition = Configure.qchem_dict["End_Condition"]
+    Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
 
     Ring1_List = []
     Ring2_List = []
@@ -1004,12 +1029,12 @@ def Run_SPE_Trimers_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 Job_Type = "QChem"
                 Folder_Name = "Multi_Ring_Rotation_Test"
                 End_File = "%s.out" % Trimer.Name
-                Cluster_Login = Configure.orca_dict["Cluster_Login"]
-                Base_Cluster_Location = Configure.orca_dict["Base_Cluster_Location"]
-                Cluster_Location=Base_Cluster_Location + "/Multi_Ring_Rotation_Test"
-                Scheduler_Type = Configure.orca_dict["Scheduler_Type"]
-                End_Condition = Configure.orca_dict["End_Condition"]
-                Shared_File_Location = Configure.orca_dict["Shared_File_Location"]
+                Cluster_Login = Configure.qchem_dict["Cluster_Login"]
+                Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
+                Cluster_Location= Base_Cluster_Location + "/%s"%Folder_Name
+                Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
+                End_Condition = Configure.qchem_dict["End_Condition"]
+                Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
                 Job_Name = "%s" % Trimer.Name
                 In_File = "%s.qcin" % Trimer.Name
                 Sub_File = "sub_%s" % Trimer.Name
@@ -1052,7 +1077,7 @@ def Run_SPE_Trimers_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 Trimer.Rotate_Ring("Dih",10,Trimer.Ring_List[0],Trimer.Ring_List[1])
             if len(In_File_List) != 0:
                 End_File = Copy_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
+                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type,run_time = 500)
                 Copy_File_List.append(Sub_File)
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -1116,7 +1141,12 @@ def Run_Paired_Hydrogenation_Energy(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Poly
         Job_Type = "QChem"
         Folder_Name = "Dual_Hydrogenated_Test"
         End_File = End_File_List[-1]
-        Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos = Run_Parameters(Folder_Name)
+        Cluster_Login = Configure.qchem_dict["Cluster_Login"]
+        Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
+        Cluster_Location= Base_Cluster_Location + "/%s"%Folder_Name
+        Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
+        End_Condition = Configure.qchem_dict["End_Condition"]
+        Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
         Job_Name = "%s_Dual_Hydrogenated" % Trimer.Ring_List[1].Name
         In_File = "%s_Dual_Hydrogenated.qcin" % Trimer.Ring_List[1].Name
         Sub_File = "sub_%s_Dual_Hydrogenated" % Trimer.Ring_List[1].Name
@@ -1124,7 +1154,7 @@ def Run_Paired_Hydrogenation_Energy(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Poly
         Symmetry_End_File = ""
 
         if len(In_File_List) != 0:
-            Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
+            Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type,run_time = 500)
             Copy_File_List.append(Sub_File)
             Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
             for file in Copy_File_List:
@@ -1165,7 +1195,14 @@ def Return_SPE_Methyl_Impropers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_
         Improper_Energies = []
         End_File,Reversed_End_File,Job_Name,Reversed_Job_Name,In_File,Reversed_In_File,Sub_File,Reversed_Sub_File = Return_Filenames("%s_Improper_Bend_Methyl" % ring1.Name)
         Folder_Name = "Improper_Bend_Test"
-        Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos = Run_Parameters(Folder_Name)
+        #Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos = Run_Parameters(Folder_Name)
+        #TODO: Confirm if this should actually use qchem
+        Cluster_Login = Configure.qchem_dict["Cluster_Login"]
+        Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
+        Cluster_Location= Base_Cluster_Location + "/%s"%Folder_Name
+        Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
+        End_Condition = Configure.qchem_dict["End_Condition"]
+        Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
 
         for End_File_List in Improper_File_Matrix:
             Improper_Energies.append(Cluster_IO.Return_Info_Batch(End_File_List,End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,Shared_File_Location = Shared_File_Location,Return_Energy_QChem = True)[0])
@@ -1301,7 +1338,12 @@ def Run_SPE_Trimers_Hydrogenated_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Pol
                 Job_Type = "QChem"
                 Folder_Name = "Multi_Ring_Hydrogenated_Rotation_Test"
                 End_File = "%s_Hydrogenated.out" % Hydrogenated_Trimer.Name
-                Cluster_Login,Base_Cluster_Location,Cluster_Location,Scheduler_Type,End_Condition,Shared_File_Location,qos = Run_Parameters(Folder_Name)
+                Cluster_Login = Configure.qchem_dict["Cluster_Login"]
+                Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
+                Cluster_Location= Base_Cluster_Location + "/%s"%Folder_Name
+                Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
+                End_Condition = Configure.qchem_dict["End_Condition"]
+                Shared_File_Location = Configure.qchem_dict["Shared_File_Location"]
                 Job_Name = "%s_Hydrogenated" % Hydrogenated_Trimer.Name
                 In_File = "%s_Hydrogenated.qcin" % Hydrogenated_Trimer.Name
                 Sub_File = "sub_%s_Hydrogenated" % Hydrogenated_Trimer.Name
@@ -1337,7 +1379,7 @@ def Run_SPE_Trimers_Hydrogenated_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Pol
                 Trimer.Rotate_Ring("Dih",10,Trimer.Ring_List[0],Trimer.Ring_List[1])
             if len(In_File_List) != 0:
                 End_File = Copy_File_List[-1]
-                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type)
+                Write_Submit_Script.Write_SLURM_Batch(Sub_File,In_File_List,Job_Name,Cluster_Location,Job_Type,run_time = 500)
                 Copy_File_List.append(Sub_File)
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
@@ -2579,13 +2621,13 @@ def Find_Charges(Ring_List,Polymer_Name):
     End_File = "%s_Find_Charges.out" % Polymer_Name
     Cluster_Login = Configure.orca_dict["Cluster_Login"]
     Base_Cluster_Location = Configure.orca_dict["Base_Cluster_Location"]
-    Cluster_Location=Base_Cluster_Location + "/Find_Charges"
+    Cluster_Location= Base_Cluster_Location + "/%s"%Folder_Name
     Scheduler_Type = Configure.orca_dict["Scheduler_Type"]
     End_Condition = Configure.orca_dict["End_Condition"]
     Copy_File_List = [In_File,Sub_File]
     #Write_Inputs.Write_QChem_SPE(In_File,Multimer,Exchange_Method = "B88",Correlation_Method = "P86",Basis = "def2-SVP",Implicit_Solvent_Dielectric = 0.0,ChelpG = True)
     Write_Inputs.Write_QChem_SPE(In_File,Multimer,Implicit_Solvent_Dielectric = 0.0,ChelpG = True)
-    Write_Submit_Script.Write_SLURM(Sub_File,In_File,Job_Name,32,Cluster_Location,Job_Type,walltime = 4,queue = "regular",proc_per_node = 32,constraint = 'haswell')
+    Write_Submit_Script.Write_SLURM(Sub_File,In_File,Job_Name,32,Cluster_Location,Job_Type)
     Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File)
     Charges = Cluster_IO.Return_Info(End_File,End_File,Folder_Name,Job_Type,Cluster_Login,Cluster_Location,End_Condition = End_Condition,Return_ChelpG_Charges_QChem = True)
     Charges = Charges[0]
@@ -2612,10 +2654,10 @@ def Strech_Bond(Ring_List,Polymer_Name):
         Offset_Ring_List.append(ring)
     Offset_Ring_List.append(Ring_List[0])
     Job_Type = Configure.qchem_dict["Job_Type"]
-    Folder_Name = Configure.qchem_dict["Folder_Name"]
+    Folder_Name = "Interring_Bonds"
     Cluster_Login = Configure.qchem_dict["Cluster_Login"]
     Base_Cluster_Location = Configure.qchem_dict["Base_Cluster_Location"]
-    Cluster_Location= Configure.qchem_dict["Cluster_Location"]
+    Cluster_Location= Base_Cluster_Location + "/%s"%Folder_Name
     Scheduler_Type = Configure.qchem_dict["Scheduler_Type"]
     End_Condition = Configure.qchem_dict["End_Condition"]
     Executable_Location = Configure.qchem_dict["Executable_Location"]

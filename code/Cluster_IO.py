@@ -311,8 +311,13 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 	return Finished,Return_File
 
 def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,End_Condition = "",Analyze_File = "",Shared_File_Location = ""):
-	#Determines whether the output file already exists in the desired location, in the shared folder, or on the supercomputer
+	"""Determines whether the output file already exists in the desired location, in the shared folder, or on the supercomputer"""
+
+	print("Checking %s"%Job_Name)
 	Finished = False
+
+	if not os.path.isdir("./%s"%Folder_Name):
+		os.mkdir(Folder_Name)
 
 	#wrapper for batch version is list of files given for End_File
 	if isinstance(End_File,list):
@@ -373,7 +378,12 @@ def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,
 
 		if not Finished:
 			#Check whether file exists on cluster/supercomputer and copy it locally and to the shared folder
-			if os.path.isfile("%s:%s/%s" % (Cluster_Login,Cluster_Location,End_File)):
+
+			#print("attempting to retrieve %s from the cluster, and save it to %s"%(End_File,Folder_Name))#TODO: temporary remove later
+
+			os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,End_File,Folder_Name))
+			time.sleep(2.5) #slows things down to prevent too many repeated calls to the cluster
+			if os.path.isfile("./%s/%s" % (Folder_Name,End_File)):
 				print("Job Exists")
 				os.system("scp %s:%s/%s ./%s" % (Cluster_Login,Cluster_Location,End_File,Folder_Name))
 				if Analyze_File != End_File: #TODO: temporary, should proabobly check if it exist first
@@ -493,7 +503,8 @@ def Submit_Job(Copy_File_List,Folder_Name,Submit_Script,End_File,Job_Name,Cluste
 		#Copy files to supercomputer and run
 		for file in Copy_File_List:
 			print("copying %s to the cluster" % (file))#TODO: temporary, remove later
-			os.system("scp %s %s:%s" % (file,Cluster_Login,Cluster_Location))
+			time.sleep(2.5)#TODO: temporary measure to slow things down
+			os.system("scp %s %s:%s/" % (file,Cluster_Login,Cluster_Location))
 		if Scheduler_Type == "SLURM": #temp, need to add other scheduler_type later
 			print("in Cluster_IO.submit_Job, I'm attempting to use sbatch %s" % (Submit_Script))
 			commands = ["cd %s" % Cluster_Location, "dos2unix %s" % Submit_Script, "sbatch %s" % Submit_Script] 
@@ -600,6 +611,7 @@ def Return_Info_Batch(Analyze_File_List,End_File_List,Folder_Name,Job_Name,Clust
 		Finished,_ = Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,End_Condition,Analyze_File,Shared_File_Location)
 		if not Finished:
 			break
+	print("Finished is %s"%Finished)
 	if not Finished and Symmetry_End_File != "":
 		if Symmetry_Analyze_File == "":
 			Symmetry_Analyze_File = Symmetry_End_File
