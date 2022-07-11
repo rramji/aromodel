@@ -22,7 +22,8 @@ Orca_Path = "/oasis/scratch/comet/cjpais/temp_project/programs/orca_3_0_3_linux_
 local_dict = {
     "User_Path" : "C:\\Users\\Leon",
     "Aromodel_Path" : "C:\\Users\\Leon\\Personal Document\\College class material\\2022 - 2.5 Summer\\aromodel\code/",
-    "Template_Path" : "C:\\Users\\Leon\\Personal Document\\College class material\\2022 - 2.5 Summer\\aromodel\code/Templates/" # Aromodel_Path + "/Templates/"
+    "Template_Path" : "C:\\Users\\Leon\\Personal Document\\College class material\\2022 - 2.5 Summer\\aromodel\code/Templates/", # Aromodel_Path + "/Templates/"
+    "Lammps_Path" : "lmp_stable"
 }
 
 orca_dict = { # for aromodel_lib.py , ring.py,

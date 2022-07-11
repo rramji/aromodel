@@ -1079,10 +1079,10 @@ class System(object):
                             #         f.write("%.6f %.6f %.6f %.6f %.6f\n" % (dih_blocks[j],oop_blocks[q],e*Nonbonded_Modifier,Nonbonded_Force_x[Parameter_Index][q][j]*Nonbonded_Modifier,Nonbonded_Force_y[Parameter_Index][q][j]*Nonbonded_Modifier))
                             #     f.write("\n")
                             # f.close()
-                        os.system("scp %s.dat ./%s" % (Bias_File_Name,Folder_Name))
+                        os.system("scp %s.dat ./%s/" % (Bias_File_Name,Folder_Name))
                         os.system("rm -f %s.dat" % (Bias_File_Name))
                         if Non_Interacting:
-                            os.system("scp %s_Nonbonded.dat ./%s" % (Bias_File_Name,Folder_Name))
+                            os.system("scp %s_Nonbonded.dat ./%s/" % (Bias_File_Name,Folder_Name))
                             os.system("rm -f %s_Nonbonded.dat" % (Bias_File_Name))
                     torsion_file.write("\n\nc%d: CENTER ATOMS=%d" % (index*2-3, mol.Ring_List[i].Plumed_Rings[0][0].System_ID)) #Writes the first atom in the first plumed ring
                     for atom in mol.Ring_List[i].Plumed_Rings[0][1:]:
@@ -1143,11 +1143,11 @@ class System(object):
             Num_Rings += len(mol.Ring_List)
 
         torsion_file.close()
-        os.system("scp %s.dat ./%s" % (Base_Calculate_Torsions_String, Folder_Name))
+        os.system("scp %s.dat ./%s/" % (Base_Calculate_Torsions_String, Folder_Name))
         os.system("rm -f %s.dat" % Base_Calculate_Torsions_String)
         for i in range(1,Num_Rings):
             if Non_Interacting:
-                os.system("scp %s_Bias_File_%d_Nonbonded.dat ./%s" % (Base_File_Name,i,Folder_Name))
+                os.system("scp %s_Bias_File_%d_Nonbonded.dat ./%s/" % (Base_File_Name,i,Folder_Name))
                 os.system("rm -f %s_Bias_File_%d_Nonbonded.dat" % (Base_File_Name,i))
 
 
