@@ -22,8 +22,7 @@ Orca_Path = "/oasis/scratch/comet/cjpais/temp_project/programs/orca_3_0_3_linux_
 local_dict = {
     "User_Path" : "C:\\Users\\Leon",
     "Aromodel_Path" : "C:\\Users\\Leon\\Personal Document\\College class material\\2022 - 2.5 Summer\\aromodel\code/",
-    "Template_Path" : "C:\\Users\\Leon\\Personal Document\\College class material\\2022 - 2.5 Summer\\aromodel\code/Templates/", # Aromodel_Path + "/Templates/"
-    "Lammps_Path" : "lmp_stable"
+    "Template_Path" : "C:\\Users\\Leon\\Personal Document\\College class material\\2022 - 2.5 Summer\\aromodel\code/Templates/" # Aromodel_Path + "/Templates/"
 }
 
 orca_dict = { # for aromodel_lib.py , ring.py,
@@ -47,8 +46,10 @@ lammps_dict = { # for aromodel_lib.py, conjugated_polymer.py, ring.py
 
 qchem_dict = { # for aromodel_lib.py, ring.py, was openmp_dict
     "Job_Type" : "Orca",
+    "Folder_Name" : "Interring_Bonds",
     "Cluster_Login" :"theleonzhang@login.expanse.sdsc.edu",
     "Base_Cluster_Location" : '/expanse/lustre/scratch/theleonzhang/temp_project',
+    "Cluster_Location": "/expanse/lustre/scratch/theleonzhang/temp_project/Interring_Bonds",
     "Scheduler_Type" : "SLURM",
     "End_Condition" : "SPE_QChem",
     "Shared_File_Location" : "../Shared_Files_Dihedral_Parameterization",
