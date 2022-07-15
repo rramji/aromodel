@@ -15,11 +15,11 @@ class Angle(object):
         self.Angle_Main = Angle_Main #Atom Object (Atom in the middle)
         self.Angle_Node1 = Angle_Node1 #Atom Object
         self.Angle_Node2 = Angle_Node2 #Atom Object
-        self.angle_eq = angle_eq
-        self.ka = 0.0 # Defined in OPLS.Assign_OPLS
-        self.angle_id = 0 # Defined in OPLS.Assign_OPLS
-        self.lammps_type = 0 # Defined in Molecule.Assign_Lammps
-        self.system_id = 0 # Defined System.Write_LAMMPS_Data()
+        self.Angle_Eq = angle_eq
+        self.Ka = 0.0 # Defined in OPLS.Assign_OPLS
+        self.Angle_id = 0 # Defined in OPLS.Assign_OPLS
+        self.Lammps_type = 0 # Defined in Molecule.Assign_Lammps
+        self.System_id = 0 # Defined System.Write_LAMMPS_Data()
         return
 
     def compare_angles(self, node1, main, node2):

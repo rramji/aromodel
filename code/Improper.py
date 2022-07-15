@@ -20,10 +20,10 @@ class Improper(object):
         self.Improper_Node2 = a3
         self.Improper_Node3 = a4 # outside the ring
         self.Ki = Ki
-        self.improper_eq = improper_eq
-        self.improper_id = improper_id
-        self.lammps_type = 1
-        self.system_id = 0
+        self.Improper_Eq = improper_eq
+        self.Improper_ID = improper_id
+        self.Lammps_Type = 1
+        self.System_Id = 0
         self.d = d
         self.n = n
         return
