@@ -16,13 +16,13 @@ class Angle(object):
         self.Angle_Node1 = Angle_Node1 #Atom Object
         self.Angle_Node2 = Angle_Node2 #Atom Object
         self.Angle_Eq = angle_eq
-        self.Ka = 0.0 # Defined in OPLS.Assign_OPLS
+        self.ka = 0.0 # Defined in OPLS.Assign_OPLS
         self.Angle_id = 0 # Defined in OPLS.Assign_OPLS
         self.Lammps_type = 0 # Defined in Molecule.Assign_Lammps
-        self.System_id = 0 # Defined System.Write_LAMMPS_Data()
+        self.System_ID = 0 # Defined System.Write_LAMMPS_Data()
         return
 
-    def compare_angles(self, node1, main, node2):
+    def Compare_Angles(self, node1, main, node2):
     #returns true if the given objects form an identical angle object to the existing object, False if not
         if (self.Angle_Node1 == node1 and self.Angle_Main == main and self.Angle_Node2 == node2) or (self.Angle_Main == main and self.Angle_Node1 == node2 and self.Angle_Node2 == node1):
             return True

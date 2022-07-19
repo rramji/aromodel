@@ -19,7 +19,7 @@ import random
 import Configure
 
 class Conjugated_Polymer(Molecule.Molecule):
-    def __init__(self,Ring_List,Scheduler = Configure.lammps_dict["Scheduler_Type"],Cluster_Location=Configure.lammps_dict["Base_Cluster_Location"]+"/Optimized_Monomers",Flip=10000000):
+    def __init__(self,Ring_List,Flip=10000000):
         self.Ring_List = copy.deepcopy(Ring_List)
         for ring in self.Ring_List:
             ring.Relink()
@@ -181,7 +181,7 @@ class Conjugated_Polymer(Molecule.Molecule):
                 if b_atom.Is_Linked and b_atom.Bonded_Ring == self.Ring_List[i]:
                     bond_Node = b_atom.Central_Atom
             self.Interring_Bond_List.append(Bond.Bond(bond_Main,bond_Node,np.linalg.norm(bond_Main.Position - bond_Node.Position)))
-        #self.Map_From_Bonds()
+        self.Map_From_Bonds() #No idea why this was commented out earlier - Leon
 
         for ring in self.Ring_List:
             if ring.Bond_List != "":
@@ -703,9 +703,9 @@ class Conjugated_Polymer(Molecule.Molecule):
                 elif Interring_Angles_Only:
                     LAMMPS_Filename = LAMMPS_Filename + "_Interring_Angles_Only"
                 os.system("scp %s ./Nontorsional_Outputs/log.%s" % ("log.%s" % LAMMPS_Filename.split('.data')[0],Symmetry_LAMMPS_Name))
-            os.system("rm -f %s" % (LAMMPS_Filename))
-            os.system("rm -f %s" % ("in.%s" % LAMMPS_Filename.split('.data')[0]))
-            os.system("rm -f %s" % ("log.%s" % LAMMPS_Filename.split('.data')[0]))
+            os.remove("%s" % (LAMMPS_Filename))
+            os.system("%s" % ("in.%s" % LAMMPS_Filename.split('.data')[0]))
+            os.system("%s" % ("log.%s" % LAMMPS_Filename.split('.data')[0]))
         else:
             f = open("./Nontorsional_Outputs/log.%s" % LAMMPS_Filename.split('.data')[0],'r')
             lines = f.readlines()
@@ -815,7 +815,7 @@ class Conjugated_Polymer(Molecule.Molecule):
                     #     f.write("\n")
                     # f.close()
                 os.system("scp %s.dat ./Nontorsional_Inputs/" % (Bias_File_Name))
-                #os.system("rm -f %s.dat" % (Bias_File_Name))
+                os.system("rm -f %s.dat" % (Bias_File_Name))
             index += 1
             torsion_file.write("\n\nc%d: CENTER ATOMS=%d" % (index*2-3, self.Ring_List[i].Plumed_Rings[0][0].Atom_ID)) #Writes the first atom in the first plumed ring
             for atom in self.Ring_List[i].Plumed_Rings[0][1:]:
@@ -1322,7 +1322,7 @@ class Conjugated_Polymer(Molecule.Molecule):
                 plt.close(fig)
                 os.system("mkdir ./Figures/PL_Figures")
                 os.system("scp %s_%d_Persistence_Length.png ./Figures/PL_Figures/" % (Polymer_Name,i))
-                os.system("rm -f %s_%d_Persistence_Length.png" % (Polymer_Name,i))
+                os.remove("%s_%d_Persistence_Length.png" % (Polymer_Name,i))
         return np.mean(np.array(Ps)),np.std(Ps)
 
     def CVFF(self,x,K,d,n):

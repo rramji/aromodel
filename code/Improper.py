@@ -23,7 +23,7 @@ class Improper(object):
         self.Improper_Eq = improper_eq
         self.Improper_ID = improper_id
         self.Lammps_Type = 1
-        self.System_Id = 0
+        self.System_ID = 0
         self.d = d
         self.n = n
         return

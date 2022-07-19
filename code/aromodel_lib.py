@@ -1,4 +1,5 @@
 import numpy as np
+from sympy import Mod
 import Atom
 import Molecule
 import Ring
@@ -321,8 +322,8 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
         XYZ_Filename = Dimer.Write_XYZ() 
         if not os.path.isdir("XYZ_Files"):
             os.mkdir('XYZ_Files')
-        os.system("scp %s ./XYZ_Files/" % XYZ_Filename)
-        os.system("rm -f ./%s" % XYZ_Filename)
+        os.system("cp %s ./XYZ_Files/" % XYZ_Filename)
+        os.remove(XYZ_Filename)
         Reversed_End_File_Matrix = []
         End_File_Matrix = []
         Improper_File_Matrix = []
@@ -343,11 +344,11 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
             for i in range(36): #TODO: figure out what 36 is
                 time.sleep(2)#TODO:rapid repeated calls to expanse server seems to cause issues, this slows it down. Should look for a better solution in the future
                 XYZ_Filename = Dimer.Write_XYZ()
-                os.system("scp %s ./XYZ_Files/" % XYZ_Filename)
-                os.system("rm -f ./%s" % XYZ_Filename)
+                os.system("cp %s ./XYZ_Files/" % XYZ_Filename)
+                os.remove(XYZ_Filename)
                 XYZ_Filename = Reversed_Dimer.Write_XYZ()
-                os.system("scp %s ./XYZ_Files" % XYZ_Filename)
-                os.system("rm -f ./%s" % XYZ_Filename)
+                os.system("cp %s ./XYZ_Files/" % XYZ_Filename)
+                os.remove(XYZ_Filename)
                 print()
                 End_File,Reversed_End_File,Job_Name,Reversed_Job_Name,In_File,Reversed_In_File,Sub_File,Reversed_Sub_File = Return_Filenames("%s" % Dimer.Name,Reversed_Name = "%s" % Reversed_Dimer.Name)
                 Job_Type = "QChem"
@@ -433,8 +434,8 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
                 for file in Copy_File_List:
-                    os.system("scp %s ./Rotation_Run_Input_Copies/" % file)
-                    os.system("rm -f %s" % file)
+                    os.system("cp %s ./Rotation_Run_Input_Copies/" % file)
+                    os.remove(file)
 
             if len(Reversed_In_File_List) != 0:
                 Reversed_End_File = Reversed_In_File_List[-1]
@@ -443,8 +444,8 @@ def Run_SPE_Dimers(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 Cluster_IO.Submit_Job(Reversed_Copy_File_List,Folder_Name,Reversed_Sub_File,Reversed_End_File,Reversed_Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = Reversed_End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
                 for file in Reversed_Copy_File_List:
-                    os.system("scp %s ./Rotation_Run_Input_Copies/" % file)
-                    os.system("rm -f %s" % file)
+                    os.system("cp %s ./Rotation_Run_Input_Copies/" % file)
+                    os.remove(file)
             Dimer.Rotate_Ring("OOP",Phi_Rotation,Dimer.Ring_List[0],Dimer.Ring_List[1])
             #Dimer.Rotate_Ring("OOP",5,Dimer.Ring_List[0],Dimer.Ring_List[1])
             Reversed_Dimer.Rotate_Ring("OOP",Phi_Rotation,Reversed_Dimer.Ring_List[0],Reversed_Dimer.Ring_List[1])
@@ -549,11 +550,11 @@ def Run_SPE_Dimers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_
                     Reversed_Hydrogenated_Dimer = Reversed_Dimer.Create_Hydrogenated_Copy_Alternate(0,1)
                     Reversed_XYZ_Filename = Reversed_Hydrogenated_Dimer.Write_XYZ()
 
-                os.system("scp %s ./Hydrogenated_XYZ_Files/" % XYZ_Filename)
-                os.system("rm -f ./%s" % XYZ_Filename)
-                os.system("scp %s ./Hydrogenated_XYZ_Files/" % Reversed_XYZ_Filename)
-                os.system("rm -f ./%s" % Reversed_XYZ_Filename)
-
+                os.system("cp %s ./Hydrogenated_XYZ_Files/" % XYZ_Filename)
+                os.remove(XYZ_Filename)
+                if XYZ_Filename != Reversed_XYZ_Filename:
+                    os.system("cp %s ./Hydrogenated_XYZ_Files/" % Reversed_XYZ_Filename)
+                    os.remove(Reversed_XYZ_Filename)
                 if not Alternate:
                     End_File,Reversed_End_File,Job_Name,Reversed_Job_Name,In_File,Reversed_In_File,Sub_File,Reversed_Sub_File = Return_Filenames("%s_Hydrogenated" % Hydrogenated_Dimer.Name,"%s_Hydrogenated" % Reversed_Hydrogenated_Dimer.Name)
                 else:
@@ -605,7 +606,7 @@ def Run_SPE_Dimers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
                 for file in Copy_File_List:
-                    os.system("rm -f %s" % file)
+                    os.remove(file)
 
             if len(Reversed_In_File_List) != 0:
                 Reversed_End_File = Reversed_In_File_List[-1]
@@ -614,7 +615,7 @@ def Run_SPE_Dimers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_
                 Cluster_IO.Submit_Job(Reversed_Copy_File_List,Folder_Name,Reversed_Sub_File,Reversed_End_File,Reversed_Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = Reversed_End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
                 for file in Reversed_Copy_File_List:
-                    os.system("rm -f %s" % file)
+                    os.remove(file)
             Dimer.Rotate_Ring("OOP",Phi_Rotation,Dimer.Ring_List[0],Dimer.Ring_List[1])
             Reversed_Dimer.Rotate_Ring("OOP",Phi_Rotation,Reversed_Dimer.Ring_List[0],Reversed_Dimer.Ring_List[1])
             End_File_Matrix.append(End_File_List)
@@ -701,8 +702,8 @@ def Run_SPE_Impropers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
                     XYZ_Filename = Dimer.Name + "_Hydrogenated_Improper_Alternate.xyz"
                     Dimer.Hydrogenated_Improper_Alternate(1,0,XYZ_Filename)
                 Improper_Molecule = Molecule.Molecule(XYZ_Filename)
-                os.system("scp %s ./Hydrogenated_Improper_XYZ_Files/" % XYZ_Filename)
-                os.system("rm -f ./%s" % XYZ_Filename)
+                os.system("cp %s ./Hydrogenated_Improper_XYZ_Files/" % XYZ_Filename)
+                os.remove(XYZ_Filename)
 
                 if not Alternate:
                     Reversed_XYZ_Filename = Reversed_Dimer.Name + "_Hydrogenated_Improper.xyz"
@@ -711,8 +712,8 @@ def Run_SPE_Impropers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
                     Reversed_XYZ_Filename = Reversed_Dimer.Name + "_Hydrogenated_Improper_Alternate.xyz"
                     Reversed_Dimer.Hydrogenated_Improper_Alternate(1,0,Reversed_XYZ_Filename)
                 Reversed_Improper_Molecule = Molecule.Molecule(Reversed_XYZ_Filename)
-                os.system("scp %s ./Hydrogenated_Improper_XYZ_Files/" % Reversed_XYZ_Filename)
-                os.system("rm -f ./%s" % Reversed_XYZ_Filename)
+                os.system("cp %s ./Hydrogenated_Improper_XYZ_Files/" % Reversed_XYZ_Filename)
+                os.remove(Reversed_XYZ_Filename)
                 if not Alternate:
                     End_File,Reversed_End_File,Job_Name,Reversed_Job_Name,In_File,Reversed_In_File,Sub_File,Reversed_Sub_File = Return_Filenames("%s_Hydrogenated_Improper" % Dimer.Name,"%s_Hydrogenated_Improper" % Reversed_Dimer.Name)
                 else:
@@ -764,7 +765,7 @@ def Run_SPE_Impropers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
                 for file in Copy_File_List:
-                    os.system("rm -f %s" % file)
+                    os.remove(file)
 
             if len(Reversed_In_File_List) != 0:
                 Reversed_End_File = Reversed_In_File_List[-1]
@@ -773,7 +774,7 @@ def Run_SPE_Impropers_Hydrogenated(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polym
                 Cluster_IO.Submit_Job(Reversed_Copy_File_List,Folder_Name,Reversed_Sub_File,Reversed_End_File,Reversed_Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = Reversed_End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
                 for file in Reversed_Copy_File_List:
-                    os.system("rm -f %s" % file)
+                    os.remove(file)
             #Dimer.Rotate_Ring("OOP",10,Dimer.Ring_List[0],Dimer.Ring_List[1])
             Dimer.Rotate_Ring("OOP",Phi_Rotation,Dimer.Ring_List[0],Dimer.Ring_List[1])
             #Reversed_Dimer.Rotate_Ring("OOP",10,Reversed_Dimer.Ring_List[0],Reversed_Dimer.Ring_List[1])
@@ -1015,8 +1016,8 @@ def Run_SPE_Trimers_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
             for i in range(Rotated_Shape[1]):
                 Trimer.Rotate_Ring("Dih",0,Trimer.Ring_List[0],Trimer.Ring_List[1])
                 XYZ_Filename = Trimer.Write_XYZ()
-                os.system("scp %s ./XYZ_Files/" % XYZ_Filename)
-                os.system("rm -f ./%s" % XYZ_Filename)
+                os.system("cp %s ./XYZ_Files/" % XYZ_Filename)
+                os.remove(XYZ_Filename)
                 Job_Type = "QChem"
                 Folder_Name = "Multi_Ring_Rotation_Test"
                 End_File = "%s.out" % Trimer.Name
@@ -1073,8 +1074,8 @@ def Run_SPE_Trimers_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name):
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
                 for file in Copy_File_List:
-                    os.system("scp %s ./Rotation_Run_Input_Copies/" % file)
-                    os.system("rm -f %s" % file)
+                    os.system("cp %s ./Rotation_Run_Input_Copies/" % file)
+                    os.remove(file)
             Trimer.Rotate_Ring("Dih",10,Trimer.Ring_List[2],Trimer.Ring_List[1])
             End_File_Matrix.append(End_File_List)
             Nontorsional_Energy_Matrix.append(np.array(Nontorsional_Energy_List))
@@ -1151,7 +1152,7 @@ def Run_Paired_Hydrogenation_Energy(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Poly
             if not os.path.isdir('Rotation_Run_Input_Copies'):
                 os.mkdir('Rotation_Run_Input_Copies')
             for file in Copy_File_List:
-                os.system("scp %s ./Rotation_Run_Input_Copies/" % file)
+                os.system("cp %s ./Rotation_Run_Input_Copies/" % file)
                 os.remove(file)
 
         Ring_By_Ring_Dual_Hydrogenated_End_File_Matrices.append(End_File_List)
@@ -1326,8 +1327,8 @@ def Run_SPE_Trimers_Hydrogenated_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Pol
                 Hydrogenated_Trimer,Syn = Trimer.Create_Hydrogenated_Copy(1,0)
                 Syn_Anti_List.append(Syn)
                 XYZ_Filename = Hydrogenated_Trimer.Write_XYZ()
-                os.system("scp %s ./Hydrogenated_XYZ_Files/" % XYZ_Filename)
-                os.system("rm -f ./%s" % XYZ_Filename)
+                os.system("cp %s ./Hydrogenated_XYZ_Files/" % XYZ_Filename)
+                os.remove(XYZ_Filename)
                 Job_Type = "QChem"
                 Folder_Name = "Multi_Ring_Hydrogenated_Rotation_Test"
                 End_File = "%s_Hydrogenated.out" % Hydrogenated_Trimer.Name
@@ -1372,8 +1373,8 @@ def Run_SPE_Trimers_Hydrogenated_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Pol
                 Cluster_IO.Submit_Job(Copy_File_List,Folder_Name,Sub_File,End_File,Job_Name,Cluster_Login,Cluster_Location,Base_Cluster_Location,Scheduler_Type,End_Condition = End_Condition,Analyze_File = End_File,Shared_File_Location = Shared_File_Location)
                 k+=1
                 for file in Copy_File_List:
-                    os.system("scp %s ./Rotation_Run_Input_Copies/" % file)
-                    os.system("rm -f %s" % file)
+                    os.system("cp %s ./Rotation_Run_Input_Copies/"%file)
+                    os.remove(file)
             Trimer.Rotate_Ring("Dih",10,Trimer.Ring_List[2],Trimer.Ring_List[1])
             End_File_Matrix.append(End_File_List)
             Syn_Anti_Matrix.append(Syn_Anti_List)
@@ -1523,9 +1524,8 @@ def Return_SPE_Trimers_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name,
             plt.tight_layout()
             fig.savefig('%s_%s_%s_Cooperative_Energies_Row_By_Row_%d' % (ring1.Name,ring2.Name,ring3.Name,i))
             plt.close(fig)
-            os.system("scp %s_%s_%s_Cooperative_Energies_Row_By_Row_%d.png ./Figures/" % (ring1.Name,ring2.Name,ring3.Name,i))
-            os.system("rm -f %s_%s_%s_Cooperative_Energies_Row_By_Row_%d.png" % (ring1.Name,ring2.Name,ring3.Name,i))
-
+            os.system("cp %s_%s_%s_Cooperative_Energies_Row_By_Row_%d.png ./Figures/"%(ring1.Name,ring2.Name,ring3.Name,i))
+            os.remove("%s_%s_%s_Cooperative_Energies_Row_By_Row_%d.png"%(ring1.Name,ring2.Name,ring3.Name,i))
 
         Normalized_Energy_List = []
 
@@ -1552,7 +1552,7 @@ def Return_SPE_Trimers_Dih(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Polymer_Name,
             fig.savefig('%s_%s_%s_Cooperative_Energies_Row_By_Row_%d' % (ring3.Name,ring2.Name,ring1.Name,i))
             plt.close(fig)
             os.system("scp %s_%s_%s_Cooperative_Energies_Row_By_Row_%d.png ./Figures/" % (ring3.Name,ring2.Name,ring1.Name,i))
-            os.system("rm -f %s_%s_%s_Cooperative_Energies_Row_By_Row_%d.png" % (ring3.Name,ring2.Name,ring1.Name,i))
+            os.remove("%s_%s_%s_Cooperative_Energies_Row_By_Row_%d.png" % (ring3.Name,ring2.Name,ring1.Name,i))
 
         Normalized_Energy_List = []
 
@@ -1892,7 +1892,7 @@ def Fit_Improper_Energies(Dimer_Delocalization_Energies,Ring_List,Rotated_Shape,
                 alpha = 1.0
             else:
                 alpha = 0.2
-            ax.scatter(np.linspace(0,350,Rotated_Shape[1]),energy_list,alpha=alpha,marker = 's',c=cmap(color[i]))
+            ax.scatter(np.linspace(0,350,Rotated_Shape[1]),energy_list,alpha=alpha,marker = 's',color=cmap(color[i]))
             opt,cov = scipy.optimize.curve_fit(OPLS,np.linspace(0,350,Rotated_Shape[1]),energy_list)
             Parameter_Lists.append(opt)
             x = np.linspace(0,360,10000)
@@ -1912,12 +1912,12 @@ def Fit_Improper_Energies(Dimer_Delocalization_Energies,Ring_List,Rotated_Shape,
             fig.savefig('%s_%s_Conjugated_Energies_Nonbonded' % (ring1.Name,ring2.Name))
             plt.close(fig)
             os.system("scp %s_%s_Conjugated_Energies_Nonbonded.png ./Figures/" % (ring1.Name,ring2.Name))
-            os.system("rm -f %s_%s_Conjugated_Energies_Nonbonded.png" % (ring1.Name,ring2.Name))
+            os.remove("%s_%s_Conjugated_Energies_Nonbonded.png" % (ring1.Name,ring2.Name))
         else:
             fig.savefig('%s_%s_Conjugated_Energies' % (ring1.Name,ring2.Name))
             plt.close(fig)
             os.system("scp %s_%s_Conjugated_Energies.png ./Figures/" % (ring1.Name,ring2.Name))
-            os.system("rm -f %s_%s_Conjugated_Energies.png" % (ring1.Name,ring2.Name))
+            os.remove("%s_%s_Conjugated_Energies.png" % (ring1.Name,ring2.Name))
 
         opls_params = []
         a_params = []
@@ -1934,8 +1934,8 @@ def Fit_Improper_Energies(Dimer_Delocalization_Energies,Ring_List,Rotated_Shape,
             plt.scatter(-1*Merged_OOP_Rotations_Radians[:0:-1],[q[j] for q in Parameter_Lists][:0:-1],color=cmap(color[i]),alpha=alpha)
             Mirror_OOP_Radians = np.concatenate((-1*Merged_OOP_Rotations_Radians[:0:-1],Merged_OOP_Rotations_Radians))
             Mirror_y_coords = [q[j] for q in Parameter_Lists][:0:-1] + [p[j] for p in Parameter_Lists]
-            #Mirror_weights = [1/q for q in (weights[:0:-1])] + [1/p for p in weights]
-            Mirror_weights = [q*0+1 for q in (weights[:0:-1])] + [q*0+1 for p in weights]
+            Mirror_weights = [1/q for q in (weights[:0:-1])] + [1/p for p in weights]
+            #Mirror_weights = [q*0+1 for q in (weights[:0:-1])] + [q*0+1 for p in weights] #TODO: Figure out whats the deal with this q*0 thing
             fit_obj = Fit(model_dict, x=Mirror_OOP_Radians, y=Mirror_y_coords,sigma_y=Mirror_weights,absolute_sigma=False)
             fit_result = fit_obj.execute()
             q = np.linspace(0,math.pi,1000)
@@ -1951,14 +1951,14 @@ def Fit_Improper_Energies(Dimer_Delocalization_Energies,Ring_List,Rotated_Shape,
             fig.savefig('%s_%s_Improper_OPLS_Parameters_%d_Fourier_Fit' % (ring1.Name,ring2.Name,j))
             plt.close(fig)
             os.system("scp %s_%s_Improper_OPLS_Parameters_%d_Fourier_Fit.png ./Figures/" % (ring1.Name,ring2.Name,j))
-            os.system("rm -f %s_%s_Improper_OPLS_Parameters_%d_Fourier_Fit.png" % (ring1.Name,ring2.Name,j))
+            os.remove("%s_%s_Improper_OPLS_Parameters_%d_Fourier_Fit.png" % (ring1.Name,ring2.Name,j))
             a_params.append([fit_result.params['a%d' % z] for z in range(1,fourier_order + 1)])
             b_params.append([fit_result.params['b%d' % z] for z in range(1,fourier_order + 1)])
             a0_params.append(fit_result.params['a0'])
-        print(a_params)
-        print(b_params)
-        print(a0_params)
-        print(Mirror_weights)
+        # print(a_params)
+        # print(b_params)
+        # print(a0_params)
+        # print(Mirror_weights)
 
         Fit_Matrix = []
         p = np.linspace(0,360,1000)
@@ -2013,11 +2013,15 @@ def Fit_Improper_Energies(Dimer_Delocalization_Energies,Ring_List,Rotated_Shape,
         Force_x = np.zeros((200,200))
         Force_y = np.zeros((200,200))
         Energy = np.zeros((200,200))
+        counter = 1#TODO: temporary, delete later
+        print("should run for %d loop"%(len(q)*len(p)))
         for oop_num,oop in enumerate(q):
             for dih_num,dih in enumerate(p):
                 Force_x[oop_num][dih_num] = -1 * 4.184 * OPLS_Derivative(dih,fourier_nonfit(oop,a_params[0],b_params[0],a0_params[0],n=fourier_order),fourier_nonfit(oop,a_params[1],b_params[1],a0_params[1],n=fourier_order),fourier_nonfit(oop,a_params[2],b_params[2],a0_params[2],n=fourier_order),fourier_nonfit(oop,a_params[3],b_params[3],a0_params[3],n=fourier_order))
                 Force_y[oop_num][dih_num] = -1 * 4.184 * OPLS(dih,fourier_series_derivative(oop,a_params[0],b_params[0],n=fourier_order),fourier_series_derivative(oop,a_params[1],b_params[1],n=fourier_order),fourier_series_derivative(oop,a_params[2],b_params[2],n=fourier_order),fourier_series_derivative(oop,a_params[3],b_params[3],n=fourier_order),fourier_series_derivative(oop,a_params[4],b_params[4],n=fourier_order))
                 Energy[oop_num][dih_num] = 4.184 * OPLS(dih,fourier_nonfit(oop,a_params[0],b_params[0],a0_params[0],n=fourier_order),fourier_nonfit(oop,a_params[1],b_params[1],a0_params[1],n=fourier_order),fourier_nonfit(oop,a_params[2],b_params[2],a0_params[2],n=fourier_order),fourier_nonfit(oop,a_params[3],b_params[3],a0_params[3],n=fourier_order),fourier_nonfit(oop,a_params[4],b_params[4],a0_params[4],n=fourier_order))
+                print("working in loop # %d"%counter)
+                counter += 1
 
         a_params_list.append(a_params)
         b_params_list.append(b_params)
@@ -2412,19 +2416,19 @@ def Control_Fit_OPLS(Dimer_Energies,Rotated_Shape):
         translated_x = [x+360 if x < 0 else x for x in translated_x]
         OPLS_Fit_Params_Translated,cov = scipy.optimize.curve_fit(OPLS_LAMMPS,translated_x,energies[0])
         fig,ax = plt.subplots(1,1)
-        print(sum([(OPLS_LAMMPS(dih,OPLS_Fit_Params[0],OPLS_Fit_Params[1],OPLS_Fit_Params[2],OPLS_Fit_Params[3])-e)**2 for dih,e in zip(np.linspace(0,350,Rotated_Shape[1]),energies[0])]))
-        print(sum([(OPLS_LAMMPS(dih,OPLS_Fit_Params_Translated[0],OPLS_Fit_Params_Translated[1],OPLS_Fit_Params_Translated[2],OPLS_Fit_Params_Translated[3])-e)**2 for dih,e in zip(translated_x,energies[0])]))
+        #print(sum([(OPLS_LAMMPS(dih,OPLS_Fit_Params[0],OPLS_Fit_Params[1],OPLS_Fit_Params[2],OPLS_Fit_Params[3])-e)**2 for dih,e in zip(np.linspace(0,350,Rotated_Shape[1]),energies[0])]))
+        #print(sum([(OPLS_LAMMPS(dih,OPLS_Fit_Params_Translated[0],OPLS_Fit_Params_Translated[1],OPLS_Fit_Params_Translated[2],OPLS_Fit_Params_Translated[3])-e)**2 for dih,e in zip(translated_x,energies[0])]))
         if sum([(OPLS_LAMMPS(dih,OPLS_Fit_Params[0],OPLS_Fit_Params[1],OPLS_Fit_Params[2],OPLS_Fit_Params[3])-e)**2 for dih,e in zip(np.linspace(0,350,Rotated_Shape[1]),energies[0])]) < sum([(OPLS_LAMMPS(dih,OPLS_Fit_Params_Translated[0],OPLS_Fit_Params_Translated[1],OPLS_Fit_Params_Translated[2],OPLS_Fit_Params_Translated[3])-e)**2 for dih,e in zip(translated_x,energies[0])]):
             OPLS_Fit.append(OPLS_Fit_Params)
-            plt.scatter(np.linspace(0,350,Rotated_Shape[1]), energies[0], c='k')
+            plt.scatter(np.linspace(0,350,Rotated_Shape[1]), energies[0], color='k')
             q = np.linspace(0,360,1000)
             y_values = [OPLS_LAMMPS(dih,OPLS_Fit_Params[0],OPLS_Fit_Params[1],OPLS_Fit_Params[2],OPLS_Fit_Params[3]) for dih in q]
         else:
             OPLS_Fit.append(OPLS_Fit_Params_Translated)
-            plt.scatter(translated_x, energies[0], c='k')
+            plt.scatter(translated_x, energies[0], color='k')
             q = np.concatenate((np.linspace(180,360,500),np.linspace(0,180,500)))
             y_values = [OPLS_LAMMPS(dih,OPLS_Fit_Params_Translated[0],OPLS_Fit_Params_Translated[1],OPLS_Fit_Params_Translated[2],OPLS_Fit_Params_Translated[3]) for dih in q]
-            print(y_values)
+            #print(y_values)
         plt.plot(q, y_values, color='black')
         plt.xlabel('Dihedral Rotation (Degree)',size = 24)
         plt.ylabel('OOP Rotation (Degree)',size = 24)
@@ -2445,7 +2449,7 @@ def Calculate_Conventional_Energies(Ring_List,Rotated_Shape,Max_Dih,Max_OOP,Poly
     Theta_Rotations = np.linspace(0,360,Dih_Length)
 
     #OPLS_Dih_List_list is a list of single dihedral angles considered "definitive" for each set of polymers. Note that they are offset by the additional hydrogens added by the program!
-    if Polymer_Name == "P3HT_Input":
+    if Polymer_Name == "P3HT_Input": 
         OPLS_Dih_List_list = [[3,5,12,13],[3,5,12,13]] #P3HT
     elif Polymer_Name == "PTB7_Input":
         OPLS_Dih_List_list = [[21,23,26,27],[2,3,18,19],[2,3,18,19],[21,23,26,27]] #PTB7
@@ -2658,8 +2662,8 @@ def Strech_Bond(Ring_List,Polymer_Name):
         Stretch.Write_XYZ()
         Bonded_Atom_List = []
         for bond in Stretch.Interring_Bond_List:
-            Bonded_Atom_List.append(bond.Bond_Master)
-            Bonded_Atom_List.append(bond.Bond_Slave)
+            Bonded_Atom_List.append(bond.Bond_Main)
+            Bonded_Atom_List.append(bond.Bond_Node)
         Bond_Eq = np.linalg.norm(Bonded_Atom_List[0].Position - Bonded_Atom_List[1].Position)
         Job_Name = "%s_%s_Interring_Bond" % (ring1.Name,ring2.Name)
         In_File = "%s_%s_Interring_Bond.inp" % (ring1.Name,ring2.Name)
@@ -2783,6 +2787,7 @@ def Set_Up_Folders():
     os.system("mkdir ./Multi_Ring_Hydrogenated_Rotation_Test")
 
 def Write_All_Dimers_Plumed(Ring_List,Fit_Energies_list,Force_y_list,Force_x_list,Polymer_Name):
+    
     Offset_Ring_List = []
     for ring in Ring_List[1:]:
         Offset_Ring_List.append(copy.deepcopy(ring))
@@ -2795,21 +2800,24 @@ def Write_Example_Plumed_Script(Polymer_Ring_List,Fit_Energies,Force_y,Force_x,B
     oop_blocks = np.linspace(0,2*math.pi,200)
     dih_blocks = np.linspace(-math.pi,math.pi,200)
 
+    #TODO: temp, remove later
+    import imp
+    imp.reload(Conjugated_Polymer)
+    imp.reload(Molecule)
     Polymer = Conjugated_Polymer.Conjugated_Polymer(Polymer_Ring_List)
-    Molecule.Assign_Lammps([Polymer])
+
+    Molecule.Assign_Lammps([Polymer]) #where's the output? -Leon
     Bond_Atoms = []
     for bond in Polymer.Interring_Bond_List:
-        if bond.Bond_Master not in Bond_Atoms:
-            Bond_Atoms.append(bond.Bond_Master)
-        if bond.Bond_Slave not in Bond_Atoms:
-            Bond_Atoms.append(bond.Bond_Slave)
-
+        if bond.Bond_Main not in Bond_Atoms:
+            Bond_Atoms.append(bond.Bond_Main)
+        if bond.Bond_Node not in Bond_Atoms:
+            Bond_Atoms.append(bond.Bond_Node)
     if Non_Interacting == True:
         for atom in Polymer.Atom_List:
             atom.Charge = 0.000000
             atom.Sigma = 0.0
             atom.Epsilon = 0.0
-
 
     Polymer.Adjust_COM(center=np.array([150.0,150.0,150.0]))
     Polymer.Write_Data_File("Run_%s.data" % (Base_Name),Exclude_Interring_Dihedrals=True,Bond_Atoms=Bond_Atoms)
@@ -2877,11 +2885,11 @@ def Write_Example_Plumed_Script(Polymer_Ring_List,Fit_Energies,Force_y,Force_x,B
                     f.write("%.6f %.6f %.6f %.6f %.6f\n" % (dih_blocks[j],oop_blocks[q],e*Nonbonded_Modifier,Nonbonded_Force_x[Parameter_Index][q][j]*Nonbonded_Modifier,Nonbonded_Force_y[Parameter_Index][q][j]*Nonbonded_Modifier))
                 f.write("\n")
             f.close()
-        os.system("scp %s.dat ./%s" % (Bias_File_Name,Folder_Name))
-        os.system("rm -f %s.dat" % (Bias_File_Name))
+        os.system("scp %s.dat ./%s/" % (Bias_File_Name,Folder_Name))
+        os.remove("%s.dat" % (Bias_File_Name))
         if Non_Interacting:
             os.system("scp %s_Nonbonded.dat ./%s/" % (Bias_File_Name,Folder_Name))
-            os.system("rm -f %s_Nonbonded.dat" % (Bias_File_Name))
+            os.remove("%s_Nonbonded.dat" % (Bias_File_Name))
 
         torsion_file.write("\n\nc%d: CENTER ATOMS=%d" % (i+1,Polymer.Ring_List[i].Core_Atom_List[0].Atom_ID))
         for atom in Polymer.Ring_List[i].Core_Atom_List[1:]:
@@ -2912,14 +2920,13 @@ def Write_Example_Plumed_Script(Polymer_Ring_List,Fit_Energies,Force_y,Force_x,B
         torsion_file.write(",c%d,c%d_normal" % (i,i))
 
     torsion_file.close()
+    if not os.path.isdir(Folder_Name):
+        os.mkdir(Folder_Name)
 
-    os.system("mkdir ./%s" % (Folder_Name))
-
-    os.system("scp %s.dat ./%s" % (Base_Calculate_Torsions_String,Folder_Name))
-    os.system("rm -f %s.dat" % Base_Calculate_Torsions_String)
-
+    os.system("scp %s.dat ./%s/" % (Base_Calculate_Torsions_String,Folder_Name))
     os.system("scp Run_%s.data ./%s" % (Base_Name,Folder_Name))
-    os.system("rm -f Run_%s.data" % Base_Name)
+    os.remove("%s.dat" % Base_Calculate_Torsions_String)
+    os.remove("Run_%s.data" % Base_Name)
 
     for i in range(1,len(Polymer.Ring_List)):
         if Non_Interacting:
@@ -2947,19 +2954,19 @@ def Write_Conventional_Data_File(Polymer_Name,Input_File_Sidechains,XYZ_File_Sid
     print(Polymer.Interring_Bond_List)
     Bond_Atoms = []
     for bond in Polymer.Interring_Bond_List:
-        if bond.Bond_Master not in Bond_Atoms:
-            Bond_Atoms.append(bond.Bond_Master)
-        if bond.Bond_Slave not in Bond_Atoms:
-            Bond_Atoms.append(bond.Bond_Slave)
+        if bond.Bond_Main not in Bond_Atoms:
+            Bond_Atoms.append(bond.Bond_Main)
+        if bond.Bond_Node not in Bond_Atoms:
+            Bond_Atoms.append(bond.Bond_Node)
 
     Polymer.Adjust_COM(center=np.array([150.0,150.0,150.0]))
-    Polymer.Replace_Interring_Dihedrals(0,0,[o for o in OPLS_Fit[0]])
+    Polymer.Replace_Interring_Dihedrals([0],[0],[o for o in OPLS_Fit[0]]) # Had to change some inputs to list([0]), to fit with the function definition better, not sure which one is actually the problem - Leon
     Polymer.Write_Data_File("Run_%s_Conventional.data" % Polymer_Name,Bond_Atoms=Bond_Atoms)
-
+    
     os.system("mkdir ./%s" % (Folder_Name))
 
     os.system("scp Run_%s_Conventional.data ./%s/" % (Polymer_Name,Folder_Name))
-    os.system("rm -f Run_%s_Conventional.data" % (Polymer_Name))
+    os.remove("Run_%s_Conventional.data" % (Polymer_Name))
 
 def Compare_Rigidity_Types(Merged_Conjugation_Energies,Merged_Delocalization_Energies,Merged_Nonbonded_Energies,Merged_OOP_Rotations_Degrees):
     for E_conjugation,E_delocalization,E_nonbonded,i in zip(Merged_Conjugation_Energies,Merged_Delocalization_Energies,Merged_Nonbonded_Energies,range(len(Merged_Conjugation_Energies))):

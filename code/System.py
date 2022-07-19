@@ -340,7 +340,7 @@ class System(object):
         for Molecule_Obj in self.Molecule_List:
             for Bond_Obj in Molecule_Obj.Bond_List:
                 Bond_Obj.System_ID = i
-                File.write('%d %d %d %d\n' % ( Bond_Obj.System_ID, Bond_Obj.LAMMPS_Type, Bond_Obj.Bond_Master.System_ID, Bond_Obj.Bond_Slave.System_ID))
+                File.write('%d %d %d %d\n' % ( Bond_Obj.System_ID, Bond_Obj.LAMMPS_Type, Bond_Obj.Bond_Main.System_ID, Bond_Obj.Bond_Node.System_ID))
                 i += 1
 
 
@@ -349,7 +349,7 @@ class System(object):
         for Molecule_Obj in self.Molecule_List:
             for Angle_Obj in Molecule_Obj.Angle_List:
                 Angle_Obj.System_ID = i
-                File.write('%d %d %d %d %d\n' % (Angle_Obj.System_ID, Angle_Obj.LAMMPS_Type, Angle_Obj.Angle_Slave1.System_ID, Angle_Obj.Angle_Master.System_ID,  Angle_Obj.Angle_Slave2.System_ID))
+                File.write('%d %d %d %d %d\n' % (Angle_Obj.System_ID, Angle_Obj.LAMMPS_Type, Angle_Obj.Angle_Node1.System_ID, Angle_Obj.Angle_Main.System_ID,  Angle_Obj.Angle_Node2.System_ID))
                 i += 1
         if self.Num_Dihedrals > 0:
             File.write('\n\nDihedrals\n\n')
@@ -357,7 +357,7 @@ class System(object):
             for Molecule_Obj in self.Molecule_List:
                 for Dihedral_Obj in Molecule_Obj.Dihedral_List:
                     Dihedral_Obj.System_ID = i
-                    File.write('%d %d %d %d %d %d\n' % (Dihedral_Obj.System_ID, Dihedral_Obj.LAMMPS_Type, Dihedral_Obj.Dihedral_Slave1.System_ID, Dihedral_Obj.Dihedral_Master1.System_ID, Dihedral_Obj.Dihedral_Master2.System_ID, Dihedral_Obj.Dihedral_Slave2.System_ID))
+                    File.write('%d %d %d %d %d %d\n' % (Dihedral_Obj.System_ID, Dihedral_Obj.LAMMPS_Type, Dihedral_Obj.Dihedral_Node1.System_ID, Dihedral_Obj.Dihedral_Main1.System_ID, Dihedral_Obj.Dihedral_Main2.System_ID, Dihedral_Obj.Dihedral_Node2.System_ID))
                     i += 1
 
         if self.Num_Impropers > 0:
@@ -366,7 +366,7 @@ class System(object):
             for Molecule_Obj in self.Molecule_List:
                 for Improper_Obj in Molecule_Obj.Improper_List:
                     Improper_Obj.System_ID = i
-                    File.write('%d %d %d %d %d %d\n' % (Improper_Obj.System_ID, Improper_Obj.LAMMPS_Type, Improper_Obj.Improper_Master.System_ID, Improper_Obj.Improper_Slave1.System_ID, Improper_Obj.Improper_Slave2.System_ID, Improper_Obj.Improper_Slave3.System_ID))
+                    File.write('%d %d %d %d %d %d\n' % (Improper_Obj.System_ID, Improper_Obj.LAMMPS_Type, Improper_Obj.Improper_Main.System_ID, Improper_Obj.Improper_Node1.System_ID, Improper_Obj.Improper_Node2.System_ID, Improper_Obj.Improper_Node3.System_ID))
                     i += 1
 
     def Write_LAMMPS_Data_Imp_Only(self, Dihedral = False, Fold = -1):
@@ -466,7 +466,7 @@ class System(object):
         for Molecule_Obj in self.Molecule_List:
             for Bond_Obj in Molecule_Obj.Bond_List:
                 Bond_Obj.System_ID = i
-                File.write('%d %d %d %d\n' % ( Bond_Obj.System_ID, Bond_Obj.LAMMPS_Type, Bond_Obj.Bond_Master.System_ID, Bond_Obj.Bond_Slave.System_ID))
+                File.write('%d %d %d %d\n' % ( Bond_Obj.System_ID, Bond_Obj.LAMMPS_Type, Bond_Obj.Bond_Main.System_ID, Bond_Obj.Bond_Node.System_ID))
                 i += 1
 
         if Fold != -1:
@@ -482,7 +482,7 @@ class System(object):
             for Molecule_Obj in self.Molecule_List:
                 for Improper_Obj in Molecule_Obj.Improper_List:
                     Improper_Obj.System_ID = i
-                    File.write('%d %d %d %d %d %d\n' % (Improper_Obj.System_ID, Improper_Obj.LAMMPS_Type, Improper_Obj.Improper_Master.System_ID, Improper_Obj.Improper_Slave1.System_ID, Improper_Obj.Improper_Slave2.System_ID, Improper_Obj.Improper_Slave3.System_ID))
+                    File.write('%d %d %d %d %d %d\n' % (Improper_Obj.System_ID, Improper_Obj.LAMMPS_Type, Improper_Obj.Improper_Main.System_ID, Improper_Obj.Improper_Node1.System_ID, Improper_Obj.Improper_Node2.System_ID, Improper_Obj.Improper_Node3.System_ID))
                     i += 1
 
     def Run_Lammps_Soft(self, Nodes = 1, GPU = False):
@@ -1031,7 +1031,7 @@ class System(object):
 
 
 
-
+                print([len(mol.Ring_List), len(mol.Ring_List[0].Plumed_Rings),len(mol.Ring_List[0].Plumed_Rings[plumed_index])])
                 torsion_file.write("\n\nc%d: CENTER ATOMS=%d" % (index*2,mol.Ring_List[0].Plumed_Rings[plumed_index][0].System_ID))
                 for atom in mol.Ring_List[0].Core_Atom_List[1:]:
                     torsion_file.write(",%d" % atom.System_ID)
@@ -1080,10 +1080,10 @@ class System(object):
                             #     f.write("\n")
                             # f.close()
                         os.system("scp %s.dat ./%s/" % (Bias_File_Name,Folder_Name))
-                        os.system("rm -f %s.dat" % (Bias_File_Name))
+                        os.remove("%s.dat" % (Bias_File_Name))
                         if Non_Interacting:
                             os.system("scp %s_Nonbonded.dat ./%s/" % (Bias_File_Name,Folder_Name))
-                            os.system("rm -f %s_Nonbonded.dat" % (Bias_File_Name))
+                            os.remove("%s_Nonbonded.dat" % (Bias_File_Name))
                     torsion_file.write("\n\nc%d: CENTER ATOMS=%d" % (index*2-3, mol.Ring_List[i].Plumed_Rings[0][0].System_ID)) #Writes the first atom in the first plumed ring
                     for atom in mol.Ring_List[i].Plumed_Rings[0][1:]:
                         torsion_file.write(",%d" % atom.System_ID)
@@ -1144,11 +1144,11 @@ class System(object):
 
         torsion_file.close()
         os.system("scp %s.dat ./%s/" % (Base_Calculate_Torsions_String, Folder_Name))
-        os.system("rm -f %s.dat" % Base_Calculate_Torsions_String)
+        os.remove("%s.dat" % Base_Calculate_Torsions_String)
         for i in range(1,Num_Rings):
             if Non_Interacting:
                 os.system("scp %s_Bias_File_%d_Nonbonded.dat ./%s/" % (Base_File_Name,i,Folder_Name))
-                os.system("rm -f %s_Bias_File_%d_Nonbonded.dat" % (Base_File_Name,i))
+                os.remove("%s_Bias_File_%d_Nonbonded.dat" % (Base_File_Name,i))
 
 
 def Run_Glass_Transition(system, Interval, Ramp_Steps = 50000, Equil_Steps = 50000, T_End = 100, Nodes = 1):

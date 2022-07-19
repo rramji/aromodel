@@ -252,7 +252,6 @@ class Ring(Molecule.Molecule):
         f = open(Orca_Output_File,'r')
         lines = f.readlines()
         read_bonds = False
-        print(len(lines)) #TODO: temporary delete later
         for line in lines:
             if read_bonds and len(line.strip().split()) >= 1:
                 for bond in line.strip().split("B("):

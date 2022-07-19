@@ -18,13 +18,12 @@ class Bond(object):
         self.Bond_Node = Bond_Node # Atom object
         self.req = req # distance
         self.kb = 0.0
-        self.bond_id = 0
-        self.lammps_type = 0
-        self.system_id = 0
-        self.kb = 0
-        self.bond_length = 0
-        self.bond_vector = np.zeros(3)
-        self.type = 1
+        self.Bond_id = 0
+        self.Lammps_Type = 0
+        self.System_ID = 0
+        self.Bond_Length = 0
+        self.Bond_Vector = np.zeros(3)
+        self.Type = 1
         return
 
 

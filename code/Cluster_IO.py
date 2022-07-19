@@ -179,7 +179,6 @@ def Energy_Averaged_LAMMPS(Analyze_File,Folder_Name,Start_Point):
 	return Nonbonded_Energy
 
 def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,End_Condition = "",Analyze_File_List = "",Shared_File_Location = ""):
-	print("End condition for the batch is %s"%End_Condition)#TODO: temp
 	Finished = False
 	Return_File = ""
 	for End_File,Analyze_File in zip(End_File_List,Analyze_File_List):
@@ -326,7 +325,7 @@ def Check_Finished_Batch(End_File_List,Folder_Name,Job_Name,Cluster_Login,Cluste
 def Check_Finished(End_File,Folder_Name,Job_Name,Cluster_Login,Cluster_Location,End_Condition = "",Analyze_File = "",Shared_File_Location = ""):
 	"""Determines whether the output file already exists in the desired location, in the shared folder, or on the supercomputer"""
 
-	
+	print("Checking %s"%End_File) #TODO: temp, delete later
 	Finished = False
 
 	#wrapper for batch version is list of files given for End_File
@@ -468,16 +467,16 @@ def Submit_Job(Copy_File_List,Folder_Name,Submit_Script,End_File,Job_Name,Cluste
 	if not os.path.isdir(Folder_Name):
 		os.mkdir(Folder_Name)
 	if Shared_File_Location != "":
-		if not os.path.isdir('%s/%s' % (Shared_File_Location,Folder_Name)):
+		if not os.path.isdir('%s/%s/' % (Shared_File_Location,Folder_Name)):
 			os.mkdir('%s/%s' % (Shared_File_Location,Folder_Name))
 
 	if Force_New_Job or Force_Copy:
 		os.system('rm -f ./%s/%s' % (Folder_Name,End_File))
 		os.system('rm -f ./%s/%s' % (Folder_Name,Analyze_File))
 		if Shared_File_Location != "":
-			os.system("rm -f %s/%s" % (Shared_File_Location,End_File))
-			os.system("rm -f %s/%s" % (Shared_File_Location,Analyze_File))
-			os.system("rm -f %s/%s.*" % (Shared_File_Location,Job_Name))
+			os.remove("%s/%s" % (Shared_File_Location,End_File))
+			os.remove("%s/%s" % (Shared_File_Location,Analyze_File))
+			os.remove("%s/%s.*" % (Shared_File_Location,Job_Name))
 		if Force_New_Job:
 			subprocess.call(["ssh", "%s" % Cluster_Login, "rm -f %s/%s" % (Cluster_Location,End_File)])
 			subprocess.call(["ssh", "%s" % Cluster_Login, "rm -f %s/%s" % (Cluster_Location,Analyze_File)])

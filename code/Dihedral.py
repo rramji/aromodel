@@ -38,12 +38,12 @@ class Dihedral(object):
         self.Dihedral_Main2 = Dihedral_Main2 # Atom object
         self.Dihedral_Node1 = Dihedral_Node1
         self.Dihedral_Node2 = Dihedral_Node2
-        self.dihedral_eq = dihedral_eq # Assigned in OPLS.Assign_OPLS
-        self.coeffs = [] # Assigned in OPLS.Assign_OPLS
-        self.dihedral_id = 0 # Assigned in OPLS.Assign_OPLS
-        self.lammps_type = 0 # Assigned in Molecule.Assign_Lammps
-        self.system_id = 0 # Assigned in System.Write_LAMMPS_Data()
-        self.style = "" #Assigned in OPLS.Assign_OPLS
+        self.Dihedral_Eq = dihedral_eq # Assigned in OPLS.Assign_OPLS
+        self.Coeffs = [] # Assigned in OPLS.Assign_OPLS
+        self.dihedral_ID = 0 # Assigned in OPLS.Assign_OPLS
+        self.Lammps_Type = 0 # Assigned in Molecule.Assign_Lammps
+        self.System_ID = 0 # Assigned in System.Write_LAMMPS_Data()
+        self.Style = "" #Assigned in OPLS.Assign_OPLS
         return
         
 
@@ -62,7 +62,7 @@ class Dihedral(object):
         print(self.coeffs)
         return
 
-    def Compare_dihedrals(self,atom_1,atom_2,atom_3,atom_4):
+    def Compare_Dihedrals(self,atom_1,atom_2,atom_3,atom_4):
         if (self.Dihedral_Node1 == atom_1 and self.Dihedral_Main1 == atom_2 and self.Dihedral_Main2 == atom_3 and self.Dihedral_Node2 == atom_4) or (self.Dihedral_Node1 == atom_4 and self.Dihedral_Main1 == atom_3 and self.Dihedral_Main2 == atom_2 and self.Dihedral_Node2 == atom_1):
             return True
         else:

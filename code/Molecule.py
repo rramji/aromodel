@@ -53,7 +53,8 @@ class Molecule(object):
         self.Missing_Dihedrals = 0
         self.UnConverged = True # Unconverged Orca Optimization
 
-        # All this shit needs to work        
+        # All this shit needs to work
+                
         if File_Name.split('/')[-1].split('.')[-1] != 'data' and File_Name.split('/')[-1].split('.')[0] != 'data':
             self.N = int(File_Lines[0].strip('\n')) # Integer
             self.Atom_List = np.empty(self.N, dtype=object) # Numpy object array
@@ -437,118 +438,123 @@ class Molecule(object):
                 Changed_Imps.append(imp.Ki)
                 imp.Ki = 0.0
 
-        f = open(Filename,'w')
-        f.write("LAMMPS data file\n\n")
-        f.write("%d atoms\n" % len(self.Atom_List))
-        type_count = 0 
-        type_list = []
-        Atom_Info = []
-        for atom in self.Atom_List:
-            if atom.LAMMPS_Type not in type_list:
-                type_count += 1
-                type_list.append(atom.LAMMPS_Type)
-                Atom_Info.append((atom.LAMMPS_Type,atom.Mass,atom.Epsilon,atom.Sigma))
-        Atom_Info = sorted(Atom_Info, key=lambda atom_type: atom_type[0])
+        with open(Filename,'w') as f:
+            f.write("LAMMPS data file\n\n")
+            f.write("%d atoms\n" % len(self.Atom_List))
+            type_count = 0 
+            type_list = []
+            Atom_Info = []
+            for atom in self.Atom_List:
+                if atom.LAMMPS_Type not in type_list:
+                    type_count += 1
+                    type_list.append(atom.LAMMPS_Type)
+                    Atom_Info.append((atom.LAMMPS_Type,atom.Mass,atom.Epsilon,atom.Sigma))
+            Atom_Info = sorted(Atom_Info, key=lambda atom_type: atom_type[0])
 
-        f.write("%d atom types\n" % type_count)
+            f.write("%d atom types\n" % type_count)
 
-        f.write("%d bonds\n" % len(self.Bond_List))
-        type_count = 0 
-        type_list = []
-        Bond_Info = []
-        for bond in self.Bond_List:
-            if bond.LAMMPS_Type not in type_list:
-                type_count += 1
-                type_list.append(bond.LAMMPS_Type)
-                Bond_Info.append((bond.LAMMPS_Type,bond.kb,bond.req))
-        Bond_Info = sorted(Bond_Info, key=lambda bond_type: bond_type[0])
-        f.write("%d bond types\n" % type_count)
-        f.write("%d angles\n" % len(self.Angle_List))
-        type_count = 0 
-        type_list = []
-        Angle_Info = []
-        for ang in self.Angle_List:
-            if ang.LAMMPS_Type not in type_list:
-                type_count += 1
-                type_list.append(ang.LAMMPS_Type)
-                Angle_Info.append((ang.LAMMPS_Type,ang.ka,ang.Angle_Eq))
-        Angle_Info = sorted(Angle_Info, key=lambda angle_type: angle_type[0])
-        f.write("%d angle types\n" % type_count)
-        f.write("%d dihedrals\n" % len(self.Dihedral_List))
-        type_count = 0 
-        type_list = []
-        Dihedral_Info = []
-        for dih in self.Dihedral_List:
-            if dih.LAMMPS_Type not in type_list:
-                type_count += 1
-                type_list.append(dih.LAMMPS_Type)
-                Dihedral_Info.append((int(dih.LAMMPS_Type),dih.Coeffs))
-        Dihedral_Info = sorted(Dihedral_Info, key=lambda dih_type: dih_type[0])
-        if Exclude_All_Interring or Exclude_Interring_Torsions:
-            dih_type = 1
-            for dih in Dihedral_Info:
-                if dih[0] == dih_type:
-                    dih_type += 1
-                else:
-                    while dih[0] > dih_type:
-                        Dihedral_Info.append((dih_type,np.zeros(len(dih[1]))))
+            f.write("%d bonds\n" % len(self.Bond_List))
+            type_count = 0 
+            type_list = []
+            Bond_Info = []
+            for bond in self.Bond_List:
+                if bond.LAMMPS_Type not in type_list:
+                    type_count += 1
+                    type_list.append(bond.LAMMPS_Type)
+                    Bond_Info.append((bond.LAMMPS_Type,bond.kb,bond.req))
+            Bond_Info = sorted(Bond_Info, key=lambda bond_type: bond_type[0])
+            f.write("%d bond types\n" % type_count)
+            f.write("%d angles\n" % len(self.Angle_List))
+            type_count = 0 
+            type_list = []
+            Angle_Info = []
+            for ang in self.Angle_List:
+                if ang.LAMMPS_Type not in type_list:
+                    type_count += 1
+                    type_list.append(ang.LAMMPS_Type)
+                    Angle_Info.append((ang.LAMMPS_Type,ang.ka,ang.Angle_Eq))
+            Angle_Info = sorted(Angle_Info, key=lambda angle_type: angle_type[0])
+            f.write("%d angle types\n" % type_count)
+            f.write("%d dihedrals\n" % len(self.Dihedral_List))
+            type_count = 0 
+            type_list = []
+            Dihedral_Info = []
+            for dih in self.Dihedral_List:
+                if dih.LAMMPS_Type not in type_list:
+                    type_count += 1
+                    type_list.append(dih.LAMMPS_Type)
+                    Dihedral_Info.append((int(dih.LAMMPS_Type),dih.Coeffs))
+            Dihedral_Info = sorted(Dihedral_Info, key=lambda dih_type: dih_type[0])
+            if Exclude_All_Interring or Exclude_Interring_Torsions:
+                dih_type = 1
+                for dih in Dihedral_Info:
+                    if dih[0] == dih_type:
                         dih_type += 1
-                        type_count += 1
-                    dih_type += 1
-        Dihedral_Info = sorted(Dihedral_Info, key=lambda dih_type: dih_type[0])
-        f.write("%d dihedral types\n" % Dihedral_Info[-1][0])
-        f.write("%d impropers\n" % len(self.Improper_List))
-        type_count = 0 
-        type_list = []
-        Improper_Info = []
-        for imp in self.Improper_List:
-            if imp.LAMMPS_Type not in type_list:
-                type_count += 1
-                type_list.append(imp.LAMMPS_Type)
-                Improper_Info.append((int(imp.LAMMPS_Type),imp.Ki,imp.d,imp.n))
-        Improper_Info = sorted(Improper_Info, key=lambda imp_type: imp_type[0])
-        f.write("%d improper types\n\n" % type_count)
-        f.write("\n\n\n0.0000 300.0000 xlo xhi\n0.0000 300.0000 ylo yhi\n0.0000 300.0000 zlo zhi\n\n")
-        f.write("Masses\n\n")
-        for atom in Atom_Info:
-            f.write("%d %.3f\n" % (atom[0],atom[1]))
-        f.write("\nPair Coeffs\n\n")
-        if not Soft_Potential:
+                    else:
+                        while dih[0] > dih_type:
+                            Dihedral_Info.append((dih_type,np.zeros(len(dih[1]))))
+                            dih_type += 1
+                            type_count += 1
+                        dih_type += 1
+            
+            Dihedral_Info = sorted(Dihedral_Info, key=lambda dih_type: dih_type[0])
+            if len(Dihedral_Info) != 0:
+                f.write("%d dihedral types\n" % Dihedral_Info[-1][0])
+            else:
+                raise Exception("Dihedral_Info is empty, file name is %s, "%(Filename))
+                print("uh oh, looks like Dihedral_Info is empty, Leon made this quick hack to bypass this")#TODO: figure out if dihedral_info should be empty or not
+                f.write("0 dihedral types\n")
+            f.write("%d impropers\n" % len(self.Improper_List))
+            type_count = 0 
+            type_list = []
+            Improper_Info = []
+            for imp in self.Improper_List:
+                if imp.LAMMPS_Type not in type_list:
+                    type_count += 1
+                    type_list.append(imp.LAMMPS_Type)
+                    Improper_Info.append((int(imp.LAMMPS_Type),imp.Ki,imp.d,imp.n))
+            Improper_Info = sorted(Improper_Info, key=lambda imp_type: imp_type[0])
+            f.write("%d improper types\n\n" % type_count)
+            f.write("\n\n\n0.0000 300.0000 xlo xhi\n0.0000 300.0000 ylo yhi\n0.0000 300.0000 zlo zhi\n\n")
+            f.write("Masses\n\n")
             for atom in Atom_Info:
-                f.write("%d %f %f\n" % (atom[0],atom[2],atom[3]))
-        else:
-            f.write("* * 0.0\n")
-        f.write("\nBond Coeffs\n\n")
-        for bond in Bond_Info:
-            f.write("%d %f %f\n" % (bond[0],bond[1],bond[2]))
-        f.write("\nAngle Coeffs\n\n")
-        for ang in Angle_Info:
-            f.write("%d %f %f\n" % (ang[0],ang[1],ang[2]))
-        f.write("\nDihedral Coeffs\n\n")
-        for dih in Dihedral_Info:
-            f.write("%s" % dih[0])
-            for c in dih[1]:
-                f.write(" %s" % c)
-            f.write("\n")
-        f.write("\nImproper Coeffs\n\n")
-        for imp in Improper_Info:
-            f.write("%d %f %d %d\n" % (imp[0],imp[1],imp[2],imp[3]))
-        f.write("\nAtoms\n\n")
-        for atom in self.Atom_List:
-            f.write("%d 1 %d %.16f %.16f %.16f %.16f %d %d %d\n" % (atom.Atom_ID,atom.LAMMPS_Type,atom.Charge,atom.Position[0],atom.Position[1],atom.Position[2],atom.Image_Flags[0],atom.Image_Flags[1],atom.Image_Flags[2]))
-        f.write("\nBonds\n\n")
-        for bond in self.Bond_List:
-                f.write("%d %d %d %d\n" % (bond.Bond_ID,bond.LAMMPS_Type,bond.Bond_Main.Atom_ID,bond.Bond_Node.Atom_ID))
-        f.write("\nAngles\n\n")
-        for ang in self.Angle_List:
-                f.write("%d %d %d %d %d\n" % (ang.Angle_ID,ang.LAMMPS_Type,ang.Angle_Node1.Atom_ID,ang.Angle_Main.Atom_ID,ang.Angle_Node2.Atom_ID))
-        f.write("\nDihedrals\n\n")
-        for dih in self.Dihedral_List:
-                f.write("%d %d %d %d %d %d\n" % (dih.Dihedral_ID,int(dih.LAMMPS_Type),dih.Dihedral_Node1.Atom_ID,dih.Dihedral_Main1.Atom_ID,dih.Dihedral_Main2.Atom_ID,dih.Dihedral_Node2.Atom_ID))
-        f.write("\nImpropers\n\n")
-        for imp in self.Improper_List:
-                f.write("%d %d %d %d %d %d\n" % (imp.Improper_ID,int(imp.LAMMPS_Type),imp.Improper_Main.Atom_ID,imp.Improper_Node1.Atom_ID,imp.Improper_Node2.Atom_ID,imp.Improper_Node3.Atom_ID))
-        f.close()
+                f.write("%d %.3f\n" % (atom[0],atom[1]))
+            f.write("\nPair Coeffs\n\n")
+            if not Soft_Potential:
+                for atom in Atom_Info:
+                    f.write("%d %f %f\n" % (atom[0],atom[2],atom[3]))
+            else:
+                f.write("* * 0.0\n")
+            f.write("\nBond Coeffs\n\n")
+            for bond in Bond_Info:
+                f.write("%d %f %f\n" % (bond[0],bond[1],bond[2]))
+            f.write("\nAngle Coeffs\n\n")
+            for ang in Angle_Info:
+                f.write("%d %f %f\n" % (ang[0],ang[1],ang[2]))
+            f.write("\nDihedral Coeffs\n\n")
+            for dih in Dihedral_Info:
+                f.write("%s" % dih[0])
+                for c in dih[1]:
+                    f.write(" %s" % c)
+                f.write("\n")
+            f.write("\nImproper Coeffs\n\n")
+            for imp in Improper_Info:
+                f.write("%d %f %d %d\n" % (imp[0],imp[1],imp[2],imp[3]))
+            f.write("\nAtoms\n\n")
+            for atom in self.Atom_List:
+                f.write("%d 1 %d %.16f %.16f %.16f %.16f %d %d %d\n" % (atom.Atom_ID,atom.LAMMPS_Type,atom.Charge,atom.Position[0],atom.Position[1],atom.Position[2],atom.Image_Flags[0],atom.Image_Flags[1],atom.Image_Flags[2]))
+            f.write("\nBonds\n\n")
+            for bond in self.Bond_List:
+                    f.write("%d %d %d %d\n" % (bond.Bond_ID,bond.LAMMPS_Type,bond.Bond_Main.Atom_ID,bond.Bond_Node.Atom_ID))
+            f.write("\nAngles\n\n")
+            for ang in self.Angle_List:
+                    f.write("%d %d %d %d %d\n" % (ang.Angle_ID,ang.LAMMPS_Type,ang.Angle_Node1.Atom_ID,ang.Angle_Main.Atom_ID,ang.Angle_Node2.Atom_ID))
+            f.write("\nDihedrals\n\n")
+            for dih in self.Dihedral_List:
+                    f.write("%d %d %d %d %d %d\n" % (dih.Dihedral_ID,int(dih.LAMMPS_Type),dih.Dihedral_Node1.Atom_ID,dih.Dihedral_Main1.Atom_ID,dih.Dihedral_Main2.Atom_ID,dih.Dihedral_Node2.Atom_ID))
+            f.write("\nImpropers\n\n")
+            for imp in self.Improper_List:
+                    f.write("%d %d %d %d %d %d\n" % (imp.Improper_ID,int(imp.LAMMPS_Type),imp.Improper_Main.Atom_ID,imp.Improper_Node1.Atom_ID,imp.Improper_Node2.Atom_ID,imp.Improper_Node3.Atom_ID))
 
         if Interring_Angles_Only:
             i = 0
@@ -1232,8 +1238,7 @@ class Molecule(object):
                         while abs(atom1.Position[2] - atom2.Position[2]) > Cutoff:
                             atom2.Position[2] += -1*Box_Size
 # Functions Operating on sets of Molecule objects
-
-    def Assign_Lammps(Moltemp_List):
+def Assign_Lammps(Moltemp_List):
         """
             Function that inputs a list of molecule templates. It searches through all the atoms, bonds, angles etc. to find the unique types of interactions
             present in an arbitrary system object made  of molecule templates.
@@ -1329,6 +1334,7 @@ class Molecule(object):
 
 
         return Atom_Params, Bond_Params, Angle_Params, Dihedral_Params, Improper_Params
+    
 
-    def exponential(L,P):
-        return np.exp(L/P)
+def exponential(L,P):
+    return np.exp(L/P)
